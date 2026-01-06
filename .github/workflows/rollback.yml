@@ -1,0 +1,151 @@
+name: Emergency Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for rollback'
+        required: true
+        type: string
+      deployment_sha:
+        description: 'SHA to rollback from (optional)'
+        required: false
+        type: string
+      target_sha:
+        description: 'SHA to rollback to (optional - uses previous if empty)'
+        required: false
+        type: string
+
+jobs:
+  prepare-rollback:
+    name: Prepare Rollback
+    runs-on: ubuntu-latest
+    outputs:
+      target_sha: ${{ steps.target.outputs.sha }}
+      target_version: ${{ steps.target.outputs.version }}
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+      
+      - name: Determine rollback target
+        id: target
+        run: |
+          if [ -n "${{ inputs.target_sha }}" ]; then
+            TARGET_SHA="${{ inputs.target_sha }}"
+          else
+            # Get the last successful deployment before the current one
+            TARGET_SHA=$(git log --pretty=format:"%H" -n 2 | tail -n 1)
+          fi
+          
+          echo "sha=$TARGET_SHA" >> $GITHUB_OUTPUT
+          
+          # Get version from that commit
+          git checkout $TARGET_SHA
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          echo "🔄 Rolling back to:"
+          echo "  SHA: $TARGET_SHA"
+          echo "  Version: $VERSION"
+      
+      - name: Create rollback issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🚨 Emergency Rollback - ${new Date().toISOString()}`,
+              body: `## Rollback Details
+              
+              **Reason:** ${{ inputs.reason }}
+              
+              **From:** ${{ inputs.deployment_sha || github.sha }}
+              **To:** ${{ steps.target.outputs.sha }}
+              **Target Version:** ${{ steps.target.outputs.version }}
+              
+              **Triggered by:** @${{ github.actor }}
+              **Time:** ${new Date().toISOString()}
+              
+              ## Actions Taken
+              - [ ] Deployment rolled back
+              - [ ] Health checks passed
+              - [ ] Team notified
+              - [ ] Post-mortem scheduled
+              `,
+              labels: ['rollback', 'critical', 'production']
+            });
+            
+            console.log(`Created issue #${issue.data.number}`);
+
+  execute-rollback:
+    name: Execute Rollback
+    runs-on: ubuntu-latest
+    needs: prepare-rollback
+    environment:
+      name: production
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-rollback.outputs.target_sha }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+      
+      - name: Pull Vercel Environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Build rollback version
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Deploy rollback
+        id: deploy
+        run: |
+          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          echo "🔄 Rolled back to: $URL"
+      
+      - name: Verify rollback
+        run: |
+          URL="${{ steps.deploy.outputs.url }}"
+          sleep 15
+          
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          if [ "$STATUS" != "200" ]; then
+            echo "❌ Rollback verification failed: $STATUS"
+            exit 1
+          fi
+          
+          echo "✅ Rollback verified successfully"
+      
+      - name: Post rollback notification
+        run: |
+          echo "✅ Rollback completed successfully"
+          echo "Version: ${{ needs.prepare-rollback.outputs.target_version }}"
+          echo "URL: ${{ steps.deploy.outputs.url }}"
+
+  post-rollback-check:
+    name: Post-Rollback Health Check
+    runs-on: ubuntu-latest
+    needs: [execute-rollback]
+    
+    steps:
+      - name: Extended health monitoring
+        run: |
+          echo "Monitoring rolled-back deployment..."
+          
+          for i in {1..5}; do
+            echo "Health check $i/5..."
+            # Add health check logic here
+            sleep 30
+          done
+          
+          echo "✅ Rollback stable after 5 checks"

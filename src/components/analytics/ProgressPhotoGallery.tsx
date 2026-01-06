@@ -1,0 +1,325 @@
+import React, { useState, useRef } from 'react';
+import { ProgressPhoto } from '../../types/analytics';
+import { Upload, Trash2, X, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
+
+interface ProgressPhotoGalleryProps {
+  photos: ProgressPhoto[];
+  onUpload: (file: File, date?: string, weight?: number) => Promise<void>;
+  onDelete: (id: string) => void;
+  isLoading: boolean;
+}
+
+export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoading }: ProgressPhotoGalleryProps) {
+  const [selectedPhoto, setSelectedPhoto] = useState<ProgressPhoto | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [uploadDate, setUploadDate] = useState(new Date().toISOString().split('T')[0]);
+  const [compareMode, setCompareMode] = useState(false);
+  const [comparePhoto1, setComparePhoto1] = useState<ProgressPhoto | null>(null);
+  const [comparePhoto2, setComparePhoto2] = useState<ProgressPhoto | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPreviewUrl(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (selectedFile) {
+      await onUpload(selectedFile, uploadDate);
+      setSelectedFile(null);
+      setPreviewUrl(null);
+      setShowUploadModal(false);
+    }
+  };
+
+  const handleCompare = () => {
+    if (comparePhoto1 && comparePhoto2) {
+      setSelectedPhoto(comparePhoto1);
+      setCompareMode(true);
+    }
+  };
+
+  const openPhotoViewer = (photo: ProgressPhoto) => {
+    setSelectedPhoto(photo);
+  };
+
+  return (
+    <div>
+      {/* Compare Selection */}
+      <div className="mb-4 p-3 bg-gray-50 rounded-xl">
+        <p className="text-sm text-gray-600 mb-2">Compare two photos:</p>
+        <div className="flex items-center gap-2">
+          <select
+            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            value={comparePhoto1?.id || ''}
+            onChange={(e) => {
+              const photo = photos.find((p) => p.id === e.target.value);
+              setComparePhoto1(photo || null);
+            }}
+          >
+            <option value="">Select first photo</option>
+            {photos.map((photo) => (
+              <option key={photo.id} value={photo.id}>
+                {new Date(photo.date).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+          <span className="text-gray-400">vs</span>
+          <select
+            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            value={comparePhoto2?.id || ''}
+            onChange={(e) => {
+              const photo = photos.find((p) => p.id === e.target.value);
+              setComparePhoto2(photo || null);
+            }}
+          >
+            <option value="">Select second photo</option>
+            {photos.map((photo) => (
+              <option key={photo.id} value={photo.id}>
+                {new Date(photo.date).toLocaleDateString()}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={handleCompare}
+            disabled={!comparePhoto1 || !comparePhoto2}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Compare
+          </button>
+        </div>
+      </div>
+
+      {/* Upload Button */}
+      <button
+        onClick={() => setShowUploadModal(true)}
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium mb-4"
+      >
+        <Upload className="w-4 h-4" />
+        Upload Progress Photo
+      </button>
+
+      {/* Photo Grid */}
+      {photos.length > 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {photos.map((photo) => (
+            <div
+              key={photo.id}
+              className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer"
+              onClick={() => openPhotoViewer(photo)}
+            >
+              <img
+                src={photo.frontUrl}
+                alt={`Progress photo ${photo.date}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                <p className="text-white text-sm font-medium">
+                  {new Date(photo.date).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </p>
+                {photo.weightAtTime && (
+                  <p className="text-white/80 text-xs mt-1">{photo.weightAtTime} kg</p>
+                )}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm('Delete this photo?')) {
+                      onDelete(photo.id);
+                    }
+                  }}
+                  className="absolute top-2 right-2 p-1.5 bg-red-500/80 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-gray-50 rounded-xl p-8 text-center">
+          <Camera className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-gray-500 mb-2">No progress photos yet</p>
+          <p className="text-sm text-gray-400">Upload your first photo to track your progress</p>
+        </div>
+      )}
+
+      {/* Upload Modal */}
+      {showUploadModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Upload Progress Photo</h3>
+              <button
+                onClick={() => {
+                  setShowUploadModal(false);
+                  setSelectedFile(null);
+                  setPreviewUrl(null);
+                }}
+                className="p-1 hover:bg-gray-100 rounded-lg"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {!previewUrl ? (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 transition-colors"
+              >
+                <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-600 mb-1">Click to select a photo</p>
+                <p className="text-xs text-gray-400">JPG, PNG up to 5MB</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="w-full h-64 object-contain"
+                  />
+                  <button
+                    onClick={() => {
+                      setSelectedFile(null);
+                      setPreviewUrl(null);
+                    }}
+                    className="absolute top-2 right-2 p-1.5 bg-gray-900/80 text-white rounded-lg"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div>
+                  <label htmlFor="photo-upload-date" className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <input
+                    id="photo-upload-date"
+                    name="photo-upload-date"
+                    type="date"
+                    autoComplete="off"
+                    value={uploadDate}
+                    onChange={(e) => setUploadDate(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              id="photo-file-input"
+              name="photo-file-input"
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            {previewUrl && (
+              <div className="flex gap-3 mt-4">
+                <button
+                  onClick={() => {
+                    setShowUploadModal(false);
+                    setSelectedFile(null);
+                    setPreviewUrl(null);
+                  }}
+                  className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleUpload}
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Uploading...' : 'Upload'}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Photo Viewer Modal */}
+      {selectedPhoto && (
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
+          <button
+            onClick={() => {
+              setSelectedPhoto(null);
+              setCompareMode(false);
+            }}
+            className="absolute top-4 right-4 p-2 text-white/80 hover:text-white"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          <div className="max-w-4xl w-full">
+            <div className="relative">
+              <img
+                src={selectedPhoto.frontUrl}
+                alt="Progress photo"
+                className="w-full max-h-[80vh] object-contain"
+              />
+
+              {/* Photo Info */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                <p className="text-white font-medium">
+                  {new Date(selectedPhoto.date).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </p>
+                {selectedPhoto.weightAtTime && (
+                  <p className="text-white/80 text-sm">Weight: {selectedPhoto.weightAtTime} kg</p>
+                )}
+              </div>
+
+              {/* Navigation arrows */}
+              {photos.length > 1 && (
+                <>
+                  <button
+                    onClick={() => {
+                      const currentIndex = photos.findIndex((p) => p.id === selectedPhoto.id);
+                      if (currentIndex > 0) {
+                        setSelectedPhoto(photos[currentIndex - 1]);
+                      }
+                    }}
+                    disabled={photos.findIndex((p) => p.id === selectedPhoto.id) === 0}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 text-white rounded-full disabled:opacity-30"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => {
+                      const currentIndex = photos.findIndex((p) => p.id === selectedPhoto.id);
+                      if (currentIndex < photos.length - 1) {
+                        setSelectedPhoto(photos[currentIndex + 1]);
+                      }
+                    }}
+                    disabled={photos.findIndex((p) => p.id === selectedPhoto.id) === photos.length - 1}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 text-white rounded-full disabled:opacity-30"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

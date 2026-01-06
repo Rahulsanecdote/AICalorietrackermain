@@ -1,0 +1,42 @@
+Contact: mailto:security@yourdomain.com
+Expires: 2026-12-31T23:59:59Z
+Preferred-Languages: en
+Canonical: https://yourdomain.com/.well-known/security.txt
+
+# Security Policy
+
+We take security seriously. If you discover a security vulnerability, please report it to us responsibly.
+
+## Reporting a Vulnerability
+
+- Email: security@yourdomain.com
+- Subject: [SECURITY] Brief description of the issue
+- Include: Steps to reproduce, potential impact, and suggested fixes if any
+
+## Response Timeline
+
+- Acknowledgment: Within 24 hours
+- Initial assessment: Within 48 hours
+- Fix deployment: Within 7 days for critical issues
+
+## Scope
+
+In scope:
+- Cross-site scripting (XSS)
+- SQL injection
+- Authentication/authorization bypass
+- API key leakage
+- Data exposure vulnerabilities
+
+Out of scope:
+- Social engineering
+- Physical attacks
+- Denial of service (DoS)
+- Issues in third-party dependencies (report to maintainers directly)
+
+## Disclosure Policy
+
+- Please allow us reasonable time to fix the issue before public disclosure
+- We will credit researchers who follow responsible disclosure practices
+
+Thank you for helping keep our users safe!
