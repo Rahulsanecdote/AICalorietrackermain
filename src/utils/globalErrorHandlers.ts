@@ -4,59 +4,7 @@
  */
 
 import { AppError, toAppError, logError, ERROR_CODES, createAppError, generateErrorId } from './errors';
-
-// ============================================================================
-// Error Banner State
-// ============================================================================
-
-export interface ErrorBannerState {
-  visible: boolean;
-  message: string;
-  errorId?: string;
-  showReload: boolean;
-  showManualMode: boolean;
-  onManualMode?: () => void;
-}
-
-let errorBannerState: ErrorBannerState = {
-  visible: false,
-  message: '',
-  showReload: false,
-  showManualMode: false,
-};
-
-const errorBannerListeners: Set<(state: ErrorBannerState) => void> = new Set();
-
-function updateErrorBanner(state: Partial<ErrorBannerState>): void {
-  errorBannerState = { ...errorBannerState, ...state };
-  errorBannerListeners.forEach(listener => listener(errorBannerState));
-}
-
-export function subscribeToErrorBanner(
-  listener: (state: ErrorBannerState) => void
-): () => void {
-  errorBannerListeners.add(listener);
-  listener(errorBannerState);
-  return () => errorBannerListeners.delete(listener);
-}
-
-export function hideErrorBanner(): void {
-  updateErrorBanner({ visible: false });
-}
-
-export function showErrorBanner(
-  message: string,
-  options: { showReload?: boolean; showManualMode?: boolean; onManualMode?: () => void } = {}
-): void {
-  updateErrorBanner({
-    visible: true,
-    message,
-    errorId: generateErrorId(),
-    showReload: options.showReload ?? false,
-    showManualMode: options.showManualMode ?? false,
-    onManualMode: options.onManualMode,
-  });
-}
+import { notifyAppError } from './notifications';
 
 // ============================================================================
 // Unhandled Promise Rejection Handler
@@ -73,9 +21,11 @@ function handleUnhandledRejection(event: PromiseRejectionEvent): void {
   
   // Log the error
   logError(appError);
+
+  config.onUnhandledRejection?.(appError);
   
-  // Show a non-blocking banner
-  showErrorBanner(appError.userMessage, {
+  // Show a non-blocking notification
+  notifyAppError(appError, {
     showReload: !appError.retryable,
     showManualMode: appError.code === ERROR_CODES.NETWORK_OFFLINE,
   });
@@ -121,9 +71,11 @@ function handleUncaughtError(event: ErrorEvent): void {
   
   // Log the error
   logError(appError, event.error?.stack);
+
+  config.onUncaughtError?.(appError);
   
-  // Show a non-blocking banner
-  showErrorBanner(appError.userMessage, {
+  // Show a non-blocking notification
+  notifyAppError(appError, {
     showReload: true,
   });
   
@@ -142,7 +94,7 @@ function handleUncaughtError(event: ErrorEvent): void {
 // Chunk Load Error Handler
 // ============================================================================
 
-interface ChunkErrorInfo {
+interface ChunkErrorInfo extends Record<string, unknown> {
   chunkId?: string;
   moduleId?: string;
   errorId?: string;
@@ -181,14 +133,12 @@ function handleChunkError(error: Error): void {
     );
     
     logError(appError);
+
+    config.onChunkError?.(error, chunkErrorInfo);
     
-    // Show a prominent reload banner
-    updateErrorBanner({
-      visible: true,
-      message: appError.userMessage,
-      errorId: appError.errorId,
+    // Show a prominent reload notification
+    notifyAppError(appError, {
       showReload: true,
-      showManualMode: false,
     });
     
     console.error('[Chunk Load Error]', chunkErrorInfo);
@@ -320,48 +270,6 @@ export async function triggerHardReload(): Promise<void> {
     // Perform the reload
     window.location.reload();
   }
-}
-
-/**
- * Create a fallback data export for recovery
- */
-export function createRecoveryExport(): { meals: unknown; settings: unknown; timestamp: string } {
-  let meals: unknown = null;
-  let settings: unknown = null;
-  
-  try {
-    meals = JSON.parse(localStorage.getItem('meals') || 'null');
-  } catch {
-    meals = null;
-  }
-  
-  try {
-    settings = JSON.parse(localStorage.getItem('settings') || localStorage.getItem('userSettings') || 'null');
-  } catch {
-    settings = null;
-  }
-  
-  return {
-    meals,
-    settings,
-    timestamp: new Date().toISOString(),
-  };
-}
-
-/**
- * Download recovery data
- */
-export function downloadRecoveryData(): void {
-  const data = createRecoveryExport();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `recovery-data-${new Date().toISOString().split('T')[0]}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 }
 
 // ============================================================================

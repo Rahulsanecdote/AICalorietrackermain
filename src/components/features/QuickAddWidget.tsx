@@ -10,10 +10,9 @@ import { MealCategory } from '../../types';
 
 interface QuickAddWidgetProps {
   onMealAdded: (meal: any) => void;
-  apiKey?: string;
 }
 
-export function QuickAddWidget({ onMealAdded, apiKey = '' }: QuickAddWidgetProps) {
+export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
   const { t } = useTranslation('quickAdd');
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
@@ -28,7 +27,6 @@ export function QuickAddWidget({ onMealAdded, apiKey = '' }: QuickAddWidgetProps
     closeWidget,
     reset,
   } = useQuickAdd({
-    apiKey,
     onSuccess: (meal) => {
       onMealAdded(meal);
       setInput('');

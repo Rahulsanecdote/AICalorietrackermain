@@ -22,7 +22,6 @@ interface QuickAddResult {
 interface UseQuickAddOptions {
   onSuccess?: (meal: Meal) => void;
   onError?: (error: string) => void;
-  apiKey?: string;
 }
 
 export function useQuickAdd(options: UseQuickAddOptions = {}) {
@@ -47,7 +46,7 @@ export function useQuickAdd(options: UseQuickAddOptions = {}) {
       setError(null);
 
       try {
-        const result = await analyzeFood(rawInput, options.apiKey || '');
+        const result = await analyzeFood(rawInput);
 
         if (result) {
           const mealResult: QuickAddResult = {

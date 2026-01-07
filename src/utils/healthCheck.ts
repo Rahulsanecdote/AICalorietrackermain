@@ -1,4 +1,5 @@
 import { monitoringService } from "./monitoring"
+import { getAIHealth } from "./aiClient"
 
 export interface HealthCheckResult {
   status: "healthy" | "degraded" | "unhealthy"
@@ -43,9 +44,8 @@ class HealthCheckService {
     const start = performance.now()
 
     try {
-      // Test OpenAI API endpoint with a minimal request
-      const response = await fetch("https://api.openai.com/v1/models", {
-        method: "HEAD",
+      // Test AI proxy endpoint with a minimal request
+      const response = await getAIHealth({
         signal: AbortSignal.timeout(5000),
       })
 
@@ -59,9 +59,14 @@ class HealthCheckService {
         }
       }
 
+      const message =
+        response.status === 503
+          ? "AI proxy is running but missing server configuration"
+          : `AI proxy returned status ${response.status}`
+
       return {
         status: "warn",
-        message: `API returned status ${response.status}`,
+        message,
         responseTime,
       }
     } catch (error) {

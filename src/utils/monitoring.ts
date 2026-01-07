@@ -115,6 +115,55 @@ export async function setContext(name: string, context: Record<string, unknown>)
 }
 
 /**
+ * Basic transaction wrapper for performance tracking
+ */
+export interface MonitoringTransaction {
+  setStatus: (status: string) => void
+  setData: (key: string, value: unknown) => void
+  finish: () => void
+}
+
+export function startTransaction(name: string, op = "transaction"): MonitoringTransaction | null {
+  if (!isInitialized) return null
+  const start = performance.now()
+
+  return {
+    setStatus: (status: string) => {
+      console.debug(`[Monitoring] Transaction ${name} (${op}) status: ${status}`)
+    },
+    setData: (key: string, value: unknown) => {
+      console.debug(`[Monitoring] Transaction ${name} data:`, { [key]: scrubSensitiveData(value) })
+    },
+    finish: () => {
+      const duration = performance.now() - start
+      console.debug(`[Monitoring] Transaction ${name} finished in ${Math.round(duration)}ms`)
+    },
+  }
+}
+
+/**
+ * Measure performance of async operations
+ */
+export async function measurePerformance<T>(name: string, operation: () => Promise<T>): Promise<T> {
+  const start = performance.now()
+  try {
+    const result = await operation()
+    const duration = performance.now() - start
+    if (duration > 1000) {
+      addBreadcrumb(`Slow operation: ${name}`, "performance", "warning", { duration })
+    }
+    return result
+  } catch (error) {
+    const duration = performance.now() - start
+    addBreadcrumb(`Failed operation: ${name}`, "performance", "error", {
+      duration,
+      error: error instanceof Error ? error.message : String(error),
+    })
+    throw error
+  }
+}
+
+/**
  * Scrub sensitive data from objects
  */
 function scrubSensitiveData(data: unknown): unknown {
@@ -157,4 +206,12 @@ export function getMonitoringConfig(): MonitoringConfig {
     replaysOnErrorSampleRate: 1.0,
     enabled: environment !== "development" || import.meta.env.VITE_ENABLE_MONITORING === "true",
   }
+}
+
+export const monitoringService = {
+  captureException,
+  captureMessage,
+  addBreadcrumb,
+  setTag,
+  setContext,
 }

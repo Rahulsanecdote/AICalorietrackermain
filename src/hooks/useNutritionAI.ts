@@ -8,7 +8,7 @@
 import { useState, useCallback, useRef, useEffect } from "react"
 import type { AIResponse } from "../types"
 import { API_CONFIG, CALORIE_TOLERANCE } from "../constants"
-import { validateApiKey } from "../utils/validation"
+import { postAIChat } from "../utils/aiClient"
 import {
   type OperationState,
   createInitialState,
@@ -23,7 +23,13 @@ import {
   logError,
   ERROR_CODES,
 } from "../utils/errors"
-import { OpenAICircuitBreaker, withCircuitBreaker, calculateRateLimitDelay } from "../utils/circuitBreaker"
+import {
+  OpenAICircuitBreaker,
+  withCircuitBreaker,
+  calculateRateLimitDelay,
+  type CircuitBreakerStateInfo,
+  type CircuitBreakerMetrics,
+} from "../utils/circuitBreaker"
 import { sanitizePromptInput } from "../utils/promptSanitization"
 import { getRateLimiter } from "../utils/rateLimiter"
 
@@ -32,10 +38,11 @@ import { getRateLimiter } from "../utils/rateLimiter"
 // ============================================================================
 
 interface UseNutritionAIResult extends OperationState<AIResponse> {
-  analyzeFood: (description: string, apiKey: string) => Promise<AIResponse | null>
+  analyzeFood: (description: string) => Promise<AIResponse | null>
   cancel: () => void
-  circuitState: ReturnType<typeof OpenAICircuitBreaker.getInstance>["getState"]
-  circuitMetrics: ReturnType<typeof OpenAICircuitBreaker.getInstance>["getMetrics"]
+  isLoading: boolean
+  circuitState: CircuitBreakerStateInfo
+  circuitMetrics: CircuitBreakerMetrics
   resetCircuit: () => void
 }
 
@@ -49,11 +56,11 @@ interface UseNutritionAIOptions {
 // Singleton Circuit Breaker for Nutrition AI
 // ============================================================================
 
-let nutritionCircuitBreaker: OpenAICircuitBreaker | null = null
+let nutritionCircuitBreaker: OpenAICircuitBreaker<AIResponse> | null = null
 
-function getNutritionCircuitBreaker(): OpenAICircuitBreaker {
+function getNutritionCircuitBreaker(): OpenAICircuitBreaker<AIResponse> {
   if (!nutritionCircuitBreaker) {
-    nutritionCircuitBreaker = OpenAICircuitBreaker.getInstance("nutrition-ai")
+    nutritionCircuitBreaker = OpenAICircuitBreaker.getInstance<AIResponse>("nutrition-ai")
   }
   return nutritionCircuitBreaker
 }
@@ -66,8 +73,8 @@ export const useNutritionAI = (options: UseNutritionAIOptions = {}): UseNutritio
   const { onSuccess, onError } = options
 
   const [state, setState] = useState<OperationState<AIResponse>>(createInitialState())
-  const [circuitState, setCircuitState] = useState(getNutritionCircuitBreaker().getState())
-  const [circuitMetrics, setCircuitMetrics] = useState(getNutritionCircuitBreaker().getMetrics())
+  const [circuitState, setCircuitState] = useState<CircuitBreakerStateInfo>(getNutritionCircuitBreaker().getState())
+  const [circuitMetrics, setCircuitMetrics] = useState<CircuitBreakerMetrics>(getNutritionCircuitBreaker().getMetrics())
   const abortControllerRef = useRef<AbortController | null>(null)
 
   // Subscribe to circuit breaker state and metrics changes
@@ -101,7 +108,7 @@ export const useNutritionAI = (options: UseNutritionAIOptions = {}): UseNutritio
   }, [])
 
   const analyzeFood = useCallback(
-    async (description: string, apiKey: string): Promise<AIResponse | null> => {
+    async (description: string): Promise<AIResponse | null> => {
       // Sanitize input to prevent prompt injection
       const sanitized = sanitizePromptInput(description)
       if (!sanitized.isValid) {
@@ -127,20 +134,6 @@ export const useNutritionAI = (options: UseNutritionAIOptions = {}): UseNutritio
             currentUsage: rateLimitCheck.currentUsage,
           },
         }
-        logError(error)
-        setState(createErrorState(error))
-        onError?.(error)
-        return null
-      }
-
-      // Validate API key
-      const apiKeyValidation = validateApiKey(apiKey)
-      if (!apiKeyValidation.valid) {
-        const error = classifyValidationError(
-          apiKeyValidation.errorCode || "invalid_api_key",
-          apiKeyValidation.error || "Invalid API key",
-          false,
-        )
         logError(error)
         setState(createErrorState(error))
         onError?.(error)
@@ -248,13 +241,7 @@ Respond with only the JSON object, no markdown formatting, no additional text.`
               max_tokens: API_CONFIG.MAX_TOKENS,
             }
 
-            const response = await fetch(API_CONFIG.OPENAI_BASE_URL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey.trim()}`,
-              },
-              body: JSON.stringify(requestBody),
+            const response = await postAIChat(requestBody, {
               signal: abortControllerRef.current?.signal,
             })
 
@@ -365,6 +352,7 @@ Respond with only the JSON object, no markdown formatting, no additional text.`
     ...state,
     analyzeFood,
     cancel,
+    isLoading: state.status === "loading",
     circuitState,
     circuitMetrics,
     resetCircuit,

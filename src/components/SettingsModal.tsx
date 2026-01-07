@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Save, Settings, Key, Target, User, Globe } from 'lucide-react';
+import { X, Save, Settings, Target, User, Globe } from 'lucide-react';
 import { UserSettings } from '../types';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
 
@@ -12,7 +12,7 @@ interface SettingsModalProps {
 
 export default function SettingsModal({ isOpen, onClose, settings, onSave }: SettingsModalProps) {
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
-  const [activeTab, setActiveTab] = useState<'goals' | 'profile' | 'api' | 'language'>('goals');
+  const [activeTab, setActiveTab] = useState<'goals' | 'profile' | 'language'>('goals');
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -84,18 +84,6 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
             >
               <User className="w-4 h-4 inline mr-2" />
               Profile
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('api')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === 'api'
-                  ? 'text-emerald-600 border-b-2 border-emerald-500'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              <Key className="w-4 h-4 inline mr-2" />
-              API Key
             </button>
             <button
               type="button"
@@ -377,69 +365,6 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                       </button>
                     ))}
                   </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'api' && (
-              <div className="space-y-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-blue-800 mb-2">
-                    OpenAI API Key Required
-                  </h3>
-                  <p className="text-sm text-blue-600">
-                    To use the AI food analysis and meal planning features, you need an OpenAI API key.
-                    Your key is stored locally and never sent to our servers.
-                  </p>
-                </div>
-
-                <div>
-                  <label htmlFor="apiKey" className="block text-sm font-medium text-gray-700 mb-2">
-                    API Key
-                  </label>
-                  <input
-                    id="apiKey"
-                    name="apiKey"
-                    type="text"
-                    value={localSettings.apiKey}
-                    onChange={(e) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        apiKey: e.target.value,
-                      })
-                    }
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-mono text-sm"
-                    placeholder="sk-..."
-                    autoComplete="off"
-                  />
-                  <p className="text-xs text-gray-500 mt-2">
-                    Get your API key from{' '}
-                    <a
-                      href="https://platform.openai.com/api-keys"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-emerald-600 hover:text-emerald-700"
-                    >
-                      OpenAI Platform
-                    </a>
-                  </p>
-                </div>
-
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-yellow-800 mb-1">
-                    Cost Notice
-                  </h3>
-                  <p className="text-sm text-yellow-600">
-                    API usage may incur costs. Monitor your usage at{' '}
-                    <a
-                      href="https://platform.openai.com/usage"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-yellow-700 hover:text-yellow-800"
-                    >
-                      platform.openai.com/usage
-                    </a>
-                  </p>
                 </div>
               </div>
             )}

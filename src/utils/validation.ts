@@ -193,17 +193,6 @@ export function validateUserSettings(
     }
   }
 
-  // Validate API key if provided
-  if (s.apiKey !== undefined && s.apiKey !== '') {
-    if (typeof s.apiKey !== 'string') {
-      errors.push('API key must be a string');
-    } else if (s.apiKey.length < VALIDATION_RULES.API_KEY_MIN_LENGTH) {
-      errors.push(`API key appears too short (minimum ${VALIDATION_RULES.API_KEY_MIN_LENGTH} characters)`);
-    } else {
-      validated.apiKey = s.apiKey;
-    }
-  }
-
   // Validate macro goals if provided
   if (s.proteinGoal_g !== undefined && typeof s.proteinGoal_g === 'number') {
     validated.proteinGoal_g = s.proteinGoal_g;
@@ -272,38 +261,6 @@ export function validateUserSettings(
   return {
     valid: true,
     data: validated as UserSettings,
-  };
-}
-
-/**
- * Validates API key format for supported providers
- */
-export function validateApiKey(
-  apiKey: unknown
-): ValidationResult<{ provider: 'openai' | 'anthropic'; key: string }> {
-  if (!apiKey || typeof apiKey !== 'string') {
-    return { valid: false, error: 'API key is required' };
-  }
-
-  const trimmed = apiKey.trim();
-
-  if (trimmed.length < VALIDATION_RULES.API_KEY_MIN_LENGTH) {
-    return { valid: false, error: 'API key is too short' };
-  }
-
-  // Detect provider from key format
-  if (trimmed.startsWith('sk-')) {
-    return { valid: true, data: { provider: 'openai', key: trimmed } };
-  }
-
-  if (trimmed.startsWith('sk-ant-')) {
-    return { valid: true, data: { provider: 'anthropic', key: trimmed } };
-  }
-
-  return {
-    valid: false,
-    error:
-      'Invalid API key format. OpenAI keys start with "sk-" and Anthropic keys start with "sk-ant-"',
   };
 }
 

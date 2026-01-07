@@ -106,28 +106,3 @@ export function createSafePrompt(
     metadata: sanitized,
   }
 }
-
-/**
- * Validate and sanitize API key
- */
-export function sanitizeApiKey(apiKey: string): { isValid: boolean; sanitized: string; error?: string } {
-  const trimmed = apiKey.trim()
-
-  if (trimmed.length === 0) {
-    return { isValid: false, sanitized: "", error: "API key is empty" }
-  }
-
-  // Remove any non-printable characters
-  const sanitized = trimmed.replace(/[^\x20-\x7E]/g, "")
-
-  // Check if it looks like an OpenAI key
-  if (!sanitized.startsWith("sk-")) {
-    return { isValid: false, sanitized, error: "API key should start with 'sk-'" }
-  }
-
-  if (sanitized.length < 20) {
-    return { isValid: false, sanitized, error: "API key is too short" }
-  }
-
-  return { isValid: true, sanitized }
-}

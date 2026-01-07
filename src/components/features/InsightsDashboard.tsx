@@ -7,11 +7,10 @@ import { useInsightsEngine } from '../../hooks/useInsightsEngine';
 import { WeeklyInsight, InsightCategory, InsightSeverity } from '../../types/features';
 
 interface InsightsDashboardProps {
-  apiKey: string;
   meals: any[];
 }
 
-export function InsightsDashboard({ apiKey, meals }: InsightsDashboardProps) {
+export function InsightsDashboard({ meals }: InsightsDashboardProps) {
   const { t } = useTranslation();
   const {
     insights,
@@ -20,7 +19,7 @@ export function InsightsDashboard({ apiKey, meals }: InsightsDashboardProps) {
     generateInsights,
     dismissInsight,
     hasInsights,
-  } = useInsightsEngine({ apiKey, meals });
+  } = useInsightsEngine({ meals });
 
   const hasMeals = meals.length > 0;
 
@@ -234,8 +233,9 @@ function InsightCard({ insight, onDismiss }: InsightCardProps) {
 }
 
 // Compact insights summary for dashboard
-export function InsightsSummary({ apiKey, meals }: { apiKey: string; meals: any[] }) {
-  const { hasInsights, isLoading, generateInsights } = useInsightsEngine({ apiKey, meals });
+export function InsightsSummary({ meals }: { meals: any[] }) {
+  const { t } = useTranslation();
+  const { hasInsights, isLoading, generateInsights } = useInsightsEngine({ meals });
 
   if (meals.length === 0) return null;
 

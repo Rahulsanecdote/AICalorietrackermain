@@ -6,13 +6,23 @@ import { v4 as uuidv4 } from "uuid"
 import { STORAGE_KEYS, DEFAULT_SETTINGS } from "../constants"
 import { validateAndMigrateMeals, validateAndMigrateSettings } from "../utils/dataMigration"
 import { validateMeal, validateUserSettings } from "../utils/validation"
-import { checkStorageIntegrity, attemptRecovery, isStorageAvailable, downloadDataExport } from "../utils/errorRecovery"
+import { checkStorageIntegrity, attemptRecovery, isStorageAvailable } from "../utils/errorRecovery"
+import { handleBackupDownload, notifyError } from "../utils/notifications"
 import { normalizeSettings } from "../utils/settingsNormalization"
+import { useAuth } from "./AuthContext"
+import {
+  fetchMeals,
+  fetchUserSettings,
+  upsertUserSettings,
+  insertMeal,
+  updateMeal as updateMealRemote,
+  deleteMeal as deleteMealRemote,
+} from "../utils/supabaseData"
 
 // Context type definitions with error handling extensions
 interface QueuedRequest {
   id: string
-  type: "meal_plan" | "nutrition_analysis" | "recipe_generation"
+  type: "meal_plan" | "nutrition_analysis" | "recipe_generation" | "meal_analysis" | "recipe" | "insights"
   payload: unknown
   timestamp: string
   retryCount: number
@@ -98,6 +108,8 @@ const AppContext = createContext<AppContextType>(initialContext)
 const OFFLINE_QUEUE_KEY = "nutriai_offline_queue"
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const { userId, loading: authLoading } = useAuth()
+  const isRemote = Boolean(userId)
   const [settings, setSettings] = useState<UserSettings>(normalizeSettings(DEFAULT_SETTINGS))
   const [meals, setMeals] = useState<Meal[]>([])
   const [isInitialized, setIsInitialized] = useState(false)
@@ -114,6 +126,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const safePersistData = useCallback(
     <T,>(key: string, data: T): boolean => {
+      if (authLoading || isRemote) {
+        return false
+      }
+
       if (storageState.isReadOnly) {
         console.warn(`Cannot persist ${key}: storage is in read-only mode`)
         return false
@@ -134,7 +150,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return false
       }
     },
-    [storageState.isReadOnly],
+    [authLoading, isRemote, storageState.isReadOnly],
   )
 
   useEffect(() => {
@@ -163,7 +179,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [offlineQueue, storageState.isReadOnly])
 
-  useEffect(() => {
+  const initializeLocalState = useCallback(() => {
     let settingsLoaded = false
     let mealsLoaded = false
 
@@ -202,7 +218,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (storedSettings) {
         try {
           const parsedSettings = JSON.parse(storedSettings)
-          const { settings: migratedSettings, migrated } = validateAndMigrateSettings(parsedSettings)
+          const { data: migratedSettings, migrated } = validateAndMigrateSettings(parsedSettings)
 
           const validation = validateUserSettings(migratedSettings)
           if (validation.valid && validation.data) {
@@ -239,7 +255,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (storedMeals) {
         try {
           const parsedMeals = JSON.parse(storedMeals)
-          const { meals: migratedMeals, migrated } = validateAndMigrateMeals(parsedMeals)
+          const { data: migratedMeals, migrated } = validateAndMigrateMeals(parsedMeals)
 
           const validMeals: Meal[] = []
           const invalidCount = migratedMeals.reduce((count, meal) => {
@@ -285,6 +301,48 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [safePersistData, storageState.isReadOnly])
 
+  const initializeRemoteState = useCallback(async () => {
+    if (!userId) return
+
+    try {
+      const [remoteSettings, remoteMeals] = await Promise.all([
+        fetchUserSettings(userId),
+        fetchMeals(userId),
+      ])
+
+      if (remoteSettings) {
+        setSettings(remoteSettings)
+      } else {
+        const normalized = normalizeSettings(DEFAULT_SETTINGS)
+        setSettings(normalized)
+        await upsertUserSettings(userId, normalized)
+      }
+
+      setMeals(remoteMeals)
+    } catch (error) {
+      console.error("Error loading account data:", error)
+      setInitializationError("Failed to load account data.")
+    } finally {
+      setIsInitialized(true)
+    }
+  }, [userId])
+
+  useEffect(() => {
+    if (authLoading) return
+
+    setIsInitialized(false)
+    setInitializationError(null)
+    setMeals([])
+    setSettings(normalizeSettings(DEFAULT_SETTINGS))
+
+    if (userId) {
+      void initializeRemoteState()
+      return
+    }
+
+    initializeLocalState()
+  }, [authLoading, userId, initializeLocalState, initializeRemoteState])
+
   const dailyTotals = useMemo((): DailyTotals => {
     const today = new Date().toISOString().split("T")[0]
     const dayMeals = meals.filter((meal) => {
@@ -305,7 +363,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const updateSettings = useCallback(
     (newSettings: Partial<UserSettings>) => {
-      if (storageState.isReadOnly) {
+      if (!isRemote && storageState.isReadOnly) {
         console.warn("Cannot update settings: storage is in read-only mode")
         return
       }
@@ -313,11 +371,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setSettings((prev) => {
         const merged = { ...prev, ...newSettings }
         const normalized = normalizeSettings(merged)
-        safePersistData(STORAGE_KEYS.SETTINGS, normalized)
+
+        if (isRemote && userId) {
+          void upsertUserSettings(userId, normalized).catch((error) => {
+            console.error("Error saving settings:", error)
+            notifyError("Unable to save settings to your account.")
+          })
+        } else {
+          safePersistData(STORAGE_KEYS.SETTINGS, normalized)
+        }
         return normalized
       })
     },
-    [safePersistData, storageState.isReadOnly],
+    [isRemote, userId, safePersistData, storageState.isReadOnly],
   )
 
   const addMeal = useCallback(
@@ -334,16 +400,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setMeals((prev) => {
         const updated = [...prev, newMeal]
-        safePersistData(STORAGE_KEYS.MEALS, updated)
+        if (!isRemote) {
+          safePersistData(STORAGE_KEYS.MEALS, updated)
+        }
         return updated
       })
+
+      if (isRemote && userId) {
+        try {
+          await insertMeal(userId, newMeal)
+        } catch (error) {
+          console.error("Error saving meal:", error)
+          notifyError("Unable to save this meal to your account.")
+          setMeals((prev) => prev.filter((meal) => meal.id !== newMeal.id))
+        }
+      }
     },
-    [safePersistData],
+    [isRemote, userId, safePersistData],
   )
 
   const addMealDirectly = useCallback(
     (meal: Meal) => {
-      if (storageState.isReadOnly) {
+      if (!isRemote && storageState.isReadOnly) {
         console.warn("Cannot add meal: storage is in read-only mode")
         return
       }
@@ -354,45 +432,85 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return
       }
 
+      const validatedMeal = validation.data!
+
       setMeals((prev) => {
-        const updated = [...prev, validation.data!]
-        safePersistData(STORAGE_KEYS.MEALS, updated)
+        const updated = [...prev, validatedMeal]
+        if (!isRemote) {
+          safePersistData(STORAGE_KEYS.MEALS, updated)
+        }
         return updated
       })
+
+      if (isRemote && userId) {
+        void insertMeal(userId, validatedMeal).catch((error) => {
+          console.error("Error saving meal:", error)
+          notifyError("Unable to save this meal to your account.")
+          setMeals((prev) => prev.filter((existing) => existing.id !== validatedMeal.id))
+        })
+      }
     },
-    [safePersistData, storageState.isReadOnly],
+    [isRemote, userId, safePersistData, storageState.isReadOnly],
   )
 
   const updateMeal = useCallback(
     (meal: Meal) => {
-      if (storageState.isReadOnly) {
+      if (!isRemote && storageState.isReadOnly) {
         console.warn("Cannot update meal: storage is in read-only mode")
         return
       }
 
+      const previousMeal = meals.find((existing) => existing.id === meal.id)
+
       setMeals((prev) => {
         const updated = prev.map((m) => (m.id === meal.id ? meal : m))
-        safePersistData(STORAGE_KEYS.MEALS, updated)
+        if (!isRemote) {
+          safePersistData(STORAGE_KEYS.MEALS, updated)
+        }
         return updated
       })
+
+      if (isRemote && userId) {
+        void updateMealRemote(userId, meal).catch((error) => {
+          console.error("Error updating meal:", error)
+          notifyError("Unable to update this meal.")
+          if (previousMeal) {
+            setMeals((prev) => prev.map((m) => (m.id === previousMeal.id ? previousMeal : m)))
+          }
+        })
+      }
     },
-    [safePersistData, storageState.isReadOnly],
+    [isRemote, userId, meals, safePersistData, storageState.isReadOnly],
   )
 
   const deleteMeal = useCallback(
     (id: string) => {
-      if (storageState.isReadOnly) {
+      if (!isRemote && storageState.isReadOnly) {
         console.warn("Cannot delete meal: storage is in read-only mode")
         return
       }
 
+      const removedMeal = meals.find((meal) => meal.id === id)
+
       setMeals((prev) => {
         const updated = prev.filter((m) => m.id !== id)
-        safePersistData(STORAGE_KEYS.MEALS, updated)
+        if (!isRemote) {
+          safePersistData(STORAGE_KEYS.MEALS, updated)
+        }
         return updated
       })
+
+      if (isRemote && userId) {
+        void deleteMealRemote(userId, id).catch((error) => {
+          console.error("Error deleting meal:", error)
+          notifyError("Unable to delete this meal.")
+          if (removedMeal) {
+            setMeals((prev) => [...prev, removedMeal])
+          }
+        })
+      }
     },
-    [safePersistData, storageState.isReadOnly],
+    [isRemote, userId, meals, safePersistData, storageState.isReadOnly],
   )
 
   const getMealsForDate = useCallback(
@@ -493,8 +611,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [offlineQueue, storageState.isReadOnly])
 
   const exportUserData = useCallback(() => {
-    downloadDataExport()
-  }, [])
+    handleBackupDownload()
+  }, [handleBackupDownload])
 
   const value: AppContextType = useMemo(
     () => ({

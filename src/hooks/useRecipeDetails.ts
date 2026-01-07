@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { Recipe } from '../types/recipes';
-import { UserSettings } from '../types';
+import { API_CONFIG } from '../constants';
+import { postAIChat } from '../utils/aiClient';
 import useLocalStorage from './useLocalStorage';
 
 interface UseRecipeDetailsReturn {
@@ -11,7 +12,7 @@ interface UseRecipeDetailsReturn {
   clearRecipe: () => void;
 }
 
-export function useRecipeDetails(settings: UserSettings): UseRecipeDetailsReturn {
+export function useRecipeDetails(): UseRecipeDetailsReturn {
   const [recipe, setRecipe] = useState<Recipe | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,18 +37,11 @@ export function useRecipeDetails(settings: UserSettings): UseRecipeDetailsReturn
 
     Return as JSON object only, no markdown.`;
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${settings.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
+    const response = await postAIChat({
+      model: API_CONFIG.MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 2000,
     });
 
     if (!response.ok) {
@@ -64,7 +58,7 @@ export function useRecipeDetails(settings: UserSettings): UseRecipeDetailsReturn
     }
     
     throw new Error('Failed to parse recipe');
-  }, [settings.apiKey]);
+  }, []);
 
   const getRecipeById = useCallback(async (recipeId: string): Promise<Recipe | null> => {
     setIsLoading(true);

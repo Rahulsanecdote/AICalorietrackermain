@@ -4,5 +4,4 @@ export { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogD
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from './dropdown-menu';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export { OnlineStatusBar } from './OnlineStatusBar';
-export { APIKeyStatus } from './APIKeyStatus';
 export { DebugTools } from './DebugTools';

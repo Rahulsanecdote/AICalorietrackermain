@@ -51,7 +51,7 @@ export function useAIRequest<T>(
   execute: (request: () => Promise<T>) => Promise<T | null>;
   reset: () => void;
   queue: () => void;
-  retry: () => Promise<void>;
+  retry: () => Promise<T | null>;
 } {
   const {
     maxRetries = 3,

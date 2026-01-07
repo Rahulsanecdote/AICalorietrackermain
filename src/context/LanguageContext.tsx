@@ -22,7 +22,7 @@ const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
 type LanguageContextType = {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
-  t: (key: string, options?: object) => string;
+  t: (key: string, options?: Record<string, unknown>) => string;
   isRtl: boolean;
   availableLanguages: typeof supportedLanguages;
 };
@@ -91,7 +91,7 @@ export function LanguageProvider({
   };
 
   // Translation function using global i18n instance
-  const t = (key: string, options?: object): string => {
+  const t = (key: string, options?: Record<string, unknown>): string => {
     return i18n.t(key, options) as string;
   };
 

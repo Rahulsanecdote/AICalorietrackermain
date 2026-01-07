@@ -1,4 +1,4 @@
-import { Settings, Flame, BarChart2, ShoppingCart, Calendar, Heart, Coffee, RefreshCw, Mic, ArrowRightLeft, Lightbulb, Mic2 } from 'lucide-react';
+import { Settings, Flame, BarChart2, ShoppingCart, Calendar, Heart, Coffee, RefreshCw, Mic, ArrowRightLeft, Lightbulb, Mic2, LogOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
@@ -10,9 +10,11 @@ interface HeaderProps {
   onOpenCompare: () => void;
   activeView: 'tracker' | 'analytics' | 'shopping' | 'mealprep' | 'favorites' | 'lifestyle' | 'insights';
   onViewChange: (view: 'tracker' | 'analytics' | 'shopping' | 'mealprep' | 'favorites' | 'lifestyle' | 'insights') => void;
+  userEmail?: string | null;
+  onSignOut?: () => void;
 }
 
-export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, onOpenCompare, activeView, onViewChange }: HeaderProps) {
+export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, onOpenCompare, activeView, onViewChange, userEmail, onSignOut }: HeaderProps) {
   const { t } = useTranslation();
   const navItems = [
     { id: 'tracker' as const, label: t('header.tracker'), icon: Flame },
@@ -75,6 +77,16 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
               <ThemeToggle />
 
               <LanguageSwitcher variant="icon" />
+
+              {onSignOut ? (
+                <button
+                  onClick={onSignOut}
+                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
+                  title={userEmail ? `Sign out (${userEmail})` : "Sign out"}
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              ) : null}
 
               <button
                 onClick={onOpenSettings}

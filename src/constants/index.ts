@@ -36,7 +36,6 @@ export const MACRO_ACCURACY_THRESHOLD = 20 // 20 cal accuracy for meal plans
 // Default user settings
 export const DEFAULT_SETTINGS: {
   dailyCalorieGoal: number
-  apiKey: string
   proteinGoal_g: number
   carbsGoal_g: number
   fatGoal_g: number
@@ -48,7 +47,6 @@ export const DEFAULT_SETTINGS: {
   dietaryPreferences: string[]
 } = {
   dailyCalorieGoal: 2000,
-  apiKey: "", // Add apiKey field with empty default
   proteinGoal_g: 150,
   carbsGoal_g: 250,
   fatGoal_g: 65,
@@ -87,9 +85,10 @@ export const SUPPORTED_LANGUAGES = [
 export const MEAL_CATEGORIES = ["breakfast", "lunch", "dinner", "snack"] as const
 
 // API configuration
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "").replace(/\/$/, "")
 export const API_CONFIG = {
-  OPENAI_BASE_URL: "https://api.openai.com/v1/chat/completions",
-  ANTHROPIC_BASE_URL: "https://api.anthropic.com/v1/messages",
+  AI_PROXY_URL: `${API_BASE_URL}/api/ai/chat`,
+  AI_HEALTH_URL: `${API_BASE_URL}/api/health`,
   MODEL: "gpt-4o-mini",
   MAX_TOKENS: 2000,
   TEMPERATURE: 0.3,
@@ -105,7 +104,6 @@ export const VALIDATION_RULES = {
   MAX_PROTEIN_G: 500,
   MAX_CARBS_G: 1000,
   MAX_FAT_G: 500,
-  API_KEY_MIN_LENGTH: 20,
 }
 
 // Pantry food categories

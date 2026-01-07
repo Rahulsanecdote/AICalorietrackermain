@@ -218,8 +218,7 @@ export class CircuitBreaker<T = unknown> {
 
     // Non-retryable: Auth errors
     if (message.includes('401') || message.includes('403') ||
-        message.includes('unauthorized') || message.includes('forbidden') ||
-        message.includes('api key')) {
+        message.includes('unauthorized') || message.includes('forbidden')) {
       return false;
     }
 
@@ -560,14 +559,14 @@ export class CircuitBreaker<T = unknown> {
 // Specialized Circuit Breaker for OpenAI
 // ============================================================================
 
-export class OpenAICircuitBreaker extends CircuitBreaker {
-  private static instances: Map<string, OpenAICircuitBreaker> = new Map();
+export class OpenAICircuitBreaker<T = unknown> extends CircuitBreaker<T> {
+  private static instances: Map<string, OpenAICircuitBreaker<unknown>> = new Map();
 
-  static getInstance(operation: string): OpenAICircuitBreaker {
+  static getInstance<T = unknown>(operation: string): OpenAICircuitBreaker<T> {
     if (!this.instances.has(operation)) {
-      this.instances.set(operation, new OpenAICircuitBreaker());
+      this.instances.set(operation, new OpenAICircuitBreaker<unknown>());
     }
-    return this.instances.get(operation)!;
+    return this.instances.get(operation)! as OpenAICircuitBreaker<T>;
   }
 
   static resetAll(): void {

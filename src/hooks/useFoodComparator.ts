@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import { FoodComparisonData, ComparisonFoodItem, ComparisonVerdict, AIProcessingStatus } from '../types/ai';
+import { API_CONFIG } from '../constants';
+import { postAIChat } from '../utils/aiClient';
 
 interface ComparisonState {
   status: AIProcessingStatus;
@@ -29,7 +31,7 @@ Consider:
 
 Keep recommendations practical and actionable.`;
 
-export function useFoodComparator(apiKey: string) {
+export function useFoodComparator() {
   const [state, setState] = useState<ComparisonState>({
     status: 'idle',
     data: null,
@@ -70,22 +72,15 @@ Context: ${context}
 Provide a comparison focusing on which food is better for this goal.
       `.trim();
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { role: 'system', content: DEFAULT_SYSTEM_PROMPT },
-            { role: 'user', content: userPrompt },
-          ],
-          temperature: 0.3,
-          max_tokens: 500,
-          response_format: { type: 'json_object' },
-        }),
+      const response = await postAIChat({
+        model: API_CONFIG.MODEL,
+        messages: [
+          { role: 'system', content: DEFAULT_SYSTEM_PROMPT },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.3,
+        max_tokens: 500,
+        response_format: { type: 'json_object' },
       });
 
       if (!response.ok) {
@@ -125,7 +120,7 @@ Provide a comparison focusing on which food is better for this goal.
         error: err instanceof Error ? err.message : 'Failed to compare foods',
       });
     }
-  }, [apiKey]);
+  }, []);
 
   const clearComparison = useCallback(() => {
     setState({ status: 'idle', data: null, error: null });

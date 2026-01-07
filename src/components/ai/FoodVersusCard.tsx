@@ -17,10 +17,9 @@ import { v4 as uuidv4 } from 'uuid';
 interface FoodVersusCardProps {
   isOpen: boolean;
   onClose: () => void;
-  apiKey: string;
 }
 
-export function FoodVersusCard({ isOpen, onClose, apiKey }: FoodVersusCardProps) {
+export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
   const [context, setContext] = useState<'weight-loss' | 'muscle-gain' | 'general-health' | 'energy'>('general-health');
   const [foodA, setFoodA] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodA);
   const [foodB, setFoodB] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodB);
@@ -28,7 +27,7 @@ export function FoodVersusCard({ isOpen, onClose, apiKey }: FoodVersusCardProps)
   const [customA, setCustomA] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '' });
   const [customB, setCustomB] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '' });
 
-  const { status, data, error, generateComparison, clearComparison } = useFoodComparator(apiKey);
+  const { status, data, error, generateComparison, clearComparison } = useFoodComparator();
 
   const handleCompare = async () => {
     const itemA = useCustom

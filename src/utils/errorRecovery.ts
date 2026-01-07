@@ -391,6 +391,10 @@ export function cleanupOldBackups(keepCount: number = 5): number {
  * Download full data export for user portability
  */
 export function exportUserData(): Blob | null {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') {
+    return null
+  }
+
   try {
     const exportData: Record<string, unknown> = {
       exportTimestamp: new Date().toISOString(),
@@ -424,11 +428,14 @@ export function exportUserData(): Blob | null {
 /**
  * Download data as file
  */
-export function downloadDataExport(filename?: string): void {
+export function downloadDataExport(filename?: string): boolean {
+  if (typeof document === 'undefined' || typeof URL === 'undefined') {
+    return false
+  }
+
   const blob = exportUserData();
   if (!blob) {
-    alert('Failed to export data');
-    return;
+    return false;
   }
 
   const url = URL.createObjectURL(blob);
@@ -439,6 +446,7 @@ export function downloadDataExport(filename?: string): void {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  return true;
 }
 
 // ============================================================================

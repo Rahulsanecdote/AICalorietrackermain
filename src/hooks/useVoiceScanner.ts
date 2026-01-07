@@ -136,7 +136,7 @@ export function useVoiceScanner() {
 
     try {
       // Try to analyze the transcript as food input
-      const result = await analyzeFood(transcript, '');
+      const result = await analyzeFood(transcript);
 
       if (result) {
         const parsingResult: VoiceParsingResult = {

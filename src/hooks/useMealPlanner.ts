@@ -19,7 +19,8 @@ import type {
 } from "../types"
 import { v4 as uuidv4 } from "uuid"
 import { STORAGE_KEYS, API_CONFIG, CALORIE_TOLERANCE, MACRO_RATIOS, MEAL_CALORIE_DISTRIBUTION } from "../constants"
-import { validateApiKey } from "../utils/validation"
+import { postAIChat } from "../utils/aiClient"
+import { useAuth } from "../context/AuthContext"
 import {
   type OperationState,
   createInitialState,
@@ -33,7 +34,14 @@ import {
   logError,
   ERROR_CODES,
 } from "../utils/errors"
-import { OpenAICircuitBreaker, withCircuitBreaker, calculateRateLimitDelay } from "../utils/circuitBreaker"
+import {
+  OpenAICircuitBreaker,
+  withCircuitBreaker,
+  calculateRateLimitDelay,
+  type CircuitBreakerStateInfo,
+} from "../utils/circuitBreaker"
+import { fetchMealPlanForDate, upsertMealPlan } from "../utils/supabaseMealPlans"
+import { notifyError } from "../utils/notifications"
 
 // ============================================================================
 // Storage Keys
@@ -48,8 +56,10 @@ const PANTRY_STORAGE_KEY = STORAGE_KEYS.PANTRY
 // ============================================================================
 
 interface UseMealPlannerResult extends OperationState<DailyMealPlan> {
+  currentPlan: DailyMealPlan | null
   templates: MealPlanTemplate[]
   userPantry: PantryData | null
+  isGenerating: boolean
   generateMealPlan: (request: MealPlanGenerationRequest) => Promise<void>
   generateMealPlanFromPantry: (pantryData: PantryInputData) => Promise<void>
   updateFoodItem: (mealType: string, itemId: string, newWeight: number) => void
@@ -62,7 +72,7 @@ interface UseMealPlannerResult extends OperationState<DailyMealPlan> {
   clearPlan: () => void
   savePantry: (pantryData: PantryInputData, saveAsDefault: boolean) => void
   loadPantry: () => PantryData | null
-  circuitState: ReturnType<typeof OpenAICircuitBreaker.getInstance>["getState"]
+  circuitState: CircuitBreakerStateInfo
   resetCircuit: () => void
 }
 
@@ -76,11 +86,11 @@ interface UseMealPlannerOptions {
 // Singleton Circuit Breaker for Meal Planner
 // ============================================================================
 
-let mealPlannerCircuitBreaker: OpenAICircuitBreaker | null = null
+let mealPlannerCircuitBreaker: OpenAICircuitBreaker<MealPlanGenerationResponse> | null = null
 
-function getMealPlannerCircuitBreaker(): OpenAICircuitBreaker {
+function getMealPlannerCircuitBreaker(): OpenAICircuitBreaker<MealPlanGenerationResponse> {
   if (!mealPlannerCircuitBreaker) {
-    mealPlannerCircuitBreaker = OpenAICircuitBreaker.getInstance("meal-planner")
+    mealPlannerCircuitBreaker = OpenAICircuitBreaker.getInstance<MealPlanGenerationResponse>("meal-planner")
   }
   return mealPlannerCircuitBreaker
 }
@@ -159,6 +169,8 @@ export const useMealPlanner = (
   options: UseMealPlannerOptions = {},
 ): UseMealPlannerResult => {
   const { onSuccess, onError } = options
+  const { userId } = useAuth()
+  const isRemote = Boolean(userId)
 
   const [state, setState] = useState<OperationState<DailyMealPlan>>(createInitialState())
   const [templates, setTemplates] = useState<MealPlanTemplate[]>([])
@@ -182,7 +194,6 @@ export const useMealPlanner = (
   // Load stored data on mount
   useEffect(() => {
     try {
-      const storedPlans = localStorage.getItem(MEAL_PLAN_STORAGE_KEY)
       const storedTemplates = localStorage.getItem(TEMPLATE_STORAGE_KEY)
       const storedPantry = localStorage.getItem(PANTRY_STORAGE_KEY)
 
@@ -198,16 +209,60 @@ export const useMealPlanner = (
     }
   }, [])
 
-  const savePlan = useCallback((plan: DailyMealPlan) => {
-    try {
-      const existingPlans = JSON.parse(localStorage.getItem(MEAL_PLAN_STORAGE_KEY) || "[]")
-      const updatedPlans = existingPlans.filter((p: DailyMealPlan) => p.date !== plan.date)
-      updatedPlans.push(plan)
-      localStorage.setItem(MEAL_PLAN_STORAGE_KEY, JSON.stringify(updatedPlans))
-    } catch (err) {
-      console.error("Error saving meal plan:", err)
+  const savePlan = useCallback(
+    (plan: DailyMealPlan) => {
+      const resolvedPlan = state.data?.date === plan.date ? { ...plan, id: state.data.id } : plan
+
+      if (isRemote && userId) {
+        void upsertMealPlan(userId, resolvedPlan).catch((error) => {
+          console.error("Error saving meal plan:", error)
+          notifyError("Unable to save this meal plan.")
+        })
+        return
+      }
+
+      try {
+        const existingPlans = JSON.parse(localStorage.getItem(MEAL_PLAN_STORAGE_KEY) || "[]")
+        const updatedPlans = existingPlans.filter((p: DailyMealPlan) => p.date !== resolvedPlan.date)
+        updatedPlans.push(resolvedPlan)
+        localStorage.setItem(MEAL_PLAN_STORAGE_KEY, JSON.stringify(updatedPlans))
+      } catch (err) {
+        console.error("Error saving meal plan:", err)
+      }
+    },
+    [isRemote, userId, state.data],
+  )
+
+  useEffect(() => {
+    const loadInitialPlan = async () => {
+      const today = new Date().toISOString().split("T")[0]
+
+      if (isRemote && userId) {
+        try {
+          const plan = await fetchMealPlanForDate(userId, today)
+          if (plan) {
+            setState((prev) => createSuccessState(plan, prev))
+          }
+        } catch (error) {
+          console.error("Error loading meal plan:", error)
+          notifyError("Unable to load your meal plan.")
+        }
+        return
+      }
+
+      try {
+        const storedPlans = JSON.parse(localStorage.getItem(MEAL_PLAN_STORAGE_KEY) || "[]")
+        const existingPlan = storedPlans.find((plan: DailyMealPlan) => plan.date === today)
+        if (existingPlan) {
+          setState((prev) => createSuccessState(existingPlan, prev))
+        }
+      } catch (err) {
+        console.error("Error loading meal plan:", err)
+      }
     }
-  }, [])
+
+    void loadInitialPlan()
+  }, [isRemote, userId])
 
   // ============================================================================
   // Generate Meal Plan from Pantry with Circuit Breaker
@@ -215,19 +270,6 @@ export const useMealPlanner = (
 
   const generateMealPlanFromPantryInternal = useCallback(
     async (pantryData: PantryInputData, regenerationCount = 1): Promise<void> => {
-      if (!settings.apiKey) {
-        const error: AppError = {
-          code: ERROR_CODES.VALIDATION_API_KEY_MISSING,
-          userMessage: "Please set your OpenAI API key in settings",
-          retryable: false,
-          timestamp: new Date().toISOString(),
-        }
-        logError(error)
-        setState(createErrorState(error))
-        onError?.(error)
-        return
-      }
-
       setState(createLoadingState(state))
 
       const breaker = getMealPlannerCircuitBreaker()
@@ -341,14 +383,7 @@ Return ONLY valid JSON, no markdown formatting:`
               max_tokens: API_CONFIG.MAX_TOKENS,
             }
 
-            const response = await fetch(API_CONFIG.OPENAI_BASE_URL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${settings.apiKey.trim()}`,
-              },
-              body: JSON.stringify(requestBody),
-            })
+            const response = await postAIChat(requestBody)
 
             if (!response.ok) {
               let errorData: Record<string, unknown> = {}
@@ -427,14 +462,7 @@ Return ONLY valid JSON, no markdown formatting:`
             max_tokens: API_CONFIG.MAX_TOKENS,
           }
 
-          const response = await fetch(API_CONFIG.OPENAI_BASE_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${settings.apiKey.trim()}`,
-            },
-            body: JSON.stringify(requestBody),
-          })
+          const response = await postAIChat(requestBody)
 
           const data = await response.json()
           return data.choices?.[0]?.message?.content
@@ -503,30 +531,6 @@ Return ONLY valid JSON, no markdown formatting:`
 
   const generateMealPlanInternal = useCallback(
     async (request: MealPlanGenerationRequest, regenerationCount = 1): Promise<void> => {
-      console.log("[v0] generateMealPlanInternal called")
-      console.log("[v0] API Key check:", {
-        exists: !!settings.apiKey,
-        length: settings.apiKey?.length || 0,
-        trimmedLength: settings.apiKey?.trim().length || 0,
-      })
-
-      const apiKeyValidation = validateApiKey(settings.apiKey)
-      console.log("[v0] API key validation result:", apiKeyValidation)
-
-      if (!apiKeyValidation.valid) {
-        const error: AppError = {
-          code: ERROR_CODES.VALIDATION_API_KEY_INVALID,
-          userMessage: apiKeyValidation.error || "Invalid API key. Please check your OpenAI API key in Settings.",
-          retryable: false,
-          timestamp: new Date().toISOString(),
-        }
-        console.error("[v0] API key validation failed:", error)
-        logError(error)
-        setState(createErrorState(error))
-        onError?.(error)
-        return
-      }
-
       setState(createLoadingState(state))
 
       const breaker = getMealPlannerCircuitBreaker()
@@ -616,9 +620,6 @@ Respond with only the JSON object, no markdown formatting.`
             setState(createErrorState(error, state))
           },
           executor: async () => {
-            console.log("[v0] Executing meal plan API request")
-            console.log("[v0] Using API key (first 10 chars):", settings.apiKey.substring(0, 10) + "...")
-
             const requestBody = {
               model: API_CONFIG.MODEL,
               messages: [
@@ -635,14 +636,7 @@ Respond with only the JSON object, no markdown formatting.`
               temperature: requestBody.temperature,
             })
 
-            const response = await fetch(API_CONFIG.OPENAI_BASE_URL, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${settings.apiKey.trim()}`,
-              },
-              body: JSON.stringify(requestBody),
-            })
+            const response = await postAIChat(requestBody)
 
             console.log("[v0] API response status:", response.status)
 
@@ -730,14 +724,7 @@ Respond with only the JSON object, no markdown formatting.`
           max_tokens: API_CONFIG.MAX_TOKENS,
         }
 
-        const response = await fetch(API_CONFIG.OPENAI_BASE_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${settings.apiKey.trim()}`,
-          },
-          body: JSON.stringify(requestBody),
-        })
+        const response = await postAIChat(requestBody)
 
         const data = await response.json()
         const content = data.choices?.[0]?.message?.content
@@ -879,7 +866,7 @@ Respond with only the JSON object, no markdown formatting.`
   )
 
   const regenerateMealPlan = useCallback(async () => {
-    if (!state.data || !settings.apiKey) return
+    if (!state.data) return
 
     const request: MealPlanGenerationRequest = {
       targetCalories: settings.dailyCalorieGoal,
@@ -972,10 +959,15 @@ Respond with only the JSON object, no markdown formatting.`
     return null
   }, [])
 
+  const currentPlan = state.data
+  const isGenerating = state.status === "loading"
+
   return {
     ...state,
+    currentPlan,
     templates,
     userPantry,
+    isGenerating,
     generateMealPlan,
     generateMealPlanFromPantry,
     updateFoodItem,
@@ -988,6 +980,8 @@ Respond with only the JSON object, no markdown formatting.`
     clearPlan,
     savePantry,
     loadPantry,
+    circuitState,
+    resetCircuit,
   }
 }
 

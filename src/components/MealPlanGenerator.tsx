@@ -18,6 +18,9 @@ import type { DailyMealPlan, MealPlanGenerationRequest, UserSettings, PantryInpu
 import MealSectionCard from "./MealSectionCard"
 import TemplateModal from "./TemplateModal"
 import PantryInput from "./PantryInput"
+import { notifyError } from "@/utils/notifications"
+import { API_CONFIG } from "../constants"
+import { postAIChat } from "../utils/aiClient"
 
 interface MealPlanGeneratorProps {
   settings: UserSettings
@@ -87,17 +90,6 @@ export default function MealPlanGenerator({
 
   const handleAIPlanGeneration = async () => {
     console.log("[v0] Generate Suggestions clicked")
-    console.log("[v0] Settings check:", {
-      hasApiKey: !!settings.apiKey,
-      apiKeyLength: settings.apiKey?.length || 0,
-      dailyCalorieGoal: settings.dailyCalorieGoal,
-    })
-
-    if (!settings.apiKey || settings.apiKey.trim().length === 0) {
-      console.error("[v0] API key missing - showing error to user")
-      alert("Please set your OpenAI API key in Settings (⚙️ icon) before generating AI meal suggestions.")
-      return
-    }
 
     const request: MealPlanGenerationRequest = {
       targetCalories: settings.dailyCalorieGoal,
@@ -113,7 +105,7 @@ export default function MealPlanGenerator({
       console.log("[v0] Meal plan generation completed successfully")
     } catch (error) {
       console.error("[v0] Meal plan generation failed:", error)
-      alert(`Failed to generate meal plan: ${error instanceof Error ? error.message : "Unknown error"}`)
+      notifyError(`Failed to generate meal plan: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
   }
 
@@ -175,7 +167,7 @@ export default function MealPlanGenerator({
 
   // Handle swapping a food item with an alternative
   const handleSwapFood = async (mealType: string, itemId: string) => {
-    if (!currentPlan || !settings.apiKey || !onSwapFood) return
+    if (!currentPlan || !onSwapFood) return
 
     // Find the current item
     const meal = currentPlan.meals.find((m) => m.type === mealType)
@@ -211,21 +203,14 @@ Requirements:
 - Different food from the original
 - Return ONLY the JSON object`
 
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${settings.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          temperature: 0.7,
-          max_tokens: 500,
-        }),
+      const response = await postAIChat({
+        model: API_CONFIG.MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
       })
 
       if (!response.ok) {
@@ -312,49 +297,43 @@ Requirements:
 
             <p className="text-gray-600 mb-6 max-w-md mx-auto">{t("mealPlan.subtitle")}</p>
 
-            {settings.apiKey ? (
-              <div className="space-y-4">
-                {/* Pantry-Based Planning */}
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="w-5 h-5 text-emerald-600" />
-                    <h3 className="font-semibold text-emerald-800">{t("mealPlan.pantryTitle")}</h3>
-                  </div>
-                  <p className="text-sm text-emerald-700 mb-3">{t("mealPlan.pantryDescription")}</p>
-                  <button
-                    id="pantry-button-test"
-                    onClick={() => setShowPantryInput(true)}
-                    disabled={isGenerating}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all font-medium disabled:opacity-50"
-                  >
-                    <Package className="w-4 h-4" />
-                    {t("mealPlan.pantryButton")}
-                  </button>
+            <div className="space-y-4">
+              {/* Pantry-Based Planning */}
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Package className="w-5 h-5 text-emerald-600" />
+                  <h3 className="font-semibold text-emerald-800">{t("mealPlan.pantryTitle")}</h3>
                 </div>
+                <p className="text-sm text-emerald-700 mb-3">{t("mealPlan.pantryDescription")}</p>
+                <button
+                  id="pantry-button-test"
+                  onClick={() => setShowPantryInput(true)}
+                  disabled={isGenerating}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all font-medium disabled:opacity-50"
+                >
+                  <Package className="w-4 h-4" />
+                  {t("mealPlan.pantryButton")}
+                </button>
+              </div>
 
-                {/* AI Suggestions */}
-                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-5 h-5 text-gray-600" />
-                    <h3 className="font-semibold text-gray-800">{t("mealPlan.aiTitle")}</h3>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-3">{t("mealPlan.aiDescription")}</p>
-                  <button
-                    id="ai-suggestions-test"
-                    onClick={handleAIPlanGeneration}
-                    disabled={isGenerating}
-                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-medium disabled:opacity-50"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    {t("mealPlan.aiButton")}
-                  </button>
+              {/* AI Suggestions */}
+              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-gray-600" />
+                  <h3 className="font-semibold text-gray-800">{t("mealPlan.aiTitle")}</h3>
                 </div>
+                <p className="text-sm text-gray-600 mb-3">{t("mealPlan.aiDescription")}</p>
+                <button
+                  id="ai-suggestions-test"
+                  onClick={handleAIPlanGeneration}
+                  disabled={isGenerating}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-medium disabled:opacity-50"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {t("mealPlan.aiButton")}
+                </button>
               </div>
-            ) : (
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-4">
-                <p className="text-amber-800 text-sm">{t("mealPlan.apiKeyWarning")}</p>
-              </div>
-            )}
+            </div>
 
             {templates.length > 0 && (
               <div className="mt-6">

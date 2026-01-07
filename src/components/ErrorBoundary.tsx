@@ -7,8 +7,9 @@
 
 import React, { Component, type ErrorInfo, type ReactNode, type ReactElement } from "react"
 import { AlertTriangle, RefreshCw, Download, Copy, Check, WifiOff, ShieldAlert } from "lucide-react"
-import { logError, toAppError } from "../utils/errors"
+import { generateErrorId, getErrorMessage, logError, toAppError } from "../utils/errors"
 import { captureException, addBreadcrumb, setContext } from "../utils/monitoring"
+import { notifyError, notifySuccess } from "../utils/notifications"
 
 // ============================================================================
 // Types
@@ -53,53 +54,6 @@ interface AsyncBoundaryProps {
 }
 
 // ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Generate a unique error ID for tracking
- */
-export function generateErrorId_(): string {
-  return `err_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-}
-
-/**
- * Create a user-friendly error message
- */
-export function getUserFriendlyErrorMessage(error: Error): string {
-  if (error.message.includes("fetch") || error.message.includes("network")) {
-    return "Unable to connect. Please check your internet connection."
-  }
-  if (error.message.includes("timeout") || error.message.includes("TIMEOUT")) {
-    return "Request timed out. Please try again."
-  }
-  if (error.message.includes("401") || error.message.includes("Unauthorized")) {
-    return "Session expired. Please sign in again."
-  }
-  if (error.message.includes("403") || error.message.includes("Forbidden")) {
-    return "You do not have permission to perform this action."
-  }
-  if (error.message.includes("429") || error.message.includes("rate")) {
-    return "Too many requests. Please wait a moment before trying again."
-  }
-  if (error.message.includes("500") || error.message.includes("server")) {
-    return "Server error. Please try again later."
-  }
-  if (error.message.includes("chunk") || error.message.includes("module")) {
-    return "A new version of the app is available. Please reload to update."
-  }
-  return "An unexpected error occurred. Please try again."
-}
-
-/**
- * Check if error is recoverable through retry
- */
-export function isRecoverableError(error: Error): boolean {
-  const unrecoverableCodes = ["401", "403", "400", "chunk", "module"]
-  return !unrecoverableCodes.some((code) => error.message.toLowerCase().includes(code))
-}
-
-// ============================================================================
 // Feature Error Boundary with resetKeys
 // ============================================================================
 
@@ -125,7 +79,7 @@ export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
     return {
       hasError: true,
       error,
-      errorId: generateErrorId_(),
+      errorId: generateErrorId(),
     }
   }
 
@@ -160,7 +114,7 @@ export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
     captureException(error)
 
     if (this.props.onError) {
-      this.props.onError(error, errorInfoString, this.state.errorId ?? generateErrorId_())
+      this.props.onError(error, errorInfoString, this.state.errorId ?? generateErrorId())
     }
 
     console.error(`[${this.props.featureName ?? "Feature"}] Error Boundary caught an error:`, error, errorInfo)
@@ -195,8 +149,15 @@ export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
       userAgent: navigator.userAgent,
     }
 
-    navigator.clipboard.writeText(JSON.stringify(report, null, 2))
-    alert("Error report copied to clipboard. Please share this with support.")
+    navigator.clipboard
+      .writeText(JSON.stringify(report, null, 2))
+      .then(() => {
+        notifySuccess("Error report copied to clipboard. Please share this with support.")
+      })
+      .catch((copyError) => {
+        console.error("Failed to copy error report:", copyError)
+        notifyError("Failed to copy error report. Please try again.")
+      })
   }
 
   render(): ReactNode {
@@ -247,7 +208,7 @@ function FeatureErrorFallback({
   showDetails = false,
   onManualMode,
 }: FeatureErrorFallbackProps): ReactElement {
-  const userMessage = error ? getUserFriendlyErrorMessage(error) : "An error occurred"
+  const userMessage = getErrorMessage(error, "An error occurred")
 
   return (
     <div className="border-2 border-dashed border-amber-300 bg-amber-50 rounded-xl p-6 my-4">
@@ -425,7 +386,7 @@ function AsyncErrorFallback({
   retryDelay,
 }: AsyncErrorFallbackProps): ReactElement {
   const [countdown, setCountdown] = React.useState(retryDelay / 1000)
-  const userMessage = getUserFriendlyErrorMessage(error)
+  const userMessage = getErrorMessage(error)
 
   React.useEffect(() => {
     if (!canRetry) return
@@ -513,7 +474,7 @@ function RootErrorFallbackUI({
   onCopyError,
   copied,
 }: RootFallbackProps): ReactElement {
-  const userMessage = error ? getUserFriendlyErrorMessage(error) : "An unexpected error occurred"
+  const userMessage = getErrorMessage(error, "An unexpected error occurred")
   const isChunkError =
     error?.message?.toLowerCase().includes("chunk") || error?.message?.toLowerCase().includes("module")
 
@@ -611,7 +572,7 @@ export class RootErrorBoundary extends Component<ErrorBoundaryProps, RootErrorBo
     return {
       hasError: true,
       error,
-      errorId: generateErrorId_(),
+      errorId: generateErrorId(),
     }
   }
 
@@ -649,7 +610,7 @@ export class RootErrorBoundary extends Component<ErrorBoundaryProps, RootErrorBo
     captureException(error)
 
     if (this.props.onError) {
-      this.props.onError(error, errorInfoString, this.state.errorId ?? generateErrorId_())
+      this.props.onError(error, errorInfoString, this.state.errorId ?? generateErrorId())
     }
 
     console.error("Root Error Boundary caught an error:", error, errorInfo)

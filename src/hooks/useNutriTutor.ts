@@ -1,6 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { EduMessage, EduSession, QuickPrompt, AIProcessingStatus } from '../types/ai';
 import { v4 as uuidv4 } from 'uuid';
+import { API_CONFIG } from '../constants';
+import { postAIChat } from '../utils/aiClient';
 
 const SYSTEM_PROMPT = `You are NutriBot, a friendly and knowledgeable nutrition education assistant. Your role is to:
 
@@ -34,7 +36,7 @@ export const QUICK_PROMPTS: QuickPrompt[] = [
   { id: '10', label: 'Healthy snacks', prompt: 'What are some healthy snack options?', category: 'health' },
 ];
 
-export function useNutriTutor(apiKey: string) {
+export function useNutriTutor() {
   const [session, setSession] = useState<EduSession | null>(null);
   const [status, setStatus] = useState<AIProcessingStatus>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -104,23 +106,18 @@ export function useNutriTutor(apiKey: string) {
           content: m.content,
         }));
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
+      const response = await postAIChat(
+        {
+          model: API_CONFIG.MODEL,
           messages: [
             { role: 'system', content: SYSTEM_PROMPT },
             ...conversationHistory,
           ],
           temperature: 0.7,
           max_tokens: 400,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
+        },
+        { signal: abortControllerRef.current.signal }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -158,7 +155,7 @@ export function useNutriTutor(apiKey: string) {
       setError(err instanceof Error ? err.message : 'Failed to get response');
       setStatus('error');
     }
-  }, [session, apiKey, createSession]);
+  }, [session, createSession]);
 
   const clearSession = useCallback(() => {
     if (abortControllerRef.current) {

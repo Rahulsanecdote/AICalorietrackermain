@@ -115,13 +115,19 @@ export function classifyApiError(
   errorData?: Record<string, unknown>,
   context?: Record<string, unknown>,
 ): AppError {
-  const errorMessage = (errorData?.error?.message as string) || (errorData?.message as string) || ""
+  const nestedError = errorData?.error
+  const nestedMessage =
+    typeof nestedError === "object" && nestedError !== null && "message" in nestedError
+      ? String((nestedError as { message?: unknown }).message ?? "")
+      : ""
+  const topMessage = typeof errorData?.message === "string" ? errorData.message : ""
+  const errorMessage = nestedMessage || topMessage || ""
 
   switch (status) {
     case 401:
       return createAppError(
         ERROR_CODES.API_UNAUTHORIZED,
-        "Your API key is invalid or expired. Please check your settings.",
+        "AI service authorization failed. Please contact your administrator.",
         false,
         undefined,
         { ...context, status, errorData },
@@ -316,6 +322,17 @@ export function toAppError(error: unknown, context?: Record<string, unknown>): A
   )
 }
 
+/**
+ * Get a user-friendly message for any error input
+ */
+export function getErrorMessage(error: unknown, fallback = "An unexpected error occurred"): string {
+  if (error === null || error === undefined) {
+    return fallback
+  }
+
+  return toAppError(error).userMessage || fallback
+}
+
 // ============================================================================
 // Type Guards
 // ============================================================================
@@ -499,11 +516,14 @@ function storeRecentError(entry: ErrorLogEntry): void {
     const existing: ErrorLogEntry[] = stored ? JSON.parse(stored) : []
 
     // Scrub sensitive data from entry
+    const scrubbedContext = entry.error.context
+      ? (scrubSensitiveData(entry.error.context) as Record<string, unknown>)
+      : undefined
     const scrubbedEntry = {
       ...entry,
       error: {
         ...entry.error,
-        context: entry.error.context ? scrubSensitiveData(entry.error.context) : undefined,
+        context: scrubbedContext,
       },
     }
 

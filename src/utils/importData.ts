@@ -1,12 +1,9 @@
-import {
-  Meal,
-  Recipe,
-  LifestyleEntry,
-  UserSettings,
-  MealCategory,
-} from '../types';
+import { Meal, UserSettings, MealCategory } from '../types';
+import { Recipe } from '../types/recipes';
+import { LifestyleEntry } from '../types/lifestyle';
 import { STORAGE_KEYS, MEAL_CATEGORIES, BACKUP_VERSION } from '../constants';
-import { validateApiKey } from './validation';
+import { validateUserSettings } from './validation';
+import { normalizeSettings } from './settingsNormalization';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -190,13 +187,11 @@ export function importFromBackup(data: unknown): ImportResult {
 
   // Validate and set settings if present
   if (data.settings && typeof data.settings === 'object') {
-    const settings = data.settings as UserSettings;
-
-    // Validate API key if present in settings
-    if (settings.apiKey && !validateApiKey(settings.apiKey)) {
-      result.errors.push('Invalid API key format in settings');
+    const validation = validateUserSettings(data.settings);
+    if (!validation.valid || !validation.data) {
+      result.errors.push(validation.error || 'Invalid settings data');
     } else {
-      result.settings = settings;
+      result.settings = normalizeSettings(validation.data);
     }
   }
 

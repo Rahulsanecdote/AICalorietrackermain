@@ -30,6 +30,7 @@ import {
   exportAsTextFile,
   ExportData,
 } from '../utils/exportData';
+import { CURRENT_DATA_VERSION } from '../constants';
 import {
   parseJSONFile,
   importFromBackup,
@@ -75,7 +76,7 @@ export function UtilityPanel({
       lifestyle: [],
       settings,
       exportDate: new Date().toISOString(),
-      version: '1.0.0',
+      version: CURRENT_DATA_VERSION,
     };
 
     switch (exportFormat) {

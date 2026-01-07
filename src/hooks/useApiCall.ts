@@ -43,7 +43,7 @@ interface UseApiCallOptions<T> {
 interface UseApiCallResult<T> extends OperationState<T> {
   execute: (fn: () => Promise<T>, options?: { silent?: boolean }) => Promise<T | null>;
   reset: () => void;
-  retry: () => Promise<void>;
+  retry: () => Promise<T | null>;
 }
 
 // ============================================================================

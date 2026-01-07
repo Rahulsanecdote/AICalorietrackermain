@@ -3,15 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { Meal } from '../types';
 import { WeeklyInsight, WeeklyStats, InsightCategory, InsightSeverity, STORAGE_KEYS } from '../types/features';
+import { API_CONFIG } from '../constants';
+import { postAIChat } from '../utils/aiClient';
 import useLocalStorage from './useLocalStorage';
 
 interface UseInsightsOptions {
-  apiKey: string;
   meals: Meal[];
   refreshInterval?: number; // hours
 }
 
-export function useInsightsEngine({ apiKey, meals, refreshInterval = 24 }: UseInsightsOptions) {
+export function useInsightsEngine({ meals, refreshInterval = 24 }: UseInsightsOptions) {
   const { t } = useTranslation('insights');
   const [insights, setInsights] = useState<WeeklyInsight[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -89,12 +90,6 @@ export function useInsightsEngine({ apiKey, meals, refreshInterval = 24 }: UseIn
 
   // Generate insights using AI
   const generateInsights = useCallback(async () => {
-    if (!apiKey) {
-      // Generate local insights without AI
-      generateLocalInsights();
-      return;
-    }
-
     setIsLoading(true);
     setError(null);
 
@@ -121,24 +116,17 @@ Return a JSON array with objects containing:
 Keep responses friendly, motivational, and actionable. Focus on patterns and suggestions for improvement.
       `.trim();
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a friendly nutrition coach. Return only valid JSON array, no markdown formatting.',
-            },
-            { role: 'user', content: prompt },
-          ],
-          temperature: 0.7,
-          max_tokens: 600,
-        }),
+      const response = await postAIChat({
+        model: API_CONFIG.MODEL,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a friendly nutrition coach. Return only valid JSON array, no markdown formatting.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        temperature: 0.7,
+        max_tokens: 600,
       });
 
       if (!response.ok) {
@@ -179,7 +167,7 @@ Keep responses friendly, motivational, and actionable. Focus on patterns and sug
     } finally {
       setIsLoading(false);
     }
-  }, [apiKey, weeklyStats, setLastGenerated]);
+  }, [weeklyStats, setLastGenerated]);
 
   // Generate local insights without AI
   const generateLocalInsights = useCallback(() => {

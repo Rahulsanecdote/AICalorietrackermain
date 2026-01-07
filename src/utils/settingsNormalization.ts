@@ -17,12 +17,11 @@ export function normalizeSettings(partialSettings: Partial<UserSettings> | null 
 
   if (!partialSettings || typeof partialSettings !== "object") {
     console.log("[v0] Using complete defaults - no settings provided")
-    return { ...DEFAULT_SETTINGS, apiKey: "" }
+    return { ...DEFAULT_SETTINGS }
   }
 
   const normalized: UserSettings = {
     // Core required fields
-    apiKey: validateString(partialSettings.apiKey, ""),
     dailyCalorieGoal: validateNumber(partialSettings.dailyCalorieGoal, DEFAULT_SETTINGS.dailyCalorieGoal, 500, 10000),
     proteinGoal_g: validateNumber(partialSettings.proteinGoal_g, DEFAULT_SETTINGS.proteinGoal_g, 0, 500),
     carbsGoal_g: validateNumber(partialSettings.carbsGoal_g, DEFAULT_SETTINGS.carbsGoal_g, 0, 1000),
@@ -41,22 +40,10 @@ export function normalizeSettings(partialSettings: Partial<UserSettings> | null 
   }
 
   console.log("[v0] Settings normalized:", {
-    hasApiKey: !!normalized.apiKey && normalized.apiKey.length > 0,
-    apiKeyLength: normalized.apiKey?.length || 0,
     dailyCalorieGoal: normalized.dailyCalorieGoal,
   })
 
   return normalized
-}
-
-/**
- * Validates a string value, returning default if invalid
- */
-function validateString(value: unknown, defaultValue: string): string {
-  if (typeof value === "string") {
-    return value
-  }
-  return defaultValue
 }
 
 /**
@@ -131,7 +118,6 @@ export function isValidSettings(settings: unknown): settings is UserSettings {
   const s = settings as Partial<UserSettings>
 
   // Check required fields
-  if (typeof s.apiKey !== "string") return false
   if (typeof s.dailyCalorieGoal !== "number") return false
   if (typeof s.proteinGoal_g !== "number") return false
   if (typeof s.carbsGoal_g !== "number") return false

@@ -1,33 +1,27 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, lazy, Suspense } from "react"
 import "./i18n/config"
 
 import {
   Header,
-  CalorieDashboard,
   MealInput,
   MealList,
   SettingsModal,
   EditMealModal,
-  MealPlanGenerator,
-  AnalyticsDashboard,
   RecipeDetailModal,
-  ShoppingListView,
   MealPrepCard,
-  LifestyleDashboard,
   UtilityPanel,
   VoiceLoggerModal,
   FoodVersusCard,
   NutriBotWidget,
   QuickAddWidget,
-  InsightsDashboard,
+  AuthScreen,
 } from "./components"
 import { OnlineStatusBar } from "./components/ui/OnlineStatusBar"
-import { APIKeyStatus } from "./components/ui/APIKeyStatus"
 import { DebugTools } from "./components/ui/DebugTools"
 import { ErrorBanner } from "./components/ui/ErrorBanner"
-import { RootErrorBoundary } from "./components/ErrorBoundary"
+import { RootErrorBoundary, FeatureErrorBoundary } from "./components/ErrorBoundary"
 import {
   MealPlannerBoundary,
   AnalyticsBoundary,
@@ -37,7 +31,8 @@ import {
   ShoppingListBoundary,
 } from "./components/features/FeatureBoundaries"
 import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
-import { setupGlobalErrorHandlers, triggerHardReload } from "./utils/globalErrorHandlers"
+import { setupGlobalErrorHandlers, triggerHardReload } from "@/utils/globalErrorHandlers"
+import { configureNotificationActions, notifyError, notifySuccess } from "@/utils/notifications"
 import { useNutritionAI } from "./hooks/useNutritionAI"
 import { useMealPlanner } from "./hooks/useMealPlanner"
 import { useFavorites } from "./hooks/useFavorites"
@@ -46,21 +41,84 @@ import { useMealPrep } from "./hooks/useMealPrep"
 import type { Meal, UserSettings, DailyTotals, MealCategory } from "./types"
 import type { Recipe } from "./types/recipes"
 import { v4 as uuidv4 } from "uuid"
-import { Heart, Clock } from "lucide-react"
+import { Heart, Clock, AlertTriangle } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { API_CONFIG } from "./constants"
+import { postAIChat } from "./utils/aiClient"
 
 // Import contexts
 import { useApp } from "./context/AppContext"
+import { useAuth } from "./context/AuthContext"
 import { useDate } from "./context/DateContext"
-import { useLanguage } from "./context/LanguageContext"
+
+const CalorieDashboard = lazy(() => import("./components/CalorieDashboard"))
+const MealPlanGenerator = lazy(() => import("./components/MealPlanGenerator"))
+const AnalyticsDashboard = lazy(() => import("./components/analytics/AnalyticsDashboard"))
+const LifestyleDashboard = lazy(() => import("./components/lifestyle/LifestyleDashboard"))
+const ShoppingListView = lazy(() => import("./components/shopping/ShoppingListView"))
+const InsightsDashboard = lazy(() =>
+  import("./components/features/InsightsDashboard").then((module) => ({ default: module.InsightsDashboard })),
+)
+
+const DashboardLoadingCard = ({ title, description }: { title: string; description?: string }) => (
+  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+    <div className="animate-pulse space-y-3">
+      <div className="h-4 w-40 bg-gray-200 rounded dark:bg-gray-700" />
+      {description ? <div className="h-3 w-56 bg-gray-100 rounded dark:bg-gray-700" /> : null}
+      <div className="h-32 w-full bg-gray-100 rounded-xl dark:bg-gray-700" />
+    </div>
+    <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">{title}</div>
+  </div>
+)
+
+const DashboardErrorCard = ({
+  title,
+  message,
+  onRetry,
+  errorDetails,
+}: {
+  title: string
+  message: string
+  onRetry?: () => void
+  errorDetails?: string
+}) => (
+  <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 dark:bg-gray-800 dark:border-red-700">
+    <div className="flex items-start gap-3">
+      <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center dark:bg-red-900/40">
+        <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-300" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-sm font-semibold text-red-700 dark:text-red-300">{title}</h3>
+        <p className="text-sm text-red-600 dark:text-red-200 mt-1">{message}</p>
+        {errorDetails ? (
+          <details className="mt-2 text-xs text-red-600 dark:text-red-200">
+            <summary className="cursor-pointer">Show details</summary>
+            <pre className="mt-1 whitespace-pre-wrap">{errorDetails}</pre>
+          </details>
+        ) : null}
+        {onRetry ? (
+          <button
+            onClick={onRetry}
+            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Retry
+          </button>
+        ) : null}
+      </div>
+    </div>
+  </div>
+)
 
 // ============================================================================
 // Main App Component
 // ============================================================================
 
-function App() {
+function AppShell() {
   const { t } = useTranslation("common")
-  const { language, setLanguage, availableLanguages } = useLanguage()
+  const { email, signOut } = useAuth()
+  const handleSignOut = useCallback(() => {
+    void signOut()
+  }, [signOut])
 
   // Use App Context for global state
   const {
@@ -92,6 +150,9 @@ function App() {
   >("tracker")
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false)
+  const handleManualMode = useCallback(() => {
+    setActiveView("tracker")
+  }, [setActiveView])
 
   // Favorites hook
   const {
@@ -154,9 +215,7 @@ function App() {
   // const [aiError, setAiError] = useState<string | null>(null) // FIXED: NoRedeclare issue for aiError and setAiError - REMOVED
 
   useEffect(() => {
-    if (hookError) {
-      setAiError(hookError)
-    }
+    setAiError(hookError ? hookError.userMessage : null)
   }, [hookError])
 
   // Keep online status in sync and flush queued work when connection returns
@@ -184,10 +243,14 @@ function App() {
 
   // Setup global error handlers
   useEffect(() => {
+    configureNotificationActions({
+      manualMode: handleManualMode,
+      reload: triggerHardReload,
+    })
     setupGlobalErrorHandlers()
 
     console.log("[App] Global error handlers initialized")
-  }, [])
+  }, [handleManualMode, triggerHardReload])
 
   // Add meal with AI analysis
   async function handleAddMeal(description: string, category: MealCategory) {
@@ -197,7 +260,7 @@ function App() {
       console.warn("Offline mode: Saving meal locally without AI analysis")
     }
 
-    const result = await analyzeFood(description, settings.apiKey)
+    const result = await analyzeFood(description)
 
     if (result) {
       const newMeal: Meal = {
@@ -324,25 +387,12 @@ function App() {
   // Test API connectivity
   const testAPI = async () => {
     console.log("Testing API connectivity...")
-    if (!settings.apiKey) {
-      console.error("No API key configured")
-      alert("No API key found. Please add your API key in Settings > API Key")
-      return
-    }
-
     try {
-      const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${settings.apiKey}`,
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [{ role: "user", content: 'Say "API test successful" and nothing else' }],
-          temperature: 0.1,
-          max_tokens: 10,
-        }),
+      const response = await postAIChat({
+        model: API_CONFIG.MODEL,
+        messages: [{ role: "user", content: 'Say "API test successful" and nothing else' }],
+        temperature: 0.1,
+        max_tokens: 10,
       })
 
       console.log("Test API response status:", response.status)
@@ -350,15 +400,15 @@ function App() {
       if (response.ok) {
         const data = await response.json()
         console.log("API Test successful")
-        alert("API Test successful! Your API key is working.")
+        notifySuccess("API Test successful! AI proxy is responding.")
       } else {
-        const errorData = await response.json()
+        const errorData = await response.json().catch(() => ({}))
         console.error("API Test failed with status:", response.status)
-        alert(`API Test failed: ${errorData.error?.message || "Unknown error"}`)
+        notifyError(`API Test failed: ${errorData.error?.message || "Unknown error"}`)
       }
     } catch (error) {
       console.error("API Test error occurred")
-      alert(`API Test error: ${error instanceof Error ? error.message : "Unknown error"}`)
+      notifyError(`API Test error: ${error instanceof Error ? error.message : "Unknown error"}`)
     }
   }
 
@@ -410,13 +460,31 @@ function App() {
             </div>
 
             {/* Calorie Dashboard */}
-            <CalorieDashboard totals={dailyTotals} settings={settings} />
+            <FeatureErrorBoundary
+              featureName="Calorie Dashboard"
+              fallback={({ error, reset }) => (
+                <DashboardErrorCard
+                  title="Calorie dashboard unavailable"
+                  message="We couldn't load your calorie summary. Your meals are still available."
+                  errorDetails={error.message}
+                  onRetry={reset}
+                />
+              )}
+            >
+              <Suspense
+                fallback={
+                  <DashboardLoadingCard
+                    title="Loading calorie dashboard"
+                    description="Preparing today's calorie summary."
+                  />
+                }
+              >
+                <CalorieDashboard totals={dailyTotals} settings={settings} />
+              </Suspense>
+            </FeatureErrorBoundary>
 
             {/* Online Status Bar */}
             <OnlineStatusBar isOnline={isOnline} />
-
-            {/* API Key Status */}
-            <APIKeyStatus apiKey={settings.apiKey} onOpenSettings={() => setIsSettingsOpen(true)} />
 
             {/* Debug Tools */}
             <DebugTools testAPI={testAPI} onOpenUtilities={() => setIsUtilityOpen(true)} />
@@ -427,59 +495,71 @@ function App() {
                 setActiveView("tracker")
               }}
             >
-              <MealPlanGenerator
-                settings={settings}
-                currentPlan={currentPlan}
-                templates={templates}
-                userPantry={userPantry}
-                isGenerating={isGenerating}
-                error={mealPlanError}
-                onGeneratePlan={generateMealPlan}
-                onGeneratePlanFromPantry={generateMealPlanFromPantry}
-                onSavePantry={savePantry}
-                onRegeneratePlan={regenerateMealPlan}
-                onSaveTemplate={saveTemplate}
-                onLoadTemplate={loadTemplate}
-                onClearPlan={clearPlan}
-                onGenerateShoppingList={handleGenerateShoppingList}
-                onGenerateMealPrep={handleGenerateMealPrep}
-                onAddToShoppingList={(item) => {
-                  addMealToShoppingList({
-                    id: item.id,
-                    foodName: item.name,
-                    description: item.name,
-                    servingSize: `${item.weightGrams}g`,
-                    nutrition: {
+              <Suspense
+                fallback={
+                  <DashboardLoadingCard title="Loading meal planner" description="Preparing your meal plan tools." />
+                }
+              >
+                <MealPlanGenerator
+                  settings={settings}
+                  currentPlan={currentPlan}
+                  templates={templates}
+                  userPantry={userPantry}
+                  isGenerating={isGenerating}
+                  error={mealPlanError ? mealPlanError.userMessage : null}
+                  onGeneratePlan={generateMealPlan}
+                  onGeneratePlanFromPantry={generateMealPlanFromPantry}
+                  onSavePantry={savePantry}
+                  onRegeneratePlan={regenerateMealPlan}
+                  onSaveTemplate={saveTemplate}
+                  onLoadTemplate={loadTemplate}
+                  onClearPlan={clearPlan}
+                  onGenerateShoppingList={handleGenerateShoppingList}
+                  onGenerateMealPrep={handleGenerateMealPrep}
+                  onAddToShoppingList={(item) => {
+                    addMealToShoppingList({
+                      id: item.id,
+                      foodName: item.name,
+                      description: item.name,
+                      servingSize: `${item.weightGrams}g`,
+                      nutrition: {
+                        calories: item.calories,
+                        protein_g: item.protein,
+                        carbs_g: item.carbs,
+                        fat_g: item.fat,
+                      },
+                      timestamp: new Date().toISOString(),
+                      category: "snack",
+                    })
+                  }}
+                  onToggleFavorite={(item) => {
+                    toggleFoodItemFavorite({
+                      id: item.id,
+                      name: item.name,
                       calories: item.calories,
-                      protein_g: item.protein,
-                      carbs_g: item.carbs,
-                      fat_g: item.fat,
-                    },
-                    timestamp: new Date().toISOString(),
-                    category: "snack",
-                  })
-                }}
-                onToggleFavorite={(item) => {
-                  toggleFoodItemFavorite({
-                    id: item.id,
-                    name: item.name,
-                    calories: item.calories,
-                    protein: item.protein,
-                    carbs: item.carbs,
-                    fat: item.fat,
-                    emoji: item.emoji,
-                  })
-                }}
-                isFavorite={(item) => isFoodItemFavorite(item.id)}
-                isInShoppingList={(item) => isItemInList(item.name)}
-                onSwapFood={(mealType, itemId, newItem) => {
-                  swapFoodItem(mealType, itemId, newItem)
-                }}
-              />
+                      protein: item.protein,
+                      carbs: item.carbs,
+                      fat: item.fat,
+                      emoji: item.emoji,
+                    })
+                  }}
+                  isFavorite={(item) => isFoodItemFavorite(item.id)}
+                  isInShoppingList={(item) => isItemInList(item.name)}
+                  onSwapFood={(mealType, itemId, newItem) => {
+                    swapFoodItem(mealType, itemId, newItem)
+                  }}
+                />
+              </Suspense>
             </MealPlannerBoundary>
 
             <InsightsBoundary onViewMeals={() => setActiveView("tracker")}>
-              <InsightsDashboard apiKey={settings.apiKey} meals={meals} />
+              <Suspense
+                fallback={
+                  <DashboardLoadingCard title="Loading insights" description="Generating insight widgets." />
+                }
+              >
+                <InsightsDashboard meals={meals} />
+              </Suspense>
             </InsightsBoundary>
 
             {/* Manual Meal Input */}
@@ -552,7 +632,13 @@ function App() {
               </button>
             </div>
             <LifestyleBoundary onBasicView={() => setActiveView("tracker")}>
-              <LifestyleDashboard date={currentDate} />
+              <Suspense
+                fallback={
+                  <DashboardLoadingCard title="Loading lifestyle dashboard" description="Syncing wellness data." />
+                }
+              >
+                <LifestyleDashboard date={currentDate} />
+              </Suspense>
             </LifestyleBoundary>
           </>
         )
@@ -603,7 +689,13 @@ function App() {
                 setActiveView("tracker")
               }}
             >
-              <AnalyticsDashboard settings={settings} />
+              <Suspense
+                fallback={
+                  <DashboardLoadingCard title="Loading analytics" description="Preparing your reports." />
+                }
+              >
+                <AnalyticsDashboard settings={settings} />
+              </Suspense>
             </AnalyticsBoundary>
           </>
         )
@@ -649,7 +741,13 @@ function App() {
               </button>
             </div>
             <InsightsBoundary onViewMeals={() => setActiveView("tracker")}>
-              <InsightsDashboard apiKey={settings.apiKey} meals={meals} />
+              <Suspense
+                fallback={
+                  <DashboardLoadingCard title="Loading insights" description="Preparing your insights dashboard." />
+                }
+              >
+                <InsightsDashboard meals={meals} />
+              </Suspense>
             </InsightsBoundary>
           </>
         )
@@ -657,17 +755,23 @@ function App() {
       case "shopping":
         return (
           <ShoppingListBoundary>
-            <ShoppingListView
-              shoppingList={shoppingList}
-              onToggleItem={toggleItemCheck}
-              onRemoveItem={removeItem}
-              onAddCustomItem={addCustomItem}
-              onClearList={() => {
-                clearList()
-                setActiveView("tracker")
-              }}
-              onClose={() => setActiveView("tracker")}
-            />
+            <Suspense
+              fallback={
+                <DashboardLoadingCard title="Loading shopping list" description="Fetching your items." />
+              }
+            >
+              <ShoppingListView
+                shoppingList={shoppingList}
+                onToggleItem={toggleItemCheck}
+                onRemoveItem={removeItem}
+                onAddCustomItem={addCustomItem}
+                onClearList={() => {
+                  clearList()
+                  setActiveView("tracker")
+                }}
+                onClose={() => setActiveView("tracker")}
+              />
+            </Suspense>
           </ShoppingListBoundary>
         )
 
@@ -1080,6 +1184,8 @@ function App() {
           onOpenCompare={() => setIsCompareOpen(true)}
           activeView={activeView}
           onViewChange={setActiveView}
+          userEmail={email}
+          onSignOut={handleSignOut}
         />
 
         <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">{renderView()}</main>
@@ -1090,9 +1196,6 @@ function App() {
           onClose={() => setIsSettingsOpen(false)}
           settings={settings}
           onSave={handleSettingsSave}
-          availableLanguages={availableLanguages}
-          currentLanguage={language}
-          onLanguageChange={setLanguage}
         />
 
         <EditMealModal
@@ -1127,27 +1230,20 @@ function App() {
         <VoiceLoggerModal isOpen={isVoiceOpen} onClose={() => setIsVoiceOpen(false)} onConfirm={handleVoiceConfirm} />
 
         {/* Food Comparison Modal */}
-        <FoodVersusCard isOpen={isCompareOpen} onClose={() => setIsCompareOpen(false)} apiKey={settings.apiKey} />
+        <FoodVersusCard isOpen={isCompareOpen} onClose={() => setIsCompareOpen(false)} />
 
         {/* NutriBot Widget */}
-        <NutriBotWidget apiKey={settings.apiKey} />
+        <NutriBotWidget />
 
         {/* Quick Add Widget */}
         <QuickAddWidget
-          apiKey={settings.apiKey}
           onMealAdded={(meal) => {
             addMealDirectly(meal) // FIXED: NoRedeclare issue for addMealDirectly
           }}
         />
 
         {/* Global Error Banner */}
-        <ErrorBanner
-          onManualMode={() => {
-            // Switch to manual meal input mode
-            setActiveView("tracker")
-          }}
-          onReload={triggerHardReload}
-        />
+        <ErrorBanner />
 
         <MonitoringDebugPanel />
 
@@ -1157,6 +1253,24 @@ function App() {
       </div>
     </RootErrorBoundary>
   )
+}
+
+function App() {
+  const { userId, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-sm text-gray-500 dark:text-gray-400">Checking your session...</div>
+      </div>
+    )
+  }
+
+  if (!userId) {
+    return <AuthScreen />
+  }
+
+  return <AppShell />
 }
 
 export default App

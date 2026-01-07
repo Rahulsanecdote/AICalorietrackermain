@@ -6,16 +6,12 @@ import { Button } from '../ui/button';
 import { useNutriTutor, QUICK_PROMPTS } from '../../hooks/useNutriTutor';
 import { EduMessage } from '../../types/ai';
 
-interface NutriBotWidgetProps {
-  apiKey: string;
-}
-
-export function NutriBotWidget({ apiKey }: NutriBotWidgetProps) {
+export function NutriBotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { session, status, error, sendMessage, clearSession, quickPrompts } = useNutriTutor(apiKey);
+  const { session, status, error, sendMessage, clearSession, quickPrompts } = useNutriTutor();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -235,7 +231,7 @@ function MessageBubble({ message }: { message: EduMessage }) {
 }
 
 // Compact version for embedding in other components
-export function NutriBotButton({ apiKey, onClick }: { apiKey: string; onClick?: () => void }) {
+export function NutriBotButton({ onClick }: { onClick?: () => void }) {
   return (
     <Button
       onClick={onClick}

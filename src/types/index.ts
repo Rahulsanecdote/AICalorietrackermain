@@ -64,7 +64,6 @@ export interface Meal {
 
 export interface UserSettings {
   dailyCalorieGoal: number;
-  apiKey: string;
   proteinGoal_g: number;
   carbsGoal_g: number;
   fatGoal_g: number;
@@ -230,26 +229,3 @@ export interface PantryInputProps {
   onSave: (pantryData: PantryInputData, saveAsDefault: boolean) => void;
   onGeneratePlan: (pantryData: PantryInputData) => void;
 }
-
-// Re-export all types for convenient imports
-export type {
-  NutritionInfo,
-  Meal,
-  UserSettings,
-  DailyTotals,
-  AIResponse,
-  AppState,
-  MealCategory,
-  UserGoal,
-  ActivityLevel,
-  Micronutrients,
-  FoodItem,
-  MealSection,
-  DailyMealPlan,
-  MealPlanTemplate,
-  MealPlanGenerationRequest,
-  MealPlanGenerationResponse,
-  PantryData,
-  PantryInputData,
-  PantryInputProps,
-};

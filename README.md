@@ -7,7 +7,7 @@ A production-ready AI-powered nutrition tracking application with comprehensive 
 ### Prerequisites
 - Node.js 18+ installed
 - pnpm package manager (`npm install -g pnpm`)
-- OpenAI API key (get one at https://platform.openai.com/api-keys)
+- OpenAI API key configured on the server
 
 ### Run the App
 
@@ -15,8 +15,11 @@ A production-ready AI-powered nutrition tracking application with comprehensive 
 # Install dependencies
 pnpm install
 
+# Start AI proxy (in a separate terminal)
+OPENAI_API_KEY=sk-... AI_PROXY_AUTH_TOKEN=dev-token pnpm server
+
 # Start development server
-pnpm dev
+VITE_API_AUTH_TOKEN=dev-token pnpm dev
 ```
 
 The app will start at **http://localhost:5173**
@@ -24,9 +27,7 @@ The app will start at **http://localhost:5173**
 ### First-Time Setup
 
 1. Open http://localhost:5173 in your browser
-2. Click the Settings icon in the top right
-3. Enter your OpenAI API key
-4. Start tracking meals!
+2. Start tracking meals!
 
 ## Features
 
@@ -52,6 +53,7 @@ The app will start at **http://localhost:5173**
 - **UI**: Radix UI + Tailwind CSS
 - **State**: React Context + localStorage
 - **AI**: OpenAI GPT-4
+- **Backend**: Minimal Node.js API proxy
 - **Charts**: Recharts
 - **Deployment**: Vercel
 
@@ -80,12 +82,50 @@ pnpm preview          # Preview production build
 
 ## Environment Variables
 
-Configure in the app UI or create a `.env` file:
+Configure via environment variables or a `.env` file:
 
 ```env
-# Optional: Pre-configure OpenAI API key
-VITE_OPENAI_API_KEY=sk-...
+# Backend (server/index.mjs)
+OPENAI_API_KEY=sk-...
+AI_PROXY_AUTH_TOKEN=your-shared-token
+AI_PROXY_AUTH_REQUIRED=true
+AI_PROXY_ALLOWED_ORIGINS=http://localhost:5173
+AI_PROXY_PORT=3001
+AI_PROXY_RATE_LIMIT_MAX=60
+AI_PROXY_RATE_LIMIT_WINDOW_MS=60000
+
+# Frontend
+VITE_API_AUTH_TOKEN=your-shared-token
+VITE_API_BASE_URL=http://localhost:3001
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
 ```
+
+If you want to disable auth in local development, set `AI_PROXY_AUTH_REQUIRED=false` and omit `VITE_API_AUTH_TOKEN`.
+
+Optional: set `VITE_API_PROXY_TARGET` to override the Vite dev proxy target (defaults to `http://localhost:3001`).
+
+## Supabase Migration
+
+Schema, rollback, and seed scripts live in `supabase/migrations`.
+
+Recommended workflow (local Supabase CLI):
+1. `supabase start`
+2. `supabase db reset` to apply migrations + seed data
+
+Rollback strategy:
+- Run the matching `*.down.sql` scripts in `supabase/migrations` in reverse order.
+- For production, apply rollbacks in a transaction and validate with `supabase/validation.sql`.
+
+Migrating existing local exports:
+1. Export data from the app (`Utility Panel` > Export JSON).
+2. Generate SQL for Supabase:
+   ```bash
+   node scripts/migrate-local-export.mjs path/to/export.json <auth_user_id> output.sql
+   ```
+3. Execute `output.sql` in Supabase SQL editor.
+
+Note: when signed in, the app syncs settings, meals, and meal plans to Supabase. When signed out, it falls back to localStorage for offline use.
 
 ## Deployment
 
@@ -112,13 +152,13 @@ pnpm dev
 1. Open DevTools Console
 2. Run: `localStorage.clear()`
 3. Refresh the page
-4. Re-enter your API key in Settings
+4. Re-enter your settings as needed
 
 ### AI Features Not Working
 
-1. Verify API key is set in Settings
-2. Check console for errors
-3. Ensure you have OpenAI API credits
+1. Ensure the AI proxy is running (`node server/index.mjs`)
+2. Verify `OPENAI_API_KEY` is set on the server
+3. If auth is enabled, confirm `VITE_API_AUTH_TOKEN` matches `AI_PROXY_AUTH_TOKEN`
 
 ## License
 

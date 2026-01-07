@@ -194,7 +194,6 @@ function mergedSettings(
       typeof partial.dailyCalorieGoal === 'number'
         ? partial.dailyCalorieGoal
         : defaults.dailyCalorieGoal,
-    apiKey: partial.apiKey ?? defaults.apiKey,
     proteinGoal_g:
       typeof partial.proteinGoal_g === 'number'
         ? partial.proteinGoal_g
