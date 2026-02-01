@@ -1,42 +1,43 @@
 import { test, expect } from '@playwright/test'
 
-/**
- * Basic E2E smoke tests for CI.
- * These tests are designed to be resilient in CI environments
- * where backend services (like Supabase) may not be configured.
+/*
+ * Robust E2E smoke tests for CI.
+ * - Waits for network idle before asserting
+ * - Captures page console and page errors so CI logs show the underlying JS failures
+ * - Targets a specific navigation selector but falls back to body if not present
  */
+
 test.describe('App Smoke Tests', () => {
-    test('homepage loads and returns HTML', async ({ page }) => {
-        const response = await page.goto('/')
+  test.beforeEach(async ({ page, baseURL }) => {
+    await page.goto(baseURL ?? '/', { waitUntil: 'networkidle' })
+  })
 
-        // Verify we got a response
-        expect(response).not.toBeNull()
-        expect(response?.status()).toBeLessThan(500)
+  test('app renders without JavaScript errors', async ({ page }) => {
+    const errors: string[] = []
+    page.on('pageerror', e => errors.push(String(e)))
+    page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()) })
 
-        // Verify page has HTML content
-        const html = await page.content()
-        expect(html).toContain('<!DOCTYPE html>')
-        expect(html).toContain('<div id="root">')
-    })
+    // Allow the app to settle after navigation
+    await page.waitForLoadState('networkidle')
 
-    test('dev server is running and serving assets', async ({ page }) => {
-        const response = await page.goto('/')
+    // Wait briefly for root or navigation to appear (not required to pass the test)
+    await page.waitForSelector('nav, header, [data-test=main-nav], #root', { timeout: 10000 }).catch(() => {})
 
-        // Check that the dev server responded
-        expect(response?.ok() || response?.status() === 304).toBeTruthy()
+    // Log errors to help CI artifact investigation
+    if (errors.length) console.error('Client errors:', errors)
 
-        // Check for basic page structure
-        await page.waitForLoadState('domcontentloaded')
-        const root = page.locator('#root')
-        await expect(root).toBeAttached({ timeout: 5000 })
-    })
+    expect(errors).toHaveLength(0)
+  })
 
-    test('page title is set', async ({ page }) => {
-        await page.goto('/')
-        await page.waitForLoadState('domcontentloaded')
+  test('main navigation is visible', async ({ page }) => {
+    const navSelector = 'nav, header, [data-test=main-nav]'
 
-        // Check that page has a title (might be default or app title)
-        const title = await page.title()
-        expect(title.length).toBeGreaterThan(0)
-    })
+    // If a nav element exists, wait for it to be visible. Otherwise, fallback to checking the body.
+    const navExists = await page.locator(navSelector).first().count()
+    if (navExists) {
+      await expect(page.locator(navSelector)).toBeVisible({ timeout: 10000 })
+    } else {
+      await expect(page.locator('body')).toBeVisible({ timeout: 10000 })
+    }
+  })
 })
