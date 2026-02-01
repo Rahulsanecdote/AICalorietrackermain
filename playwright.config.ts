@@ -9,7 +9,10 @@ export default defineConfig({
     reporter: 'html',
     use: {
         baseURL: 'http://localhost:5173',
+        // helpful artifacts for debugging CI flakes
         trace: 'on-first-retry',
+        video: 'retain-on-failure',
+        screenshot: 'only-on-failure',
     },
     projects: [
         {
@@ -18,9 +21,12 @@ export default defineConfig({
         },
     ],
     webServer: {
-        command: 'pnpm dev',
+        // Build then preview the production build
+        command: 'pnpm build && pnpm preview --port 5173',
         url: 'http://localhost:5173',
-        reuseExistingServer: !process.env.CI,
-        timeout: 120000,
+        // Ensure Playwright starts the server on CI so tests run against the preview build
+        reuseExistingServer: process.env.CI ? false : true,
+        // Increase timeout for CI build step
+        timeout: 240_000,
     },
 })
