@@ -437,7 +437,7 @@ export function createDegradedState<T>(data: T, error: AppError, previousState?:
 /**
  * Reset an operation state to idle
  */
-export function resetState<T>(state?: OperationState<T>): OperationState<T> {
+export function resetState<T>(): OperationState<T> {
   return createInitialState<T>()
 }
 

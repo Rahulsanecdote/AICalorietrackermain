@@ -39,6 +39,10 @@ export default function ShoppingListView({
   onClose,
 }: ShoppingListViewProps) {
   const { t } = useTranslation();
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemCategory, setNewItemCategory] = useState<ShoppingItem['category']>('other');
+  const [showAddForm, setShowAddForm] = useState(false);
+
   // Handle null or undefined shoppingList
   if (!shoppingList) {
     return (
@@ -57,10 +61,6 @@ export default function ShoppingListView({
       </div>
     );
   }
-
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemCategory, setNewItemCategory] = useState<ShoppingItem['category']>('other');
-  const [showAddForm, setShowAddForm] = useState(false);
 
   // Group items by category
   const itemsByCategory = shoppingList.items.reduce((acc, item) => {
@@ -113,7 +113,7 @@ export default function ShoppingListView({
         <p className="text-sm text-white/80 mt-1">
           Generated {new Date(shoppingList.generatedAt).toLocaleDateString()} • {checkedCount}/{totalCount} items
         </p>
-        
+
         {/* Progress bar */}
         <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
           <div
@@ -202,17 +202,15 @@ export default function ShoppingListView({
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${
-                      item.checked ? 'bg-gray-50' : ''
-                    }`}
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${item.checked ? 'bg-gray-50' : ''
+                      }`}
                   >
                     <button
                       onClick={() => onToggleItem(item.id)}
-                      className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                        item.checked
+                      className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${item.checked
                           ? 'bg-green-500 border-green-500 text-white'
                           : 'border-gray-300 hover:border-green-400'
-                      }`}
+                        }`}
                     >
                       {item.checked && <Check className="w-3 h-3" />}
                     </button>

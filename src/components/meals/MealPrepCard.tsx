@@ -1,4 +1,4 @@
-import React from 'react';
+
 import { MealPrepSuggestion } from '../../types/recipes';
 import { Clock, Calendar, CheckCircle, Zap } from 'lucide-react';
 
@@ -44,27 +44,25 @@ export default function MealPrepCard({
         <div className="space-y-2">
           {suggestion.tasks.map((task, index) => {
             const isCompleted = completedTasks.includes(index);
-            
+
             return (
               <div
                 key={index}
-                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
-                  isCompleted
+                className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${isCompleted
                     ? 'bg-green-50 border border-green-200'
                     : 'bg-white border border-gray-200'
-                }`}
+                  }`}
               >
                 <button
                   onClick={() => onTaskComplete && onTaskComplete(index)}
-                  className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
-                    isCompleted
+                  className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${isCompleted
                       ? 'bg-green-500 border-green-500 text-white'
                       : 'border-gray-300 hover:border-green-400'
-                  }`}
+                    }`}
                 >
                   {isCompleted && <CheckCircle className="w-3 h-3" />}
                 </button>
-                
+
                 <div className="flex-1">
                   <p className={`text-sm ${isCompleted ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
                     {task.task}

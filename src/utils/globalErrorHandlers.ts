@@ -3,7 +3,7 @@
  * Catches unhandled promise rejections and uncaught errors
  */
 
-import { AppError, toAppError, logError, ERROR_CODES, createAppError, generateErrorId } from './errors';
+import { AppError, toAppError, logError, ERROR_CODES, createAppError } from './errors';
 import { notifyAppError } from './notifications';
 
 // ============================================================================
@@ -13,23 +13,23 @@ import { notifyAppError } from './notifications';
 function handleUnhandledRejection(event: PromiseRejectionEvent): void {
   // Prevent the default browser behavior
   event.preventDefault();
-  
+
   // Convert the rejection reason to an AppError
   const appError = toAppError(event.reason, {
     type: 'unhandled_promise_rejection',
   });
-  
+
   // Log the error
   logError(appError);
 
   config.onUnhandledRejection?.(appError);
-  
+
   // Show a non-blocking notification
   notifyAppError(appError, {
     showReload: !appError.retryable,
     showManualMode: appError.code === ERROR_CODES.NETWORK_OFFLINE,
   });
-  
+
   // Log to console for debugging
   console.error('[Unhandled Promise Rejection]', {
     errorId: appError.errorId,
@@ -50,11 +50,11 @@ function handleUncaughtError(event: ErrorEvent): void {
     'ResizeObserver',
     'Non-Error promise rejection',
   ];
-  
+
   if (ignoredPatterns.some(pattern => event.message.includes(pattern))) {
     return;
   }
-  
+
   // Create an AppError from the error event
   const appError = createAppError(
     ERROR_CODES.UNKNOWN_ERROR,
@@ -68,17 +68,17 @@ function handleUncaughtError(event: ErrorEvent): void {
       colno: event.colno,
     }
   );
-  
+
   // Log the error
   logError(appError, event.error?.stack);
 
   config.onUncaughtError?.(appError);
-  
+
   // Show a non-blocking notification
   notifyAppError(appError, {
     showReload: true,
   });
-  
+
   // Log to console for debugging
   console.error('[Uncaught Error]', {
     errorId: appError.errorId,
@@ -110,40 +110,7 @@ export function clearChunkErrorInfo(): void {
   chunkErrorInfo = null;
 }
 
-function handleChunkError(error: Error): void {
-  const message = error.message.toLowerCase();
-  
-  // Detect chunk loading errors
-  const chunkMatch = message.match(/loading chunk (\d+)/i);
-  const moduleMatch = message.match(/failed to fetch dynamically imported module (.+)/i);
-  
-  if (chunkMatch || moduleMatch) {
-    chunkErrorInfo = {
-      chunkId: chunkMatch?.[1],
-      moduleId: moduleMatch?.[1],
-      errorId: generateErrorId(),
-    };
-    
-    const appError = createAppError(
-      ERROR_CODES.CHUNK_LOAD_FAILED,
-      'A new version of the app is available. Please reload to update.',
-      false,
-      error,
-      chunkErrorInfo
-    );
-    
-    logError(appError);
 
-    config.onChunkError?.(error, chunkErrorInfo);
-    
-    // Show a prominent reload notification
-    notifyAppError(appError, {
-      showReload: true,
-    });
-    
-    console.error('[Chunk Load Error]', chunkErrorInfo);
-  }
-}
 
 // ============================================================================
 // Global Error Handler Setup
@@ -206,7 +173,7 @@ export function isGlobalErrorHandlersSetup(): boolean {
 export function triggerRecoveryReload(): void {
   // Clear any chunk error info
   clearChunkErrorInfo();
-  
+
   // Attempt to reload
   if (typeof window !== 'undefined') {
     window.location.reload();
@@ -219,7 +186,7 @@ export function triggerRecoveryReload(): void {
 export async function triggerHardReload(): Promise<void> {
   // Clear chunk error info
   clearChunkErrorInfo();
-  
+
   if (typeof window !== 'undefined') {
     // Try to clear service workers and caches
     if ('caches' in window) {
@@ -230,7 +197,7 @@ export async function triggerHardReload(): Promise<void> {
         // Ignore cache errors
       }
     }
-    
+
     // Clear localStorage except for essential data
     const essentialKeys = ['settings', 'userSettings'];
     const dataToKeep: Record<string, string> = {};
@@ -241,23 +208,23 @@ export async function triggerHardReload(): Promise<void> {
           dataToKeep[key] = value;
         }
       });
-      
+
       localStorage.clear();
-      
+
       Object.entries(dataToKeep).forEach(([key, value]) => {
         localStorage.setItem(key, value);
       });
     } catch {
       // If we can't access localStorage, just reload
     }
-    
+
     // Clear module registry to force fresh loads
     if ('webpackChunk_N_E' in window) {
       try {
         // @ts-expect-error webpack chunk access
         window.webpackChunk_N_E.forEach((chunk: unknown[]) => {
-          chunk.forEach((module: { id?: string }) => {
-            if (module.id?.includes('chunk')) {
+          chunk.forEach((module: unknown) => {
+            if ((module as { id?: string }).id?.includes('chunk')) {
               // Mark chunk as failed
             }
           });
@@ -266,7 +233,7 @@ export async function triggerHardReload(): Promise<void> {
         // Ignore
       }
     }
-    
+
     // Perform the reload
     window.location.reload();
   }

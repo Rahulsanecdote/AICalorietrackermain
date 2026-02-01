@@ -24,7 +24,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
     lastResult,
     processInput,
     createMealFromResult,
-    closeWidget,
+
     reset,
   } = useQuickAdd({
     onSuccess: (meal) => {
@@ -35,7 +35,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
     },
   });
 
-  const { isLoading } = useNutritionAI();
+  useNutritionAI();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,11 +67,10 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsExpanded(true)}
-        className={`fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center ${
-          isExpanded
-            ? 'bg-gray-500 opacity-0 scale-0'
-            : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-xl transform hover:scale-105'
-        }`}
+        className={`fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center ${isExpanded
+          ? 'bg-gray-500 opacity-0 scale-0'
+          : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-xl transform hover:scale-105'
+          }`}
         aria-label={t('title')}
       >
         <Plus className="w-6 h-6 text-white" />
@@ -103,11 +102,10 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                   <button
                     key={cat}
                     onClick={() => setCategory(cat)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                      category === cat
-                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200'
-                    }`}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${category === cat
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                      }`}
                   >
                     {t(`meals.${cat}`)}
                   </button>
@@ -132,11 +130,10 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                   <button
                     type="submit"
                     disabled={!input.trim() || isProcessing}
-                    className={`absolute right-2 bottom-2 p-2 rounded-lg transition-colors ${
-                      !input.trim() || isProcessing
-                        ? 'bg-gray-200 text-gray-400'
-                        : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                    }`}
+                    className={`absolute right-2 bottom-2 p-2 rounded-lg transition-colors ${!input.trim() || isProcessing
+                      ? 'bg-gray-200 text-gray-400'
+                      : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                      }`}
                   >
                     {isProcessing ? (
                       <Loader2 className="w-5 h-5 animate-spin" />

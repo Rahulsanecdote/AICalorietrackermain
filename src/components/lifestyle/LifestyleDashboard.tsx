@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import WaterTracker from './WaterTracker';
 import ExerciseLogger from './ExerciseLogger';
@@ -57,7 +57,7 @@ export default function LifestyleDashboard({ date }: LifestyleDashboardProps) {
 
   const waterMl = water.totalMl;
   const waterPercent = water.percentage;
-  const waterGoal = water.goalMl;
+
   const waterStreak = water.streak;
 
   const exerciseMinutes = exercise.totalMinutes;
@@ -224,8 +224,8 @@ export default function LifestyleDashboard({ date }: LifestyleDashboardProps) {
               {overallScore < 50
                 ? t('lifestyle.tipStartSmall')
                 : overallScore < 80
-                ? t('lifestyle.tipDoingGreat')
-                : t('lifestyle.tipOutstanding')}
+                  ? t('lifestyle.tipDoingGreat')
+                  : t('lifestyle.tipOutstanding')}
             </p>
           </div>
         </div>

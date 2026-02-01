@@ -83,7 +83,7 @@ export function useProgressPhotos(): UseProgressPhotosReturn {
       // Check photo count limit
       if (photos.length >= MAX_PHOTOS) {
         // Remove oldest photo
-        const sorted = [...photos].sort((a, b) => 
+        const sorted = [...photos].sort((a, b) =>
           new Date(a.date).getTime() - new Date(b.date).getTime()
         );
         setPhotos(sorted.slice(1));
@@ -94,13 +94,13 @@ export function useProgressPhotos(): UseProgressPhotosReturn {
 
       const newPhoto: ProgressPhoto = {
         id: uuidv4(),
-        date: date || new Date().toISOString().split('T')[0],
+        date: date || (new Date().toISOString().split('T')[0] ?? new Date().toISOString()),
         frontUrl: compressedUrl,
         weightAtTime: weight,
         createdAt: new Date().toISOString(),
       };
 
-      setPhotos((prev) => 
+      setPhotos((prev) =>
         [...prev, newPhoto].sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
         )

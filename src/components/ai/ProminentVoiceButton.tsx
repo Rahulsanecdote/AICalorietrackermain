@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Mic, MicOff, Volume2, Settings } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Mic, MicOff, Volume2 } from 'lucide-react';
 
 interface ProminentVoiceButtonProps {
   onClick: () => void;

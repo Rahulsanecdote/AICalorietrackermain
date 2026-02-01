@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import {
   Sparkles,
@@ -76,17 +76,7 @@ export default function MealPlanGenerator({
   const [showPantryInput, setShowPantryInput] = useState(false)
   const [swappingItemId, setSwappingItemId] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Load today's plan from localStorage if exists
-    const today = new Date().toISOString().split("T")[0]
-    const savedPlans = localStorage.getItem("meal-plans")
-    if (savedPlans) {
-      const plans = JSON.parse(savedPlans)
-      const todayPlan = plans.find((plan: any) => plan.date === today)
-      // Note: We can't directly set the plan here as it's handled by the hook
-      // This is just to show the existing plan when component mounts
-    }
-  }, [])
+
 
   const handleAIPlanGeneration = async () => {
     console.log("[v0] Generate Suggestions clicked")
@@ -109,9 +99,7 @@ export default function MealPlanGenerator({
     }
   }
 
-  const handlePantryPlanGeneration = () => {
-    setShowPantryInput(true)
-  }
+
 
   const handleGeneratePlanFromPantry = async (pantryData: PantryInputData) => {
     await onGeneratePlanFromPantry(pantryData)
@@ -270,11 +258,11 @@ Requirements:
         initialData={
           userPantry
             ? {
-                breakfast: userPantry.breakfast,
-                lunch: userPantry.lunch,
-                dinner: userPantry.dinner,
-                snacks: userPantry.snacks,
-              }
+              breakfast: userPantry.breakfast,
+              lunch: userPantry.lunch,
+              dinner: userPantry.dinner,
+              snacks: userPantry.snacks,
+            }
             : undefined
         }
         onSave={handleSavePantry}
@@ -425,14 +413,14 @@ Requirements:
             <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
               <ChefHat className="w-6 h-6 text-amber-500" />
               {t("mealPlan.planTitle")}
-              {currentPlan.sourceType === "pantry_based" && (
+              {currentPlan?.sourceType === "pantry_based" && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
                   <Package className="w-3 h-3" />
                   {t("mealPlan.fromPantry")}
                 </span>
               )}
             </h2>
-            {currentPlan.summary && <p className="text-sm text-gray-600 mt-1">{currentPlan.summary}</p>}
+            {currentPlan?.summary && <p className="text-sm text-gray-600 mt-1">{currentPlan.summary}</p>}
 
             {/* Accuracy Indicator */}
             {(() => {
@@ -442,13 +430,12 @@ Requirements:
               return (
                 <div className="flex items-center gap-2 mt-2">
                   <div
-                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                      accuracy.status === "excellent"
-                        ? "bg-green-100 text-green-700"
-                        : accuracy.status === "good"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
-                    }`}
+                    className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${accuracy.status === "excellent"
+                      ? "bg-green-100 text-green-700"
+                      : accuracy.status === "good"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-red-100 text-red-700"
+                      }`}
                   >
                     <Target className="w-3 h-3" />
                     {accuracy.isAccurate ? (
@@ -463,7 +450,7 @@ Requirements:
                       </>
                     )}
                   </div>
-                  {currentPlan.regenerationCount && currentPlan.regenerationCount > 1 && (
+                  {currentPlan?.regenerationCount && currentPlan.regenerationCount > 1 && (
                     <span className="text-xs text-gray-500">
                       {t("mealPlan.attempts", { count: currentPlan.regenerationCount })}
                     </span>
@@ -526,9 +513,8 @@ Requirements:
           </div>
           <div className="h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                isOverGoal ? "bg-red-500" : "bg-gradient-to-r from-amber-400 to-orange-400"
-              }`}
+              className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? "bg-red-500" : "bg-gradient-to-r from-amber-400 to-orange-400"
+                }`}
               style={{ width: `${calorieProgress}%` }}
             />
           </div>
@@ -556,7 +542,7 @@ Requirements:
 
         {/* Meal Sections */}
         <div className="space-y-4">
-          {currentPlan.meals.map((meal) => (
+          {currentPlan?.meals.map((meal) => (
             <MealSectionCard
               key={meal.type}
               meal={meal}

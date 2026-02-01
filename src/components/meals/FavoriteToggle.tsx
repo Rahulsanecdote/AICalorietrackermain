@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 interface FavoriteToggleProps {
   isFavorite: boolean;
@@ -7,17 +7,13 @@ interface FavoriteToggleProps {
   showLabel?: boolean;
 }
 
-export default function FavoriteToggle({ 
-  isFavorite, 
-  onToggle, 
+export default function FavoriteToggle({
+  isFavorite,
+  onToggle,
   size = 'md',
-  showLabel = false 
+  showLabel = false
 }: FavoriteToggleProps) {
-  const sizeClasses = {
-    sm: 'w-4 h-4',
-    md: 'w-5 h-5',
-    lg: 'w-6 h-6',
-  };
+
 
   const iconSizeClasses = {
     sm: 'w-3 h-3',
@@ -31,11 +27,10 @@ export default function FavoriteToggle({
         e.stopPropagation();
         onToggle();
       }}
-      className={`inline-flex items-center gap-1.5 transition-all duration-200 ${
-        isFavorite 
-          ? 'text-red-500 hover:text-red-600' 
-          : 'text-gray-400 hover:text-red-400'
-      }`}
+      className={`inline-flex items-center gap-1.5 transition-all duration-200 ${isFavorite
+        ? 'text-red-500 hover:text-red-600'
+        : 'text-gray-400 hover:text-red-400'
+        }`}
       title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
     >
       <svg

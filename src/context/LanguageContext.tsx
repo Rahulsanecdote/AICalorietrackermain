@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import i18n from '../i18n/config';
 
 // Supported languages configuration
@@ -29,7 +29,7 @@ type LanguageContextType = {
 
 const initialContext: LanguageContextType = {
   language: DEFAULT_LANGUAGE,
-  setLanguage: () => {},
+  setLanguage: () => { },
   t: () => '',
   isRtl: false,
   availableLanguages: supportedLanguages,
@@ -37,9 +37,9 @@ const initialContext: LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType>(initialContext);
 
-export function LanguageProvider({ 
+export function LanguageProvider({
   children,
-}: { 
+}: {
   children: ReactNode;
 }) {
   // Initialize language from the global i18n instance (which loads from localStorage via config)

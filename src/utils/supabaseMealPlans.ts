@@ -155,7 +155,7 @@ export async function fetchMealPlanForDate(userId: string, date: string): Promis
 
   return {
     id: plan.id,
-    date: plan.plan_date,
+    date: plan.plan_date ?? new Date().toISOString().split("T")[0],
     targetCalories: plan.target_calories,
     meals: mealSections,
     totalMacros: {
@@ -174,12 +174,12 @@ export async function fetchMealPlanForDate(userId: string, date: string): Promis
     sourceType: plan.source_type,
     usedPantry: pantry
       ? {
-          breakfast: pantry.breakfast ?? "",
-          lunch: pantry.lunch ?? "",
-          dinner: pantry.dinner ?? "",
-          snacks: pantry.snacks ?? "",
-          updatedAt: pantry.updated_at ?? new Date().toISOString(),
-        }
+        breakfast: pantry.breakfast ?? "",
+        lunch: pantry.lunch ?? "",
+        dinner: pantry.dinner ?? "",
+        snacks: pantry.snacks ?? "",
+        updatedAt: pantry.updated_at ?? new Date().toISOString(),
+      }
       : undefined,
     regenerationCount: plan.regeneration_count ?? undefined,
   }

@@ -1,7 +1,7 @@
 import { Meal, UserSettings, MealCategory } from '../types';
 import { Recipe } from '../types/recipes';
 import { LifestyleEntry } from '../types/lifestyle';
-import { STORAGE_KEYS, MEAL_CATEGORIES, BACKUP_VERSION } from '../constants';
+import { BACKUP_VERSION } from '../constants';
 import { validateUserSettings } from './validation';
 import { normalizeSettings } from './settingsNormalization';
 import { v4 as uuidv4 } from 'uuid';
@@ -215,7 +215,12 @@ export function parseCSVFile(content: string): CSVParseResult {
     return result;
   }
 
-  const headers = lines[0].split(',').map((h) => h.trim().toLowerCase());
+  const firstLine = lines[0];
+  if (!firstLine) {
+    result.errors.push('Empty CSV file');
+    return result;
+  }
+  const headers = firstLine.split(',').map((h) => h.trim().toLowerCase());
   const headerMap: Record<string, number> = {};
   headers.forEach((header, index) => {
     headerMap[header] = index;
@@ -232,24 +237,26 @@ export function parseCSVFile(content: string): CSVParseResult {
 
   // Parse data rows
   for (let i = 1; i < lines.length; i++) {
-    const columns = parseCSVLine(lines[i]);
+    const line = lines[i];
+    if (!line) continue;
+    const columns = parseCSVLine(line);
     if (columns.length < headers.length) {
       continue;
     }
 
-    const foodName = columns[headerMap['food name'] || 0];
+    const foodName = columns[headerMap['food name'] ?? 0];
     if (!foodName) {
       result.errors.push(`Missing food name at row ${i + 1}`);
       continue;
     }
 
-    const calories = parseFloat(columns[headerMap['calories'] || 0]) || 0;
-    const protein = parseFloat(columns[headerMap['protein (g)'] || headerMap['protein'] || 0]) || 0;
-    const carbs = parseFloat(columns[headerMap['carbs (g)'] || headerMap['carbs'] || 0]) || 0;
-    const fat = parseFloat(columns[headerMap['fat (g)'] || headerMap['fat'] || 0]) || 0;
-    const category = columns[headerMap['category'] || 0]?.toLowerCase() || 'snack';
-    const description = columns[headerMap['description'] || 0] || foodName;
-    const servingSize = columns[headerMap['serving size'] || headerMap['serving'] || 0] || '1 serving';
+    const calories = parseFloat(columns[headerMap['calories'] ?? 0] ?? '0') || 0;
+    const protein = parseFloat(columns[headerMap['protein (g)'] ?? headerMap['protein'] ?? 0] ?? '0') || 0;
+    const carbs = parseFloat(columns[headerMap['carbs (g)'] ?? headerMap['carbs'] ?? 0] ?? '0') || 0;
+    const fat = parseFloat(columns[headerMap['fat (g)'] ?? headerMap['fat'] ?? 0] ?? '0') || 0;
+    const category = (columns[headerMap['category'] ?? 0] ?? '').toLowerCase() || 'snack';
+    const description = columns[headerMap['description'] ?? 0] || foodName;
+    const servingSize = columns[headerMap['serving size'] ?? headerMap['serving'] ?? 0] || '1 serving';
 
     // Validate numeric values
     if (isNaN(calories) || calories < 0) {

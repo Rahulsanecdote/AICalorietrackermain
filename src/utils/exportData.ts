@@ -2,7 +2,7 @@ import { Meal } from '../types';
 import { Recipe } from '../types/recipes';
 import { LifestyleEntry } from '../types/lifestyle';
 import { UserSettings } from '../types';
-import { STORAGE_KEYS, CURRENT_DATA_VERSION } from '../constants';
+import { CURRENT_DATA_VERSION } from '../constants';
 
 export interface ExportData {
   meals: Meal[];

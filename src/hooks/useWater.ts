@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import useLocalStorage from './useLocalStorage';
-import { WaterEntry, WaterGoal, WATER_PRESETS } from '../types/lifestyle';
+import { WaterEntry, WATER_PRESETS } from '../types/lifestyle';
 import { v4 as uuidv4 } from 'uuid';
 
 const WATER_ENTRIES_KEY = 'act_water_entries';

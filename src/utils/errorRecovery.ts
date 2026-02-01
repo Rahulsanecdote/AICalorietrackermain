@@ -322,6 +322,7 @@ export function getLatestBackup(): { key: string; backup: { manifest: BackupMani
 
   const latestKey = backups[0];
   try {
+    if (!latestKey) return null;
     const backupData = localStorage.getItem(latestKey);
     if (backupData) {
       const parsed = JSON.parse(backupData);

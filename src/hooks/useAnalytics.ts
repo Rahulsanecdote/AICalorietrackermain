@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from 'react';
+import { useCallback } from 'react';
 import { Meal, UserSettings, DailyTotals } from '../types';
 import { NutritionReport, ReportPeriod, DailyNutritionSummary, MacroAverage } from '../types/analytics';
 import useLocalStorage from '../hooks/useLocalStorage';
@@ -21,10 +21,13 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
     const aggregation: Record<string, DailyTotals> = {};
 
     meals.forEach((meal) => {
-      const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
-      
-      if (!aggregation[mealDate]) {
-        aggregation[mealDate] = {
+      const mealDate = new Date(meal.timestamp).toISOString().split('T')[0] ?? '';
+
+      if (!mealDate) return;
+
+      const dateKey = mealDate ?? '';
+      if (!aggregation[dateKey]) {
+        aggregation[dateKey] = {
           calories: 0,
           protein_g: 0,
           carbs_g: 0,
@@ -32,11 +35,12 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
         };
       }
 
-      aggregation[mealDate] = {
-        calories: aggregation[mealDate].calories + meal.nutrition.calories,
-        protein_g: aggregation[mealDate].protein_g + meal.nutrition.protein_g,
-        carbs_g: aggregation[mealDate].carbs_g + meal.nutrition.carbs_g,
-        fat_g: aggregation[mealDate].fat_g + meal.nutrition.fat_g,
+      const current = aggregation[dateKey]!;
+      aggregation[dateKey] = {
+        calories: current.calories + meal.nutrition.calories,
+        protein_g: current.protein_g + meal.nutrition.protein_g,
+        carbs_g: current.carbs_g + meal.nutrition.carbs_g,
+        fat_g: current.fat_g + meal.nutrition.fat_g,
       };
     });
 
@@ -61,8 +65,8 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
     }
 
     return {
-      start: start.toISOString().split('T')[0],
-      end: end.toISOString().split('T')[0],
+      start: start.toISOString().split('T')[0] ?? '',
+      end: end.toISOString().split('T')[0] ?? '',
     };
   }, []);
 
@@ -73,7 +77,7 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
     const endDate = new Date(end);
 
     while (current <= endDate) {
-      dates.push(current.toISOString().split('T')[0]);
+      dates.push(current.toISOString().split('T')[0] ?? '');
       current.setDate(current.getDate() + 1);
     }
 
@@ -116,7 +120,7 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
   const generateReport = useCallback((period: ReportPeriod): NutritionReport => {
     const { start, end } = getDateRange(period);
     const dailySummaries = getDailySummaries(start, end);
-    
+
     // Calculate averages
     const totalCalories = dailySummaries.reduce((sum, day) => sum + day.totals.calories, 0);
     const totalProtein = dailySummaries.reduce((sum, day) => sum + day.totals.protein_g, 0);
@@ -192,30 +196,29 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
   const getStreakDays = useCallback((): number => {
     const aggregation = aggregateMealsByDate();
     const sortedDates = Object.keys(aggregation).sort().reverse();
-    
+
     if (sortedDates.length === 0) return 0;
 
     let streak = 0;
-    const today = new Date().toISOString().split('T')[0];
-    let currentDate = new Date();
+
+    const currentDate = new Date();
 
     // Check if logged today or yesterday to start streak
-    let checkDate = currentDate.toISOString().split('T')[0];
+    let checkDate = currentDate.toISOString().split('T')[0] ?? '';
+    if (!checkDate) return 0;
+
     if (!aggregation[checkDate]) {
       currentDate.setDate(currentDate.getDate() - 1);
-      checkDate = currentDate.toISOString().split('T')[0];
+      checkDate = currentDate.toISOString().split('T')[0] ?? '';
     }
 
-    if (!aggregation[checkDate]) return 0;
+    if (!checkDate || !aggregation[checkDate]) return 0;
 
-    while (true) {
-      const dateStr = currentDate.toISOString().split('T')[0];
-      if (aggregation[dateStr]) {
-        streak++;
-        currentDate.setDate(currentDate.getDate() - 1);
-      } else {
-        break;
-      }
+    let dateStr = currentDate.toISOString().split('T')[0] ?? '';
+    while (dateStr && aggregation[dateStr]) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+      dateStr = currentDate.toISOString().split('T')[0] ?? '';
     }
 
     return streak;
@@ -228,8 +231,8 @@ export function useAnalytics(settings: UserSettings): UseAnalyticsReturn {
     start.setDate(end.getDate() - days);
 
     const summaries = getDailySummaries(
-      start.toISOString().split('T')[0],
-      end.toISOString().split('T')[0]
+      start.toISOString().split('T')[0] ?? '',
+      end.toISOString().split('T')[0] ?? ''
     );
 
     const daysLogged = summaries.filter((s) => s.totals.calories > 0);

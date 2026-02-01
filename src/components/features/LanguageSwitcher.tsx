@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+
 import { useTranslation } from 'react-i18next';
 import { Globe, Check } from 'lucide-react';
 import {
@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import { Button } from '../ui/button';
-import { supportedLanguages, SupportedLanguage } from '../../i18n/config';
+import { SupportedLanguage } from '../../i18n/config';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface LanguageSwitcherProps {
@@ -71,11 +71,10 @@ export function LanguageSwitcher({
             <button
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
-              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
-                language === lang.code
-                  ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+              className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${language === lang.code
+                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
+                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                }`}
             >
               <span className="text-xl">{lang.flag}</span>
               <span className="text-sm font-medium text-gray-900 dark:text-white">

@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ProgressPhoto } from '../../types/analytics';
-import { Upload, Trash2, X, ChevronLeft, ChevronRight, ZoomIn, Camera } from 'lucide-react';
+import { Upload, Trash2, X, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
 
 interface ProgressPhotoGalleryProps {
   photos: ProgressPhoto[];
@@ -15,7 +15,8 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploadDate, setUploadDate] = useState(new Date().toISOString().split('T')[0]);
-  const [compareMode, setCompareMode] = useState(false);
+
+  const [compareMode, setCompareMode] = useState(false); // Added missing state
   const [comparePhoto1, setComparePhoto1] = useState<ProgressPhoto | null>(null);
   const [comparePhoto2, setComparePhoto2] = useState<ProgressPhoto | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,6 +51,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
 
   const openPhotoViewer = (photo: ProgressPhoto) => {
     setSelectedPhoto(photo);
+    setCompareMode(false);
   };
 
   return (
@@ -266,35 +268,68 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
 
           <div className="max-w-4xl w-full">
             <div className="relative">
-              <img
-                src={selectedPhoto.frontUrl}
-                alt="Progress photo"
-                className="w-full max-h-[80vh] object-contain"
-              />
+              {compareMode && comparePhoto1 && comparePhoto2 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative">
+                    <img
+                      src={comparePhoto1.frontUrl}
+                      alt={`Date: ${comparePhoto1.date}`}
+                      className="w-full max-h-[80vh] object-contain"
+                    />
+                    <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-lg">
+                      <p className="text-sm font-medium">{new Date(comparePhoto1.date).toLocaleDateString()}</p>
+                      {comparePhoto1.weightAtTime && (
+                        <p className="text-xs">{comparePhoto1.weightAtTime}kg</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <img
+                      src={comparePhoto2.frontUrl}
+                      alt={`Date: ${comparePhoto2.date}`}
+                      className="w-full max-h-[80vh] object-contain"
+                    />
+                    <div className="absolute bottom-4 left-4 bg-black/50 text-white px-3 py-1 rounded-lg">
+                      <p className="text-sm font-medium">{new Date(comparePhoto2.date).toLocaleDateString()}</p>
+                      {comparePhoto2.weightAtTime && (
+                        <p className="text-xs">{comparePhoto2.weightAtTime}kg</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <img
+                  src={selectedPhoto.frontUrl}
+                  alt="Progress photo"
+                  className="w-full max-h-[80vh] object-contain"
+                />
+              )}
 
-              {/* Photo Info */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                <p className="text-white font-medium">
-                  {new Date(selectedPhoto.date).toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
-                </p>
-                {selectedPhoto.weightAtTime && (
-                  <p className="text-white/80 text-sm">Weight: {selectedPhoto.weightAtTime} kg</p>
-                )}
-              </div>
+              {/* Photo Info (Single Photo Mode) */}
+              {!compareMode && (
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                  <p className="text-white font-medium">
+                    {new Date(selectedPhoto.date).toLocaleDateString('en-US', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </p>
+                  {selectedPhoto.weightAtTime && (
+                    <p className="text-white/80 text-sm">Weight: {selectedPhoto.weightAtTime} kg</p>
+                  )}
+                </div>
+              )}
 
-              {/* Navigation arrows */}
-              {photos.length > 1 && (
+              {/* Navigation arrows (Single Photo Mode Only) */}
+              {!compareMode && photos.length > 1 && (
                 <>
                   <button
                     onClick={() => {
                       const currentIndex = photos.findIndex((p) => p.id === selectedPhoto.id);
                       if (currentIndex > 0) {
-                        setSelectedPhoto(photos[currentIndex - 1]);
+                        setSelectedPhoto(photos[currentIndex - 1] ?? null);
                       }
                     }}
                     disabled={photos.findIndex((p) => p.id === selectedPhoto.id) === 0}
@@ -306,7 +341,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
                     onClick={() => {
                       const currentIndex = photos.findIndex((p) => p.id === selectedPhoto.id);
                       if (currentIndex < photos.length - 1) {
-                        setSelectedPhoto(photos[currentIndex + 1]);
+                        setSelectedPhoto(photos[currentIndex + 1] ?? null);
                       }
                     }}
                     disabled={photos.findIndex((p) => p.id === selectedPhoto.id) === photos.length - 1}

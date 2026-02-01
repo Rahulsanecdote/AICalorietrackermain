@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useWater, WATER_PRESETS } from '../../hooks/useWater';
-import { Droplets, Plus, Minus, RotateCcw, Trophy, Trash2, Edit2 } from 'lucide-react';
+import { Droplets, Plus, Trophy, Trash2, Edit2 } from 'lucide-react';
 
 interface WaterTrackerProps {
   date: string;
@@ -8,7 +8,7 @@ interface WaterTrackerProps {
 }
 
 export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) {
-  const { entries, totalMl, percentage, goalMl, addWater, removeEntry, updateGoal, getStreak } = useWater(date);
+  const { entries, totalMl, percentage, goalMl, addWater, removeEntry, getStreak } = useWater(date);
   const [showCustom, setShowCustom] = useState(false);
   const [customAmount, setCustomAmount] = useState(250);
   const [editingId, setEditingId] = useState<string | null>(null);

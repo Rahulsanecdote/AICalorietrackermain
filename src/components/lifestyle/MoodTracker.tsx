@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useMood, getMoodEmoji, getMoodColor } from '../../hooks/useMood';
-import { Smile, Meh, Frown, ThumbsUp, ThumbsDown, X, Trash2, Edit2, Plus } from 'lucide-react';
+import { useMood, getMoodEmoji } from '../../hooks/useMood';
+import { Smile, X, Trash2, Edit2, Plus } from 'lucide-react';
 
 interface MoodTrackerProps {
   date: string;
@@ -36,8 +36,12 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedScore) {
-      logMood(selectedScore, selectedTags, note || undefined);
-      resetForm();
+      if (editingId) {
+        saveEdit();
+      } else {
+        logMood(selectedScore, selectedTags, note || undefined);
+        resetForm();
+      }
     }
   };
 
@@ -140,9 +144,8 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
           {weeklyTrend.map((score, index) => (
             <div key={index} className="flex-1 flex flex-col items-center">
               <div
-                className={`w-full rounded-t ${
-                  score > 0 ? 'bg-green-400' : 'bg-gray-200'
-                }`}
+                className={`w-full rounded-t ${score > 0 ? 'bg-green-400' : 'bg-gray-200'
+                  }`}
                 style={{
                   height: `${score > 0 ? score * 20 : 4}px`,
                   maxHeight: '48px',
@@ -177,11 +180,10 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
                 key={option.score}
                 type="button"
                 onClick={() => setSelectedScore(option.score as 1 | 2 | 3 | 4 | 5)}
-                className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
-                  selectedScore === option.score
-                    ? `${option.color} text-white scale-110`
-                    : 'bg-white border border-gray-200 hover:bg-gray-100'
-                }`}
+                className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${selectedScore === option.score
+                  ? `${option.color} text-white scale-110`
+                  : 'bg-white border border-gray-200 hover:bg-gray-100'
+                  }`}
               >
                 <span className="text-2xl">{option.emoji}</span>
                 <span className="text-xs">{option.label}</span>
@@ -198,11 +200,10 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
                   key={tag.id}
                   type="button"
                   onClick={() => toggleTag(tag.name)}
-                  className={`px-2 py-1 rounded-full text-xs transition-colors ${
-                    selectedTags.includes(tag.name)
-                      ? 'bg-green-100 text-green-700 border border-green-300'
-                      : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-                  }`}
+                  className={`px-2 py-1 rounded-full text-xs transition-colors ${selectedTags.includes(tag.name)
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                    }`}
                 >
                   {tag.emoji} {tag.name}
                 </button>

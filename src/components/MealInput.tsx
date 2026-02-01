@@ -17,7 +17,7 @@ const categoryOptions: { value: MealCategory; label: string }[] = [
   { value: 'snack', label: 'Snack' },
 ];
 
-export default function MealInput({ onSubmit, isLoading, error, onVoiceClick }: MealInputProps) {
+export default function MealInput({ onSubmit, isLoading, error }: MealInputProps) {
   const { t } = useTranslation();
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<MealCategory>('breakfast');
@@ -63,11 +63,10 @@ export default function MealInput({ onSubmit, isLoading, error, onVoiceClick }: 
                 key={option.value}
                 type="button"
                 onClick={() => setCategory(option.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  category === option.value
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${category === option.value
                     ? 'bg-emerald-500 text-white shadow-sm'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 {option.label}
               </button>
@@ -95,11 +94,10 @@ export default function MealInput({ onSubmit, isLoading, error, onVoiceClick }: 
             <button
               type="submit"
               disabled={!description.trim() || isLoading}
-              className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${
-                !description.trim() || isLoading
+              className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${!description.trim() || isLoading
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-emerald-500 text-white hover:bg-emerald-600'
-              }`}
+                }`}
               aria-label="Submit meal"
             >
               {isLoading ? (

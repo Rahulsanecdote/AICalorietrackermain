@@ -166,7 +166,7 @@ interface UseMealAnalysisResult extends OperationState<MealAnalysisResult> {
 }
 
 export function useMealAnalysis(): UseMealAnalysisResult {
-  const { addToOfflineQueue, offlineQueue } = useApp();
+  const { addToOfflineQueue } = useApp();
   const [state, setState] = useState<OperationState<MealAnalysisResult>>(createInitialState());
   const [isManualMode, setIsManualMode] = useState(false);
   const [manualValues, setManualValues] = useState<MealAnalysisResult | null>(null);
@@ -255,7 +255,7 @@ export function useOfflineQueue(): UseOfflineQueueResult {
     offlineQueue,
     removeFromOfflineQueue,
     clearOfflineQueue: clearQueueFromContext,
-    processOfflineQueue: processQueueFromContext,
+
   } = useApp();
 
   const [isProcessing, setIsProcessing] = useState(false);

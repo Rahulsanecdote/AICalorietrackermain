@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Recipe } from '../../types/recipes';
 import { X, Clock, Users, ChefHat, Lightbulb, Share2 } from 'lucide-react';
 
@@ -62,7 +62,7 @@ export default function RecipeDetailModal({
               />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            
+
             {/* Close button */}
             <button
               onClick={onClose}
@@ -78,11 +78,10 @@ export default function RecipeDetailModal({
                   e.stopPropagation();
                   onToggleFavorite();
                 }}
-                className={`absolute top-3 left-3 p-2 rounded-full transition-colors ${
-                  isFavorite
+                className={`absolute top-3 left-3 p-2 rounded-full transition-colors ${isFavorite
                     ? 'bg-red-500 text-white'
                     : 'bg-white/20 hover:bg-white/30 text-white'
-                }`}
+                  }`}
               >
                 <svg
                   className="w-5 h-5"
@@ -149,11 +148,10 @@ export default function RecipeDetailModal({
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-                  activeTab === tab
+                className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab
                     ? 'text-indigo-600 border-b-2 border-indigo-600'
                     : 'text-gray-500 hover:text-gray-700'
-                }`}
+                  }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
@@ -175,7 +173,7 @@ export default function RecipeDetailModal({
                     </li>
                   ))}
                 </ul>
-                
+
                 {/* Macros summary */}
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <h4 className="text-sm font-medium text-gray-700 mb-2">Per Serving</h4>

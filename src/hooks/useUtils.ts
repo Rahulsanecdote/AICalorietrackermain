@@ -348,6 +348,7 @@ export function useThrottle<T extends (...args: unknown[]) => unknown>(
         lastRun.current = Date.now();
         return callback(...args);
       }
+      return;
     }) as T,
     [callback, delay]
   );

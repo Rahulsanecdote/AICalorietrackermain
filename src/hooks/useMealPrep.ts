@@ -20,7 +20,7 @@ interface PrepTask {
 function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
   const tasks: PrepTask[] = [];
   const ingredientUsage: Record<string, string[]> = {};
-  
+
   // Track meal types for category-based prep
   const mealTypes: Record<string, number> = {
     breakfast: 0,
@@ -39,26 +39,26 @@ function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
       'beans', 'lentils', 'chickpeas',
       'apple', 'banana', 'berries', 'avocado', 'nuts', 'almonds',
     ];
-    
-    return commonIngredients.filter(ing => 
+
+    return commonIngredients.filter(ing =>
       text.toLowerCase().includes(ing.toLowerCase())
     );
   };
 
   meals.forEach((meal) => {
     mealTypes[meal.category] = (mealTypes[meal.category] || 0) + 1;
-    
+
     // Extract ingredients from food name and description
     const foodText = `${meal.foodName} ${meal.description}`;
     const extractedIngredients = extractIngredients(foodText);
-    
+
     extractedIngredients.forEach((ing) => {
       if (!ingredientUsage[ing]) {
         ingredientUsage[ing] = [];
       }
       ingredientUsage[ing].push(meal.foodName || meal.description);
     });
-    
+
     // Only process recipe data if it exists
     if (meal.recipe) {
       // Group ingredients by type for batch prep analysis
@@ -69,7 +69,7 @@ function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
         }
         ingredientUsage[baseName].push(meal.recipe?.title || meal.foodName);
       });
-      
+
       // Add general prep tasks based on recipe tags and ingredients
       if (meal.recipe.prepTips && meal.recipe.prepTips.length > 0) {
         meal.recipe.prepTips.forEach((tip) => {
@@ -82,40 +82,40 @@ function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
       }
     }
   });
-  
+
   // Generate category-based prep suggestions
-  if (mealTypes.breakfast > 0) {
+  if ((mealTypes.breakfast ?? 0) > 0) {
     tasks.push({
       task: 'Prep breakfast items (overnight oats, pre-cut fruit, brew coffee)',
       duration: 15,
       isBatchTask: true,
     });
   }
-  
-  if (mealTypes.lunch > 0) {
+
+  if ((mealTypes.lunch ?? 0) > 0) {
     tasks.push({
       task: 'Prep lunch components (wash greens, portion grains, prep proteins)',
       duration: 20,
       isBatchTask: true,
     });
   }
-  
-  if (mealTypes.dinner > 0) {
+
+  if ((mealTypes.dinner ?? 0) > 0) {
     tasks.push({
       task: 'Prep dinner ingredients (chop vegetables, marinate proteins)',
       duration: 30,
       isBatchTask: true,
     });
   }
-  
-  if (mealTypes.snack > 2) {
+
+  if ((mealTypes.snack ?? 0) > 2) {
     tasks.push({
       task: 'Portion snacks for the week (nuts, fruits, veggies)',
       duration: 10,
       isBatchTask: true,
     });
   }
-  
+
   // Generate batch prep suggestions for commonly used ingredients
   Object.entries(ingredientUsage).forEach(([ingredient, mealNames]) => {
     if (mealNames.length >= 2) {
@@ -126,7 +126,7 @@ function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
       });
     }
   });
-  
+
   // Add general meal prep tips based on total meals
   const totalMeals = meals.length;
   if (totalMeals >= 7) {
@@ -141,7 +141,7 @@ function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
       isBatchTask: true,
     });
   }
-  
+
   return tasks;
 }
 
@@ -156,39 +156,39 @@ export function useMealPrep(): UseMealPrepReturn {
 
     try {
       const tasks = analyzeMealPrepNeeds(meals);
-      
+
       // Group tasks by day
       const dayTasks: Record<string, PrepTask[]> = {};
       const mealDays: Record<string, string[]> = {};
-      
+
       meals.forEach((meal) => {
         const day = new Date(meal.timestamp).toLocaleDateString('en-US', { weekday: 'long' });
         if (!dayTasks[day]) {
           dayTasks[day] = [];
           mealDays[day] = [];
         }
-        mealDays[day].push(meal.foodName || meal.description);
+        mealDays[day]?.push(meal.foodName || meal.description);
       });
-      
+
       // Distribute tasks across the week
       const taskDays = Object.keys(dayTasks);
       if (taskDays.length === 0) {
         setIsGenerating(false);
         return [];
       }
-      
+
       const newSuggestions: MealPrepSuggestion[] = taskDays.map((day, index) => {
-        const dayMeals = meals.filter((m) => 
+        const dayMeals = meals.filter((m) =>
           new Date(m.timestamp).toLocaleDateString('en-US', { weekday: 'long' }) === day
         );
-        
+
         const relevantTasks = tasks.filter((_, i) => i % taskDays.length === index);
-        
+
         return {
           id: uuidv4(),
           day,
           title: `${day} Meal Prep`,
-          description: `Prepare ingredients and components for ${dayMeals.length} meals: ${mealDays[day].slice(0, 2).join(', ')}${mealDays[day].length > 2 ? '...' : ''}`,
+          description: `Prepare ingredients and components for ${dayMeals.length} meals: ${(mealDays[day] ?? []).slice(0, 2).join(', ')}${(mealDays[day] ?? []).length > 2 ? '...' : ''}`,
           tasks: relevantTasks.length > 0 ? relevantTasks : [{
             task: `Review ${dayMeals.length} meals for the day`,
             duration: 5,
@@ -197,7 +197,7 @@ export function useMealPrep(): UseMealPrepReturn {
           affectedMeals: dayMeals.map((m) => m.id),
         };
       });
-      
+
       setSuggestions(newSuggestions);
       setIsGenerating(false);
       return newSuggestions;

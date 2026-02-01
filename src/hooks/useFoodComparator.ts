@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { FoodComparisonData, ComparisonFoodItem, ComparisonVerdict, AIProcessingStatus } from '../types/ai';
+import { FoodComparisonData, ComparisonFoodItem, AIProcessingStatus } from '../types/ai';
 import { API_CONFIG } from '../constants';
 import { postAIChat } from '../utils/aiClient';
 

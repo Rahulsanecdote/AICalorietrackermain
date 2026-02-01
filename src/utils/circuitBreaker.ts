@@ -7,7 +7,7 @@
  * The real protection belongs on the backend.
  */
 
-import { AppError, isRetryableError, ERROR_CODES } from './errors';
+
 
 // ============================================================================
 // Types
@@ -138,24 +138,7 @@ export class CircuitBreaker<T = unknown> {
     };
   }
 
-  private setState(newState: CircuitBreakerState): void {
-    if (this.state !== newState) {
-      const fromState = this.state;
-      this.state = newState;
-      this.notifyListeners();
 
-      // Track state transition in metrics
-      if (this.config.enableMetrics) {
-        this.metrics.stateTransitions.push({
-          from: fromState,
-          to: newState,
-          timestamp: new Date().toISOString(),
-        });
-      }
-
-      console.warn(`[CircuitBreaker] State: ${fromState} -> ${newState}`);
-    }
-  }
 
   /**
    * Record a failure - only counts if error is retryable
@@ -218,30 +201,30 @@ export class CircuitBreaker<T = unknown> {
 
     // Non-retryable: Auth errors
     if (message.includes('401') || message.includes('403') ||
-        message.includes('unauthorized') || message.includes('forbidden')) {
+      message.includes('unauthorized') || message.includes('forbidden')) {
       return false;
     }
 
     // Non-retryable: Schema/parse errors from model response
     if (message.includes('invalid response format') ||
-        message.includes('ai returned incomplete') ||
-        message.includes('json parse error') ||
-        message.includes('schema')) {
+      message.includes('ai returned incomplete') ||
+      message.includes('json parse error') ||
+      message.includes('schema')) {
       return false;
     }
 
     // Non-retryable: Client-side validation errors
     if (message.includes('validation') || message.includes('invalid input') ||
-        message.includes('missing required')) {
+      message.includes('missing required')) {
       return false;
     }
 
     // Retryable: Network errors, timeouts, rate limits, server errors
     if (message.includes('fetch') || message.includes('network') ||
-        message.includes('timeout') || message.includes('rate limit') ||
-        message.includes('429') || message.includes('503') ||
-        message.includes('service unavailable') ||
-        message.includes('temporarily unavailable')) {
+      message.includes('timeout') || message.includes('rate limit') ||
+      message.includes('429') || message.includes('503') ||
+      message.includes('service unavailable') ||
+      message.includes('temporarily unavailable')) {
       return true;
     }
 
@@ -780,7 +763,7 @@ export async function withCircuitBreaker<T>(options: ApiCallOptions<T>): Promise
     abortSignal,
     onCircuitOpen,
     onError,
-    onSuccess,
+
   } = options;
 
   const breaker = circuitBreaker || new CircuitBreaker<T>();

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+
 import { Plus, Clock } from "lucide-react"
 import type { MealSection, FoodItem } from "../types"
 import EditableFoodItem from "./EditableFoodItem"
@@ -62,7 +62,7 @@ export default function MealSectionCard({
   isInShoppingList = () => false,
   isSwapping = () => false,
 }: MealSectionCardProps) {
-  const [isEditing, setIsEditing] = useState(false)
+
 
   const mealType = meal?.type || "snack"
   const colors = mealColors[mealType] || defaultColors
@@ -133,9 +133,9 @@ export default function MealSectionCard({
             onSwapFood={
               onSwapFood
                 ? (itemId) => {
-                    handleUpdateFoodItem(itemId, item.weightGrams)
-                    onSwapFood(itemId)
-                  }
+                  handleUpdateFoodItem(itemId, item.weightGrams)
+                  onSwapFood(itemId)
+                }
                 : undefined
             }
             onAddToShoppingList={onAddToShoppingList}

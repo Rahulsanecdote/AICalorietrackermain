@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRightLeft, X, Sparkles, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { ArrowRightLeft, Sparkles, TrendingUp, Minus } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 } from '../ui/dialog';
 import { useFoodComparator, PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
-import { v4 as uuidv4 } from 'uuid';
+
 
 interface FoodVersusCardProps {
   isOpen: boolean;
@@ -109,6 +109,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
           {/* Food Comparison UI */}
           <div className="grid grid-cols-2 gap-4">
             {/* Food A */}
+// Food A
             <FoodInputCard
               title="Food A"
               food={foodA}
@@ -180,8 +181,20 @@ interface FoodInputCardProps {
   food: ComparisonFoodItem;
   onChange: (food: ComparisonFoodItem) => void;
   isCustom: boolean;
-  customValues: Record<string, string>;
-  onCustomChange: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  customValues: {
+    name: string;
+    calories: string;
+    protein: string;
+    carbs: string;
+    fat: string;
+  };
+  onCustomChange: React.Dispatch<React.SetStateAction<{
+    name: string;
+    calories: string;
+    protein: string;
+    carbs: string;
+    fat: string;
+  }>>;
   color: 'blue' | 'green';
 }
 
@@ -189,9 +202,9 @@ function FoodInputCard({
   title,
   food,
   onChange,
+  onCustomChange,
   isCustom,
   customValues,
-  onCustomChange,
   color,
 }: FoodInputCardProps) {
   const colorClasses = {
@@ -211,8 +224,12 @@ function FoodInputCard({
             name={`${title.toLowerCase().replace(' ', '-')}-food-name`}
             type="text"
             autoComplete="off"
-            value={food.name}
-            onChange={(e) => onChange({ ...food, name: e.target.value })}
+            value={isCustom ? customValues.name : food.name}
+            onChange={(e) =>
+              isCustom
+                ? onCustomChange({ ...customValues, name: e.target.value })
+                : onChange({ ...food, name: e.target.value })
+            }
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
             placeholder="Enter food name"
           />
@@ -226,8 +243,12 @@ function FoodInputCard({
               name={`${title.toLowerCase().replace(' ', '-')}-calories`}
               type="number"
               autoComplete="off"
-              value={food.calories}
-              onChange={(e) => onChange({ ...food, calories: Number(e.target.value) })}
+              value={isCustom ? customValues.calories : food.calories}
+              onChange={(e) =>
+                isCustom
+                  ? onCustomChange({ ...customValues, calories: e.target.value })
+                  : onChange({ ...food, calories: Number(e.target.value) })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               placeholder="0"
             />
@@ -243,6 +264,7 @@ function FoodInputCard({
               onChange={(e) => onChange({ ...food, servingSize: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               placeholder="1 serving"
+              disabled={isCustom}
             />
           </div>
         </div>
@@ -255,12 +277,11 @@ function FoodInputCard({
               name={`${title.toLowerCase().replace(' ', '-')}-protein`}
               type="number"
               autoComplete="off"
-              value={food.macros.protein_g}
+              value={isCustom ? customValues.protein : food.macros.protein_g}
               onChange={(e) =>
-                onChange({
-                  ...food,
-                  macros: { ...food.macros, protein_g: Number(e.target.value) },
-                })
+                isCustom
+                  ? onCustomChange({ ...customValues, protein: e.target.value })
+                  : onChange({ ...food, macros: { ...food.macros, protein_g: Number(e.target.value) } })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               placeholder="0"
@@ -273,12 +294,11 @@ function FoodInputCard({
               name={`${title.toLowerCase().replace(' ', '-')}-carbs`}
               type="number"
               autoComplete="off"
-              value={food.macros.carbs_g}
+              value={isCustom ? customValues.carbs : food.macros.carbs_g}
               onChange={(e) =>
-                onChange({
-                  ...food,
-                  macros: { ...food.macros, carbs_g: Number(e.target.value) },
-                })
+                isCustom
+                  ? onCustomChange({ ...customValues, carbs: e.target.value })
+                  : onChange({ ...food, macros: { ...food.macros, carbs_g: Number(e.target.value) } })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               placeholder="0"
@@ -291,12 +311,11 @@ function FoodInputCard({
               name={`${title.toLowerCase().replace(' ', '-')}-fat`}
               type="number"
               autoComplete="off"
-              value={food.macros.fat_g}
+              value={isCustom ? customValues.fat : food.macros.fat_g}
               onChange={(e) =>
-                onChange({
-                  ...food,
-                  macros: { ...food.macros, fat_g: Number(e.target.value) },
-                })
+                isCustom
+                  ? onCustomChange({ ...customValues, fat: e.target.value })
+                  : onChange({ ...food, macros: { ...food.macros, fat_g: Number(e.target.value) } })
               }
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               placeholder="0"

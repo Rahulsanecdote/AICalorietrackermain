@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import useLocalStorage from './useLocalStorage';
 import { ExerciseEntry, ExerciseType } from '../types/lifestyle';
 import { EXERCISE_TYPES } from '../types/lifestyle';
@@ -17,7 +17,7 @@ interface UseExerciseReturn {
   exerciseTypes: typeof EXERCISE_TYPES;
 }
 
-export function useExercise(date: string, weightKg: number = 70): UseExerciseReturn {
+export function useExercise(date: string, _weightKg: number = 70): UseExerciseReturn {
   const [entries, setEntries] = useLocalStorage<ExerciseEntry[]>(EXERCISE_ENTRIES_KEY, []);
 
   // Get entries for the specific date

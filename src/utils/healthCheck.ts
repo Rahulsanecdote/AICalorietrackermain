@@ -180,5 +180,5 @@ export const healthCheckService = new HealthCheckService()
 
 // Expose health check endpoint for monitoring
 if (typeof window !== "undefined") {
-  ;(window as any).__healthCheck = () => healthCheckService.performHealthCheck()
+  (window as any).__healthCheck = () => healthCheckService.performHealthCheck()
 }

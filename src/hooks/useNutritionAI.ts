@@ -222,10 +222,10 @@ Respond with only the JSON object, no markdown formatting, no additional text.`
             logError(error)
             setState(createErrorState(error))
           },
-          onError: (error, attempt) => {
+          onError: (_error, attempt) => {
             console.log(`[NutritionAI] Circuit breaker attempt ${attempt}`)
           },
-          onSuccess: (data, attempt) => {
+          onSuccess: (_data, attempt) => {
             if (attempt > 0) {
               console.log(`[NutritionAI] Recovery successful on attempt ${attempt}`)
             }

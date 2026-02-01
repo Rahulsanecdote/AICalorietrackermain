@@ -1,4 +1,4 @@
-import { Settings, Flame, BarChart2, ShoppingCart, Calendar, Heart, Coffee, RefreshCw, Mic, ArrowRightLeft, Lightbulb, Mic2, LogOut } from 'lucide-react';
+import { Settings, Flame, BarChart2, ShoppingCart, Calendar, Heart, Coffee, RefreshCw, ArrowRightLeft, Lightbulb, Mic2, LogOut } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
@@ -108,11 +108,10 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
               <button
                 key={item.id}
                 onClick={() => onViewChange(item.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
-                  isActive
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${isActive
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-                }`}
+                  }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 {item.label}

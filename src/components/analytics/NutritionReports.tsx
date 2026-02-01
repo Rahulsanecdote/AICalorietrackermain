@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { NutritionReport, WeightEntry, ReportPeriod } from '../../types/analytics';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import {
@@ -11,7 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Download, Calendar, TrendingDown, TrendingUp, Minus, Camera } from 'lucide-react';
+import { Download, TrendingDown, TrendingUp, Minus } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -29,7 +29,7 @@ interface NutritionReportsProps {
   entries: WeightEntry[];
 }
 
-export default function NutritionReports({ generateReport, exportCSV, entries }: NutritionReportsProps) {
+export default function NutritionReports({ generateReport, exportCSV }: NutritionReportsProps) {
   const [period, setPeriod] = useState<ReportPeriod>('week');
   const [showDetail, setShowDetail] = useState(false);
   const report = generateReport(period);
@@ -138,11 +138,10 @@ export default function NutritionReports({ generateReport, exportCSV, entries }:
           <button
             key={p}
             onClick={() => setPeriod(p)}
-            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              period === p
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
+            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${period === p
+              ? 'bg-indigo-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
           >
             {p === 'week' ? '7 Days' : p === 'month' ? '30 Days' : '90 Days'}
           </button>

@@ -13,10 +13,7 @@ import { FeatureErrorBoundary } from "../ErrorBoundary"
 // Types
 // ============================================================================
 
-interface FeatureBoundaryProps {
-  children: ReactNode
-  onFallback?: () => void
-}
+
 
 // ============================================================================
 // Meal Planner Boundary
@@ -269,7 +266,7 @@ interface VoiceInputFallbackProps {
   onManualToggle?: () => void
 }
 
-function VoiceInputFallback({ error, onReset, onManualToggle }: VoiceInputFallbackProps): ReactNode {
+function VoiceInputFallback({ onReset, onManualToggle }: VoiceInputFallbackProps): ReactNode {
   return (
     <div className="border-2 border-dashed border-orange-200 bg-orange-50 rounded-lg p-4 my-2">
       <div className="flex items-center gap-3">
@@ -327,7 +324,7 @@ interface ShoppingListFallbackProps {
   onReset: () => void
 }
 
-function ShoppingListFallback({ error, onReset }: ShoppingListFallbackProps): ReactNode {
+function ShoppingListFallback({ onReset }: ShoppingListFallbackProps): ReactNode {
   return (
     <div className="border-2 border-dashed border-blue-200 bg-blue-50 rounded-xl p-6 my-4">
       <div className="flex items-start gap-4">

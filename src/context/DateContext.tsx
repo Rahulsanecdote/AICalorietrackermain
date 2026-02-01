@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
 type DateContextType = {
   currentDate: string;
@@ -12,11 +12,11 @@ type DateContextType = {
 };
 
 const initialContext: DateContextType = {
-  currentDate: new Date().toISOString().split('T')[0],
-  setCurrentDate: () => {},
-  goToPreviousDay: () => {},
-  goToNextDay: () => {},
-  goToToday: () => {},
+  currentDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+  setCurrentDate: () => { },
+  goToPreviousDay: () => { },
+  goToNextDay: () => { },
+  goToToday: () => { },
   formatDate: () => '',
 };
 
@@ -24,7 +24,7 @@ const DateContext = createContext<DateContextType>(initialContext);
 
 export function DateProvider({ children }: { children: ReactNode }) {
   const [currentDate, setCurrentDate] = useState<string>(
-    new Date().toISOString().split('T')[0]
+    new Date().toISOString().split('T')[0] ?? new Date().toISOString()
   );
 
   // Navigate to previous day
@@ -32,7 +32,7 @@ export function DateProvider({ children }: { children: ReactNode }) {
     setCurrentDate((prev) => {
       const date = new Date(prev);
       date.setDate(date.getDate() - 1);
-      return date.toISOString().split('T')[0];
+      return date.toISOString().split('T')[0] ?? date.toISOString();
     });
   }, []);
 
@@ -41,19 +41,19 @@ export function DateProvider({ children }: { children: ReactNode }) {
     setCurrentDate((prev) => {
       const date = new Date(prev);
       date.setDate(date.getDate() + 1);
-      return date.toISOString().split('T')[0];
+      return date.toISOString().split('T')[0] ?? date.toISOString();
     });
   }, []);
 
   // Reset to today
   const goToToday = useCallback(() => {
-    setCurrentDate(new Date().toISOString().split('T')[0]);
+    setCurrentDate(new Date().toISOString().split('T')[0] ?? new Date().toISOString());
   }, []);
 
   // Format date for display
   const formatDate = useCallback((date: string, format: 'short' | 'long' | 'weekday' = 'short'): string => {
     const d = new Date(date + 'T12:00:00'); // Use noon to avoid timezone issues
-    
+
     switch (format) {
       case 'long':
         return d.toLocaleDateString('en-US', {

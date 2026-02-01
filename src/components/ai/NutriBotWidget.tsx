@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, X, Send, MessageCircle, Bot, User, Lightbulb, RefreshCw } from 'lucide-react';
+import { Sparkles, X, Send, Bot, User, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useNutriTutor, QUICK_PROMPTS } from '../../hooks/useNutriTutor';
 import { EduMessage } from '../../types/ai';
@@ -186,11 +186,10 @@ function MessageBubble({ message }: { message: EduMessage }) {
   return (
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
-        className={`max-w-[85%] rounded-2xl px-4 py-2 ${
-          isUser
+        className={`max-w-[85%] rounded-2xl px-4 py-2 ${isUser
             ? 'bg-indigo-600 text-white rounded-br-md'
             : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-md'
-        }`}
+          }`}
       >
         <div className="flex items-start gap-2">
           {!isUser && (
@@ -207,11 +206,10 @@ function MessageBubble({ message }: { message: EduMessage }) {
                 {message.relatedTopics.map((topic) => (
                   <span
                     key={topic}
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      isUser
+                    className={`text-xs px-2 py-0.5 rounded-full ${isUser
                         ? 'bg-white/20 text-white'
                         : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
-                    }`}
+                      }`}
                   >
                     #{topic}
                   </span>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Save, ChefHat, Check, Package } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, ChefHat, Check, Package } from 'lucide-react';
 import { PantryInputProps, PantryInputData } from '../types';
 
 const defaultData: PantryInputData = {
@@ -94,7 +94,7 @@ export default function PantryInput({
   const getMealData = (mealType: keyof PantryInputData) => {
     const colors = mealColors[mealType as keyof typeof mealColors];
     const icon = mealIcons[mealType as keyof typeof mealIcons];
-    
+
     return {
       colors,
       icon,
@@ -149,7 +149,7 @@ export default function PantryInput({
           <div className="space-y-4">
             {Object.entries(pantryData).map(([mealType, foods]) => {
               const mealData = getMealData(mealType as keyof PantryInputData);
-              
+
               return (
                 <div
                   key={mealType}
@@ -161,7 +161,7 @@ export default function PantryInput({
                       {mealData.label} Foods
                     </h3>
                   </div>
-                  
+
                   <textarea
                     id={`pantry-${mealType}`}
                     name={`pantry-${mealType}`}
@@ -173,7 +173,7 @@ export default function PantryInput({
                     rows={2}
                     disabled={isGenerating}
                   />
-                  
+
                   <p className="text-xs text-gray-500 mt-1">
                     Separate foods with commas
                   </p>
@@ -191,7 +191,7 @@ export default function PantryInput({
                   AI will only use these foods
                 </h3>
                 <p className="text-sm text-blue-600">
-                  Enter foods you actually have available. The AI will calculate exact portions 
+                  Enter foods you actually have available. The AI will calculate exact portions
                   to reach your calorie goal and create a personalized meal plan.
                 </p>
               </div>

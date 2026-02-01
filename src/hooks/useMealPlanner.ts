@@ -5,7 +5,7 @@
  * Provides stable state machine pattern for meal planning operations with robust error handling
  */
 
-import { useState, useCallback, useEffect, useRef } from "react"
+import { useState, useCallback, useEffect } from "react"
 import type {
   DailyMealPlan,
   MealPlanTemplate,
@@ -145,7 +145,7 @@ const parseAIResponse = (
 
   return {
     id: uuidv4(),
-    date: new Date().toISOString().split("T")[0],
+    date: new Date().toISOString().split("T")[0] ?? new Date().toISOString(),
     targetCalories: settings.dailyCalorieGoal,
     meals,
     totalMacros: { protein: totalProtein, carbs: totalCarbs, fat: totalFat },
@@ -189,7 +189,7 @@ export const useMealPlanner = (
   const resetCircuit = useCallback(() => {
     getMealPlannerCircuitBreaker().reset()
   }, [])
-  const pendingFnRef = useRef<(() => Promise<void>) | null>(null)
+
 
   // Load stored data on mount
   useEffect(() => {
@@ -235,7 +235,7 @@ export const useMealPlanner = (
 
   useEffect(() => {
     const loadInitialPlan = async () => {
-      const today = new Date().toISOString().split("T")[0]
+      const today = new Date().toISOString().split("T")[0] ?? new Date().toISOString()
 
       if (isRemote && userId) {
         try {
@@ -907,7 +907,7 @@ Respond with only the JSON object, no markdown formatting.`
       const newPlan = {
         ...template.plan,
         id: uuidv4(),
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toISOString().split("T")[0] ?? new Date().toISOString(),
         createdAt: new Date().toISOString(),
       }
 

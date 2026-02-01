@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { X, Save, Star, Trash2 } from 'lucide-react';
 import { MealPlanTemplate } from '../types';
 
@@ -54,21 +54,19 @@ export default function TemplateModal({
         <div className="flex border-b border-gray-100">
           <button
             onClick={() => setActiveTab('save')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === 'save'
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'save'
                 ? 'text-emerald-600 border-b-2 border-emerald-500'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Save Current
           </button>
           <button
             onClick={() => setActiveTab('load')}
-            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-              activeTab === 'load'
+            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'load'
                 ? 'text-emerald-600 border-b-2 border-emerald-500'
                 : 'text-gray-500 hover:text-gray-700'
-            }`}
+              }`}
           >
             Load Template ({templates.length})
           </button>
@@ -151,7 +149,7 @@ export default function TemplateModal({
                           <p className="text-sm text-gray-600 mt-1">{template.description}</p>
                         )}
                       </div>
-                      
+
                       <div className="flex items-center gap-1">
                         {onLoadTemplate && (
                           <button
@@ -174,7 +172,7 @@ export default function TemplateModal({
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="text-xs text-gray-500">
                       Created: {new Date(template.createdAt).toLocaleDateString()}
                     </div>

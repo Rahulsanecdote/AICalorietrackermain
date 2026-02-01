@@ -20,17 +20,17 @@ export default function DateNavigator({ currentDate, onDateChange }: DateNavigat
   const goToPreviousDay = () => {
     const date = new Date(currentDate + 'T00:00:00');
     date.setDate(date.getDate() - 1);
-    onDateChange(date.toISOString().split('T')[0]);
+    onDateChange(date?.toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0] ?? '');
   };
 
   const goToNextDay = () => {
     const date = new Date(currentDate + 'T00:00:00');
     date.setDate(date.getDate() + 1);
-    onDateChange(date.toISOString().split('T')[0]);
+    onDateChange(date?.toISOString().split('T')[0] ?? new Date().toISOString().split('T')[0] ?? '');
   };
 
   const goToToday = () => {
-    onDateChange(new Date().toISOString().split('T')[0]);
+    onDateChange(new Date().toISOString().split('T')[0] ?? '');
   };
 
   return (
@@ -62,11 +62,10 @@ export default function DateNavigator({ currentDate, onDateChange }: DateNavigat
         <button
           onClick={goToNextDay}
           disabled={isToday}
-          className={`p-2 rounded-full transition-colors ${
-            isToday
-              ? 'opacity-30 cursor-not-allowed'
-              : 'hover:bg-gray-100'
-          }`}
+          className={`p-2 rounded-full transition-colors ${isToday
+            ? 'opacity-30 cursor-not-allowed'
+            : 'hover:bg-gray-100'
+            }`}
           aria-label="Next day"
         >
           <ChevronRight className="w-5 h-5 text-gray-600" />

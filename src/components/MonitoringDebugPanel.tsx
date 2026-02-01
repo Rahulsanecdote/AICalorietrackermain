@@ -14,6 +14,7 @@ export function MonitoringDebugPanel() {
   const isDev = import.meta.env.DEV
 
   useEffect(() => {
+    return;
     if (isDev && isOpen) {
       const interval = setInterval(() => {
         setRecentErrors(getRecentErrors())

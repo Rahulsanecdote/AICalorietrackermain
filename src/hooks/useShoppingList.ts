@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import useLocalStorage from './useLocalStorage';
-import { ShoppingList, ShoppingItem, Recipe } from '../types/recipes';
+import { ShoppingList, ShoppingItem } from '../types/recipes';
 import { v4 as uuidv4 } from 'uuid';
 import { Meal } from '../types';
 
@@ -25,13 +25,13 @@ const CATEGORY_ORDER: ShoppingItem['category'][] = [
 
 function getCategoryFromIngredient(ingredientName: string): ShoppingItem['category'] {
   const name = ingredientName.toLowerCase();
-  
+
   const produceKeywords = ['apple', 'banana', 'orange', 'lettuce', 'tomato', 'onion', 'garlic', 'pepper', 'carrot', 'broccoli', 'spinach', 'kale', 'cucumber', 'zucchini', 'potato', 'sweet potato', 'mushroom', 'avocado', 'lemon', 'lime', 'herb', 'basil', 'cilantro', 'parsley'];
   const dairyKeywords = ['milk', 'cheese', 'yogurt', 'butter', 'cream', 'egg', 'sour cream', 'cottage cheese', 'parmesan', 'mozzarella', 'cheddar'];
   const meatKeywords = ['chicken', 'beef', 'pork', 'fish', 'salmon', 'tuna', 'shrimp', 'bacon', 'sausage', 'turkey', 'lamb', 'steak', 'ground'];
   const frozenKeywords = ['frozen', 'ice cream'];
   const pantryKeywords = ['rice', 'pasta', 'bread', 'flour', 'sugar', 'oil', 'olive oil', 'vinegar', 'sauce', 'soy sauce', 'chicken broth', 'beef broth', 'canned', 'beans', 'lentils', 'chickpeas', 'oats', 'cereal', 'granola', 'nut', 'almond', 'walnut', 'peanut', 'honey', 'maple syrup'];
-  
+
   if (produceKeywords.some((k) => name.includes(k))) return 'produce';
   if (dairyKeywords.some((k) => name.includes(k))) return 'dairy';
   if (meatKeywords.some((k) => name.includes(k))) return 'meat';
@@ -45,22 +45,22 @@ export function useShoppingList(): UseShoppingListReturn {
 
   const generateListFromMeals = useCallback((meals: Meal[], weekStartDate: string): ShoppingList => {
     const ingredientMap: Record<string, ShoppingItem> = {};
-    
+
     // Process all meals and aggregate ingredients
     meals.forEach((meal) => {
       if (!meal.recipe?.ingredients) return;
-      
+
       meal.recipe.ingredients.forEach((ingredient) => {
         const key = `${ingredient.name.toLowerCase()}_${ingredient.unit.toLowerCase()}`;
-        
+
         if (ingredientMap[key]) {
           // Update existing item
           ingredientMap[key].amount += ingredient.amount;
           if (!ingredientMap[key].sourceRecipeIds.includes(meal.id)) {
             ingredientMap[key].sourceRecipeIds.push(meal.id);
           }
-          if (!ingredientMap[key].recipeNames.includes(meal.name || meal.recipe.title)) {
-            ingredientMap[key].recipeNames.push(meal.name || meal.recipe.title);
+          if (!ingredientMap[key].recipeNames.includes(meal.name || meal.recipe?.title || 'Unknown Meal')) {
+            ingredientMap[key].recipeNames.push(meal.name || meal.recipe?.title || 'Unknown Meal');
           }
         } else {
           // Create new item
@@ -72,7 +72,7 @@ export function useShoppingList(): UseShoppingListReturn {
             category: getCategoryFromIngredient(ingredient.name),
             checked: false,
             sourceRecipeIds: [meal.id],
-            recipeNames: [meal.name || meal.recipe.title],
+            recipeNames: [meal.name || meal.recipe?.title || 'Unknown Meal'],
           };
         }
       });
@@ -131,7 +131,7 @@ export function useShoppingList(): UseShoppingListReturn {
 
         return {
           id: uuidv4(),
-          weekStartDate: new Date().toISOString().split('T')[0],
+          weekStartDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
           items,
           generatedAt: new Date().toISOString(),
         };
@@ -149,12 +149,15 @@ export function useShoppingList(): UseShoppingListReturn {
 
           if (existingIndex >= 0) {
             // Merge with existing item
-            updatedItems[existingIndex] = {
-              ...updatedItems[existingIndex],
-              amount: updatedItems[existingIndex].amount + ing.amount,
-              sourceRecipeIds: [...new Set([...updatedItems[existingIndex].sourceRecipeIds, meal.id])],
-              recipeNames: [...new Set([...updatedItems[existingIndex].recipeNames, recipeName])],
-            };
+            const itemToUpdate = updatedItems[existingIndex];
+            if (itemToUpdate) {
+              updatedItems[existingIndex] = {
+                ...itemToUpdate,
+                amount: itemToUpdate.amount + ing.amount,
+                sourceRecipeIds: [...new Set([...itemToUpdate.sourceRecipeIds, meal.id])],
+                recipeNames: [...new Set([...itemToUpdate.recipeNames, recipeName])],
+              };
+            }
           } else {
             // Add new item
             updatedItems.push({
@@ -178,23 +181,26 @@ export function useShoppingList(): UseShoppingListReturn {
         );
 
         if (existingIndex >= 0) {
-          updatedItems[existingIndex] = {
-            ...updatedItems[existingIndex],
-            amount: updatedItems[existingIndex].amount + 1,
-            sourceRecipeIds: [...new Set([...updatedItems[existingIndex].sourceRecipeIds, meal.id])],
-            recipeNames: [...new Set([...updatedItems[existingIndex].recipeNames, recipeName])],
-          };
-        } else {
-          updatedItems.push({
-            id: uuidv4(),
-            name: meal.foodName,
-            amount: 1,
-            unit: meal.servingSize || 'serving',
-            category: getCategoryFromIngredient(meal.foodName),
-            checked: false,
-            sourceRecipeIds: [meal.id],
-            recipeNames: [recipeName],
-          });
+          const itemToUpdate = updatedItems[existingIndex];
+          if (itemToUpdate) {
+            updatedItems[existingIndex] = {
+              ...itemToUpdate,
+              amount: itemToUpdate.amount + 1,
+              sourceRecipeIds: [...new Set([...itemToUpdate.sourceRecipeIds, meal.id])],
+              recipeNames: [...new Set([...itemToUpdate.recipeNames, recipeName])],
+            };
+          } else {
+            updatedItems.push({
+              id: uuidv4(),
+              name: meal.foodName,
+              amount: 1,
+              unit: meal.servingSize || 'serving',
+              category: getCategoryFromIngredient(meal.foodName),
+              checked: false,
+              sourceRecipeIds: [meal.id],
+              recipeNames: [recipeName],
+            });
+          }
         }
       }
 
@@ -223,18 +229,26 @@ export function useShoppingList(): UseShoppingListReturn {
     setShoppingList((prev) => {
       const currentItems = prev?.items || [];
 
+
+      // Need to handle potential undefined access safely due to noUncheckedIndexedAccess
+
+
+
       const existingIndex = currentItems.findIndex(
         (item) => item.name.toLowerCase() === name.toLowerCase() && item.unit.toLowerCase() === unit.toLowerCase()
       );
 
-      let updatedItems: ShoppingItem[];
+      let updatedItems: ShoppingItem[] = [];
 
       if (existingIndex >= 0) {
         updatedItems = [...currentItems];
-        updatedItems[existingIndex] = {
-          ...updatedItems[existingIndex],
-          amount: updatedItems[existingIndex].amount + amount,
-        };
+        const existingItem = updatedItems[existingIndex];
+        if (existingItem) {
+          updatedItems[existingIndex] = {
+            ...existingItem,
+            amount: existingItem.amount + amount,
+          };
+        }
       } else {
         updatedItems = [...currentItems, {
           id: uuidv4(),
@@ -258,7 +272,7 @@ export function useShoppingList(): UseShoppingListReturn {
       if (!prev) {
         return {
           id: uuidv4(),
-          weekStartDate: new Date().toISOString().split('T')[0],
+          weekStartDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
           items: sortedItems,
           generatedAt: new Date().toISOString(),
         };
@@ -307,7 +321,7 @@ export function useShoppingList(): UseShoppingListReturn {
       if (!prev) {
         return {
           id: uuidv4(),
-          weekStartDate: new Date().toISOString().split('T')[0],
+          weekStartDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
           items: [{
             id: uuidv4(),
             name,

@@ -72,7 +72,7 @@ export function useFavorites(): UseFavoritesReturn {
   )
 
   const toggleFavorite = useCallback(
-    (recipeId: string, mealPlanId?: string) => {
+    (recipeId: string, _mealPlanId?: string) => {
       setFavorites((prev) => {
         const safePrev = Array.isArray(prev) ? prev : []
         const existingIndex = safePrev.findIndex((f) => f?.type === "recipe" && f?.recipeId === recipeId)

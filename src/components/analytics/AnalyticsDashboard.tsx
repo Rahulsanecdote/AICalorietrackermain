@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWeight } from '../../hooks/useWeight';
 import { useProgressPhotos } from '../../hooks/useProgressPhotos';
@@ -36,7 +36,7 @@ export default function AnalyticsDashboard({ settings }: AnalyticsDashboardProps
       {/* Header with Stats Overview */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-6 text-white">
         <h2 className="text-xl font-semibold mb-4">{t('analytics.title')}</h2>
-        
+
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white/10 rounded-xl p-3">
@@ -72,11 +72,10 @@ export default function AnalyticsDashboard({ settings }: AnalyticsDashboardProps
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === tab.id
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
                   ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <Icon className="w-4 h-4" />
               {tab.label}

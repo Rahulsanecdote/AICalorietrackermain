@@ -4,7 +4,7 @@
  */
 
 import { Meal, UserSettings } from '../types';
-import { DEFAULT_SETTINGS, STORAGE_KEYS } from '../constants';
+import { DEFAULT_SETTINGS } from '../constants';
 
 // Current data version
 export const CURRENT_DATA_VERSION = 2;

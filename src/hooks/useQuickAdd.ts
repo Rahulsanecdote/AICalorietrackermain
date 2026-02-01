@@ -1,9 +1,9 @@
 import { useState, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+
 import { v4 as uuidv4 } from 'uuid';
 import { Meal, MealCategory } from '../types';
 import { useNutritionAI } from './useNutritionAI';
-import useLocalStorage from './useLocalStorage';
+
 
 interface QuickAddResult {
   id: string;
@@ -25,7 +25,7 @@ interface UseQuickAddOptions {
 }
 
 export function useQuickAdd(options: UseQuickAddOptions = {}) {
-  const { t } = useTranslation('quickAdd');
+
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);

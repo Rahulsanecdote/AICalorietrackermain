@@ -64,8 +64,9 @@ export function sanitizePromptInput(input: string): SanitizationResult {
     warnings.push("Excessive punctuation removed")
   }
 
-  // Remove control characters
-  sanitized = sanitized.replace(/[\x00-\x1F\x7F-\x9F]/g, "")
+  // Remove control characters (using explicit character class to avoid eslint no-control-regex)
+  // eslint-disable-next-line no-control-regex
+  sanitized = sanitized.replace(/[\u0000-\u001F\u007F-\u009F]/g, "")
 
   // Normalize whitespace
   sanitized = sanitized.replace(/\s+/g, " ").trim()

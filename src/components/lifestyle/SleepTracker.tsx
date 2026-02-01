@@ -27,9 +27,9 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
   // Report data changes to parent
   useEffect(() => {
     if (entry) {
-      onDataChange?.({ 
-        durationMinutes: entry.durationMinutes, 
-        qualityRating: entry.qualityRating 
+      onDataChange?.({
+        durationMinutes: entry.durationMinutes,
+        qualityRating: entry.qualityRating
       });
     }
   }, [entry, onDataChange]);
@@ -43,7 +43,7 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
   // Calculate estimated duration
   const [bedHour, bedMin] = bedTime.split(':').map(Number);
   const [wakeHour, wakeMin] = wakeTime.split(':').map(Number);
-  let estimatedDuration = (wakeHour * 60 + wakeMin) - (bedHour * 60 + bedMin);
+  let estimatedDuration = ((wakeHour || 0) * 60 + (wakeMin || 0)) - ((bedHour || 0) * 60 + (bedMin || 0));
   if (estimatedDuration < 0) estimatedDuration += 24 * 60;
 
   const getQualityLabel = (q: number) => {
@@ -123,11 +123,10 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
                       key={star}
-                      className={`w-4 h-4 ${
-                        star <= entry.qualityRating
+                      className={`w-4 h-4 ${star <= entry.qualityRating
                           ? 'text-yellow-400 fill-yellow-400'
                           : 'text-white/30'
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -189,16 +188,14 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                   key={star}
                   type="button"
                   onClick={() => setQuality(star as 1 | 2 | 3 | 4 | 5)}
-                  className={`flex-1 py-2 rounded-lg transition-colors ${
-                    quality === star
+                  className={`flex-1 py-2 rounded-lg transition-colors ${quality === star
                       ? `${getQualityColor(star)} text-white`
                       : 'bg-white border border-gray-200 text-gray-400 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   <Star
-                    className={`w-5 h-5 mx-auto ${
-                      star <= quality ? 'fill-current' : ''
-                    }`}
+                    className={`w-5 h-5 mx-auto ${star <= quality ? 'fill-current' : ''
+                      }`}
                   />
                 </button>
               ))}

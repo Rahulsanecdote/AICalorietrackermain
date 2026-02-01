@@ -18,7 +18,7 @@ export function useWeight() {
     try {
       const newEntry: WeightEntry = {
         id: uuidv4(),
-        date: date || new Date().toISOString().split('T')[0],
+        date: date ?? new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
         weight,
         note,
         createdAt: new Date().toISOString(),
@@ -76,11 +76,11 @@ export function useWeight() {
   const stats = useMemo((): WeightStats | null => {
     if (entries.length === 0) return null;
 
-    const currentWeight = entries[0].weight;
+    const currentWeight = entries[0]?.weight ?? 0;
     const sortedByDate = [...entries].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
-    const startWeight = sortedByDate[0].weight;
+    const startWeight = sortedByDate[0]?.weight ?? 0;
     const change = currentWeight - startWeight;
     const changePercentage = startWeight > 0 ? (change / startWeight) * 100 : 0;
 
@@ -114,13 +114,15 @@ export function useWeight() {
       const date = new Date(entry.date);
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
-      const weekKey = weekStart.toISOString().split('T')[0];
+      const weekKey = weekStart.toISOString().split('T')[0] ?? weekStart.toISOString();
 
-      if (!weeks[weekKey]) {
-        weeks[weekKey] = { total: 0, count: 0 };
+      const entryWeek = weeks[weekKey];
+      if (!entryWeek) {
+        weeks[weekKey] = { total: entry.weight, count: 1 };
+      } else {
+        entryWeek.total += entry.weight;
+        entryWeek.count += 1;
       }
-      weeks[weekKey].total += entry.weight;
-      weeks[weekKey].count += 1;
     });
 
     return Object.entries(weeks).map(([weekStart, data]) => ({

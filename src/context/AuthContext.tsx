@@ -14,6 +14,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error?: string }>
   signUp: (email: string, password: string) => Promise<{ error?: string }>
+  signInWithGoogle: () => Promise<{ error?: string }>
   signOut: () => Promise<void>
   refreshRoles: () => Promise<void>
 }
@@ -109,6 +110,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return {}
   }
 
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
+    })
+    if (error) {
+      return { error: error.message }
+    }
+    return {}
+  }
+
   const signOut = async () => {
     await supabase.auth.signOut()
   }
@@ -127,6 +141,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       signIn,
       signUp,
+      signInWithGoogle,
       signOut,
       refreshRoles,
     }),

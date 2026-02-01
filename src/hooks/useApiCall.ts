@@ -61,7 +61,7 @@ export function useApiCall<T>(
     autoRetry = false,
     onSuccess,
     onError,
-    onStatusChange,
+
   } = options;
 
   const [state, setState] = useState<OperationState<T>>(() => ({
@@ -74,10 +74,7 @@ export function useApiCall<T>(
   const retryCountRef = useRef(0);
   const pendingFnRef = useRef<(() => Promise<T>) | null>(null);
 
-  const updateStatus = useCallback((status: OperationStatus) => {
-    setState(prev => ({ ...prev, status }));
-    onStatusChange?.(status);
-  }, [onStatusChange]);
+
 
   const execute = useCallback(async (
     fn: () => Promise<T>,
@@ -97,7 +94,7 @@ export function useApiCall<T>(
     } catch (error) {
       const appError = toAppError(error, { functionName: fn.name });
       appError.errorId = appError.errorId || generateErrorId();
-      
+
       if (!options.silent) {
         logError(appError);
       }
@@ -105,15 +102,15 @@ export function useApiCall<T>(
       // Check if we should retry
       if (autoRetry && appError.retryable && retryCountRef.current < maxRetries) {
         retryCountRef.current += 1;
-        
+
         const delay = baseDelay * Math.pow(2, retryCountRef.current - 1);
         const actualDelay = Math.min(delay, maxDelay);
-        
+
         // Add jitter
         const jitterDelay = actualDelay * (0.75 + Math.random() * 0.5);
-        
+
         await new Promise(resolve => setTimeout(resolve, jitterDelay));
-        
+
         return execute(fn, options);
       }
 

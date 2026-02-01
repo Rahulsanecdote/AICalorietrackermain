@@ -62,7 +62,7 @@ interface AsyncBoundaryProps {
  * Allows individual features to fail gracefully without affecting the rest of the app
  */
 export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private previousResetKeys: (string | number)[] = []
+
 
   constructor(props: ErrorBoundaryProps) {
     super(props)
@@ -96,7 +96,7 @@ export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
       this.handleReset()
     }
 
-    this.previousResetKeys = resetKeys
+
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
@@ -272,7 +272,6 @@ function FeatureErrorFallback({
 
 export class AsyncBoundary extends Component<AsyncBoundaryProps, AsyncErrorState> {
   private retryTimeout: ReturnType<typeof setTimeout> | null = null
-  private previousResetKeys: (string | number)[] = []
 
   constructor(props: AsyncBoundaryProps) {
     super(props)
@@ -299,8 +298,6 @@ export class AsyncBoundary extends Component<AsyncBoundaryProps, AsyncErrorState
         resetKey: Date.now(),
       })
     }
-
-    this.previousResetKeys = resetKeys
   }
 
   static getDerivedStateFromError(error: Error): Partial<AsyncErrorState> {
@@ -468,13 +465,12 @@ interface RootFallbackProps {
 
 function RootErrorFallbackUI({
   error,
-  errorInfo,
+
   onReset,
   onDownloadBackup,
   onCopyError,
   copied,
 }: RootFallbackProps): ReactElement {
-  const userMessage = getErrorMessage(error, "An unexpected error occurred")
   const isChunkError =
     error?.message?.toLowerCase().includes("chunk") || error?.message?.toLowerCase().includes("module")
 
@@ -554,7 +550,6 @@ function RootErrorFallbackUI({
 }
 
 export class RootErrorBoundary extends Component<ErrorBoundaryProps, RootErrorBoundaryState> {
-  private previousResetKeys: (string | number)[] = []
 
   constructor(props: ErrorBoundaryProps) {
     super(props)
@@ -586,8 +581,6 @@ export class RootErrorBoundary extends Component<ErrorBoundaryProps, RootErrorBo
     if (keysChanged && this.state.hasError) {
       this.handleReset()
     }
-
-    this.previousResetKeys = resetKeys
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {

@@ -15,14 +15,14 @@ export interface MonitoringConfig {
 }
 
 let isInitialized = false
-let currentConfig: MonitoringConfig | null = null
+
 let currentUser: { id: string; data?: Record<string, unknown> } | null = null
 
 /**
  * Initialize monitoring service
  */
 export async function initializeMonitoring(config: MonitoringConfig): Promise<void> {
-  currentConfig = config
+
   isInitialized = true
 
   if (!config.enabled) {
@@ -91,7 +91,7 @@ export async function captureMessage(message: string, level: "info" | "warning" 
 export async function addBreadcrumb(
   message: string,
   category: string,
-  level: "info" | "warning" | "error" = "info",
+  _level: "info" | "warning" | "error" = "info",
   data?: Record<string, unknown>,
 ): Promise<void> {
   if (!isInitialized) return

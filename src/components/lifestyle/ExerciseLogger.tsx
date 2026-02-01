@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useExercise } from '../../hooks/useExercise';
 import { calculateCaloriesBurned } from '../../hooks/useExercise';
-import { Flame, Plus, Trash2, Timer, Clock, Edit2, X } from 'lucide-react';
+import { Flame, Plus, Trash2, Timer, X } from 'lucide-react';
 
 interface ExerciseLoggerProps {
   date: string;
@@ -15,13 +15,11 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
     totalMinutes,
     totalCaloriesBurned,
     logWorkout,
-    updateWorkout,
     deleteWorkout,
     exerciseTypes,
   } = useExercise(date, weightKg);
 
   const [showForm, setShowForm] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState(exerciseTypes[0]);
   const [duration, setDuration] = useState(30);
   const [intensity, setIntensity] = useState<'low' | 'medium' | 'high'>('medium');
@@ -32,13 +30,13 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
     onDataChange?.({ totalMinutes, totalCaloriesBurned });
   }, [totalMinutes, totalCaloriesBurned, onDataChange]);
 
-  const estimatedCalories = calculateCaloriesBurned(selectedType, duration, weightKg);
+  const estimatedCalories = selectedType ? calculateCaloriesBurned(selectedType, duration, weightKg) : 0;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     logWorkout({
       date,
-      type: selectedType.name,
+      type: selectedType?.name || "Exercise",
       durationMinutes: duration,
       caloriesBurned: estimatedCalories,
       intensity,
@@ -47,29 +45,9 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
     resetForm();
   };
 
-  const handleEdit = (entry: typeof entries[0]) => {
-    setEditingId(entry.id);
-    const type = exerciseTypes.find(t => t.name === entry.type) || exerciseTypes[0];
-    setSelectedType(type);
-    setDuration(entry.durationMinutes);
-    setIntensity(entry.intensity);
-    setNotes(entry.notes || '');
-  };
 
-  const saveEdit = () => {
-    if (editingId) {
-      const newCalories = calculateCaloriesBurned(selectedType, duration, weightKg);
-      updateWorkout(editingId, {
-        type: selectedType.name,
-        durationMinutes: duration,
-        caloriesBurned: newCalories,
-        intensity,
-        notes: notes || undefined,
-      });
-      setEditingId(null);
-      resetForm();
-    }
-  };
+
+
 
   const resetForm = () => {
     setShowForm(false);
@@ -78,13 +56,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
     setSelectedType(exerciseTypes[0]);
   };
 
-  const formatTime = (timestamp: number) => {
-    return new Date(timestamp).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-  };
+
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -150,11 +122,10 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                   key={type.id}
                   type="button"
                   onClick={() => setSelectedType(type)}
-                  className={`p-2 rounded-lg text-center transition-colors ${
-                    selectedType.id === type.id
-                      ? 'bg-red-100 border-2 border-red-500'
-                      : 'bg-white border border-gray-200 hover:bg-gray-100'
-                  }`}
+                  className={`p-2 rounded-lg text-center transition-colors ${selectedType?.id === type.id
+                    ? 'bg-red-100 border-2 border-red-500'
+                    : 'bg-white border border-gray-200 hover:bg-gray-100'
+                    }`}
                 >
                   <span className="text-lg">{type.icon}</span>
                   <p className="text-xs truncate">{type.name}</p>
@@ -203,15 +174,14 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                   key={level}
                   type="button"
                   onClick={() => setIntensity(level)}
-                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    intensity === level
-                      ? level === 'low'
-                        ? 'bg-green-100 text-green-700 border-2 border-green-500'
-                        : level === 'medium'
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${intensity === level
+                    ? level === 'low'
+                      ? 'bg-green-100 text-green-700 border-2 border-green-500'
+                      : level === 'medium'
                         ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-500'
                         : 'bg-red-100 text-red-700 border-2 border-red-500'
-                      : 'bg-white border border-gray-200 text-gray-600'
-                  }`}
+                    : 'bg-white border border-gray-200 text-gray-600'
+                    }`}
                 >
                   {level.charAt(0).toUpperCase() + level.slice(1)}
                 </button>
@@ -279,12 +249,6 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                 </div>
               </div>
               <div className="flex gap-1">
-                <button
-                  onClick={() => handleEdit(entry)}
-                  className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
                 <button
                   onClick={() => deleteWorkout(entry.id)}
                   className="p-1 text-gray-400 hover:text-red-500 transition-colors"

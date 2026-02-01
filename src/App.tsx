@@ -125,7 +125,7 @@ function AppShell() {
     settings,
     updateSettings,
     meals,
-    addMeal: addMealToContext,
+
     addMealDirectly,
     updateMeal: updateMealInContext,
     deleteMeal: deleteMealFromContext,
@@ -135,7 +135,7 @@ function AppShell() {
     processOfflineQueue,
   } = useApp()
 
-  const { currentDate, setCurrentDate, goToPreviousDay, goToNextDay, goToToday, formatDate } = useDate()
+  const { currentDate, goToPreviousDay, goToNextDay, goToToday, formatDate } = useDate()
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null)
@@ -239,6 +239,7 @@ function AppShell() {
         window.removeEventListener("offline", updateOnlineStatus)
       }
     }
+    return undefined;
   }, [offlineQueue.length, processOfflineQueue])
 
   // Setup global error handlers
@@ -291,13 +292,10 @@ function AppShell() {
     error: mealPlanError,
     generateMealPlan,
     generateMealPlanFromPantry,
-    updateFoodItem,
     swapFoodItem,
-    addMealToLog,
     regenerateMealPlan,
     saveTemplate,
     loadTemplate,
-    deleteTemplate,
     clearPlan,
     savePantry,
   } = useMealPlanner(settings, handleAddMeal) // FIXED: NoRedeclare issues for these variables
@@ -398,7 +396,7 @@ function AppShell() {
       console.log("Test API response status:", response.status)
 
       if (response.ok) {
-        const data = await response.json()
+        await response.json()
         console.log("API Test successful")
         notifySuccess("API Test successful! AI proxy is responding.")
       } else {
@@ -760,17 +758,21 @@ function AppShell() {
                 <DashboardLoadingCard title="Loading shopping list" description="Fetching your items." />
               }
             >
-              <ShoppingListView
-                shoppingList={shoppingList}
-                onToggleItem={toggleItemCheck}
-                onRemoveItem={removeItem}
-                onAddCustomItem={addCustomItem}
-                onClearList={() => {
-                  clearList()
-                  setActiveView("tracker")
-                }}
-                onClose={() => setActiveView("tracker")}
-              />
+              {shoppingList ? (
+                <ShoppingListView
+                  shoppingList={shoppingList}
+                  onToggleItem={toggleItemCheck}
+                  onRemoveItem={removeItem}
+                  onAddCustomItem={addCustomItem}
+                  onClearList={() => {
+                    clearList()
+                    setActiveView("tracker")
+                  }}
+                  onClose={() => setActiveView("tracker")}
+                />
+              ) : (
+                <DashboardLoadingCard title="No shopping list" description="Create a meal plan first." />
+              )}
             </Suspense>
           </ShoppingListBoundary>
         )

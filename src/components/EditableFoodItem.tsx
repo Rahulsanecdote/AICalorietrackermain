@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit2, Shuffle, Heart, ShoppingCart } from 'lucide-react';
 import { FoodItem } from '../types';
-import { getMeasurementDisplay, getIntuitiveMeasurement } from '../utils/foodMeasurements';
+import { getMeasurementDisplay } from '../utils/foodMeasurements';
 
 interface EditableFoodItemProps {
   item: FoodItem;
@@ -15,10 +15,10 @@ interface EditableFoodItemProps {
   isSwapping?: boolean;
 }
 
-export default function EditableFoodItem({ 
-  item, 
-  onUpdateWeight, 
-  accentColor,
+export default function EditableFoodItem({
+  item,
+  onUpdateWeight,
+
   onSwapFood,
   onAddToShoppingList,
   onToggleFavorite,
@@ -30,7 +30,7 @@ export default function EditableFoodItem({
   const [valueInput, setValueInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const intuitiveMeasurement = getIntuitiveMeasurement(item);
+
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -76,12 +76,12 @@ export default function EditableFoodItem({
         <div className="flex items-center gap-3 flex-1">
           {/* Food Emoji */}
           <span className="text-xl">{item.emoji}</span>
-          
+
           {/* Food Name */}
           <div className="flex-1">
             <h4 className="font-medium text-gray-900">{item.name}</h4>
           </div>
-          
+
           {/* Intuitive Measurement */}
           <div className="flex items-center gap-1">
             {isEditing ? (
@@ -145,11 +145,10 @@ export default function EditableFoodItem({
           {onToggleFavorite && (
             <button
               onClick={() => onToggleFavorite(item)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                isFavorite
-                  ? 'text-red-500 bg-red-50'
-                  : 'text-gray-400 hover:text-red-400 hover:bg-red-50'
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${isFavorite
+                ? 'text-red-500 bg-red-50'
+                : 'text-gray-400 hover:text-red-400 hover:bg-red-50'
+                }`}
               title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
             >
               <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
@@ -160,11 +159,10 @@ export default function EditableFoodItem({
           {onAddToShoppingList && (
             <button
               onClick={() => onAddToShoppingList(item)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                isInShoppingList
-                  ? 'text-purple-600 bg-purple-50'
-                  : 'text-gray-400 hover:text-purple-500 hover:bg-purple-50'
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${isInShoppingList
+                ? 'text-purple-600 bg-purple-50'
+                : 'text-gray-400 hover:text-purple-500 hover:bg-purple-50'
+                }`}
               title={isInShoppingList ? 'In shopping list' : 'Add to shopping list'}
             >
               <ShoppingCart className={`w-4 h-4 ${isInShoppingList ? 'fill-current' : ''}`} />
@@ -176,11 +174,10 @@ export default function EditableFoodItem({
             <button
               onClick={() => onSwapFood(item.id)}
               disabled={isSwapping}
-              className={`p-1 rounded transition-colors ${
-                isSwapping
-                  ? 'text-purple-600 bg-purple-50 animate-pulse'
-                  : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
-              }`}
+              className={`p-1 rounded transition-colors ${isSwapping
+                ? 'text-purple-600 bg-purple-50 animate-pulse'
+                : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
+                }`}
               title="Swap food"
             >
               {isSwapping ? (

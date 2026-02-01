@@ -1,8 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { Meal } from '../types';
-import { WeeklyInsight, WeeklyStats, InsightCategory, InsightSeverity, STORAGE_KEYS } from '../types/features';
+import { WeeklyInsight, WeeklyStats, STORAGE_KEYS } from '../types/features';
 import { API_CONFIG } from '../constants';
 import { postAIChat } from '../utils/aiClient';
 import useLocalStorage from './useLocalStorage';
@@ -13,7 +12,6 @@ interface UseInsightsOptions {
 }
 
 export function useInsightsEngine({ meals, refreshInterval = 24 }: UseInsightsOptions) {
-  const { t } = useTranslation('insights');
   const [insights, setInsights] = useState<WeeklyInsight[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +59,7 @@ export function useInsightsEngine({ meals, refreshInterval = 24 }: UseInsightsOp
     let dayStreak = 0;
     const uniqueDays = new Set<string>();
     weekMeals.forEach((meal) => {
-      uniqueDays.add(new Date(meal.timestamp).toISOString().split('T')[0]);
+      uniqueDays.add(new Date(meal.timestamp).toISOString().split('T')[0] ?? '');
     });
     dayStreak = uniqueDays.size;
 
@@ -144,7 +142,7 @@ Keep responses friendly, motivational, and actionable. Focus on patterns and sug
       const parsedInsights = JSON.parse(content);
 
       // Transform and store
-      const newInsights: WeeklyInsight[] = parsedInsights.map((insight: any, index: number) => ({
+      const newInsights: WeeklyInsight[] = parsedInsights.map((insight: any) => ({
         id: uuidv4(),
         generatedAt: Date.now(),
         dateRange: {

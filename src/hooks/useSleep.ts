@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import useLocalStorage from './useLocalStorage';
 import { SleepEntry } from '../types/lifestyle';
 import { v4 as uuidv4 } from 'uuid';
@@ -40,8 +40,8 @@ export function useSleep(date: string): UseSleepReturn {
   const logSleep = useCallback(
     (bedTime: string, wakeTime: string, quality: SleepEntry['qualityRating'], notes?: string) => {
       // Calculate duration
-      const [bedHour, bedMin] = bedTime.split(':').map(Number);
-      const [wakeHour, wakeMin] = wakeTime.split(':').map(Number);
+      const [bedHour = 0, bedMin = 0] = bedTime.split(':').map(Number);
+      const [wakeHour = 0, wakeMin = 0] = wakeTime.split(':').map(Number);
 
       let durationMinutes = (wakeHour * 60 + wakeMin) - (bedHour * 60 + bedMin);
 

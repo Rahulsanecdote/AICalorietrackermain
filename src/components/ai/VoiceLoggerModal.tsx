@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { Mic, MicOff, X, Check, RefreshCw, AlertCircle, Volume2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2 } from 'lucide-react';
 import { useVoiceScanner } from '../../hooks/useVoiceScanner';
 import { Button } from '../ui/button';
 import {
@@ -31,17 +31,17 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
     reset,
   } = useVoiceScanner();
 
-  const [showConfirm, setShowConfirm] = useState(false);
+
 
   useEffect(() => {
     if (isOpen) {
       reset();
-      setShowConfirm(false);
+
     }
   }, [isOpen, reset]);
 
   const handleStartListening = () => {
-    setShowConfirm(false);
+
     startListening();
   };
 
@@ -58,7 +58,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
 
   const handleRetry = () => {
     reset();
-    setShowConfirm(false);
+
   };
 
   const handleClose = () => {
@@ -174,13 +174,12 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-500">Confidence:</span>
               <span
-                className={`font-medium ${
-                  result.confidence > 0.8
-                    ? 'text-green-600'
-                    : result.confidence > 0.5
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
-                }`}
+                className={`font-medium ${result.confidence > 0.8
+                  ? 'text-green-600'
+                  : result.confidence > 0.5
+                    ? 'text-yellow-600'
+                    : 'text-red-600'
+                  }`}
               >
                 {Math.round(result.confidence * 100)}%
               </span>
