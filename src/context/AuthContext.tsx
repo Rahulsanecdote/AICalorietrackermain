@@ -31,22 +31,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true
 
     const loadSession = async () => {
-      const { data, error } = await supabase.auth.getSession()
-      if (!mounted) return
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (!mounted) return
 
-      if (error || !data.session?.user) {
-        setUserId(null)
-        setEmail(null)
-        setRoles([])
-        setLoading(false)
-        return
+        if (error || !data.session?.user) {
+          setUserId(null)
+          setEmail(null)
+          setRoles([])
+          setLoading(false)
+          return
+        }
+
+        setUserId(data.session.user.id)
+        setEmail(data.session.user.email ?? null)
+        await fetchRoles(data.session.user.id)
+        if (mounted) setLoading(false)
+      } catch (err) {
+        console.error("[auth] Error loading session:", err)
+        if (mounted) {
+          setUserId(null)
+          setEmail(null)
+          setRoles([])
+          setLoading(false)
+        }
       }
-
-      setUserId(data.session.user.id)
-      setEmail(data.session.user.email ?? null)
-      await fetchRoles(data.session.user.id)
-      if (mounted) setLoading(false)
     }
+
+    // Add a timeout fallback to ensure loading eventually completes
+    const timeout = setTimeout(() => {
+      if (mounted && loading) {
+        console.warn("[auth] Session check timed out after 10s")
+        setLoading(false)
+      }
+    }, 10000)
 
     loadSession()
 
@@ -68,6 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false
+      clearTimeout(timeout)
       listener.subscription.unsubscribe()
     }
   }, [])
