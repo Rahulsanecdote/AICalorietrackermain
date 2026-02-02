@@ -197,7 +197,7 @@ export class CircuitBreaker<T = unknown> {
    * Non-retryable errors (401/403, schema errors) should NOT trip the breaker
    */
   private isRetryableError(error: Error): boolean {
-    const message = error.message.toLowerCase();
+    const message = (error?.message ?? '').toLowerCase();
 
     // Non-retryable: Auth errors
     if (message.includes('401') || message.includes('403') ||
@@ -237,7 +237,7 @@ export class CircuitBreaker<T = unknown> {
    * Categorize error for metrics tracking
    */
   private categorizeError(error: Error): string {
-    const message = error.message.toLowerCase();
+    const message = (error?.message ?? '').toLowerCase();
 
     if (message.includes('401') || message.includes('unauthorized')) return 'UNAUTHORIZED';
     if (message.includes('403') || message.includes('forbidden')) return 'FORBIDDEN';
