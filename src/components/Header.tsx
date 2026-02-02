@@ -51,6 +51,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
               onClick={onOpenVoice}
               className="flex items-center gap-1 px-3 py-2 text-gray-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors dark:text-gray-300 dark:bg-red-900/20 dark:hover:bg-red-900/30"
               title="Voice Input"
+              aria-label="Voice Input"
             >
               <Mic2 className="w-4 h-4 text-red-500" />
               <span className="text-sm font-medium text-red-600 dark:text-red-400 hidden xs:inline">Voice</span>
@@ -62,6 +63,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
                 onClick={onOpenCompare}
                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
                 title="Compare Foods"
+                aria-label="Compare Foods"
               >
                 <ArrowRightLeft className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               </button>
@@ -70,6 +72,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
                 onClick={onOpenUtilities}
                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
                 title="Utilities"
+                aria-label="Utilities"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -83,6 +86,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
                   onClick={onSignOut}
                   className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
                   title={userEmail ? `Sign out (${userEmail})` : "Sign out"}
+                  aria-label={userEmail ? `Sign out (${userEmail})` : "Sign out"}
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -92,6 +96,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
                 onClick={onOpenSettings}
                 className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
                 title="Settings"
+                aria-label="Settings"
               >
                 <Settings className="w-4 h-4" />
               </button>
@@ -109,8 +114,8 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
                 key={item.id}
                 onClick={() => onViewChange(item.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${isActive
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
                   }`}
               >
                 <Icon className="w-3.5 h-3.5" />
