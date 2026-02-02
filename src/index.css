@@ -216,3 +216,100 @@ select {
     transition: none !important;
   }
 }
+
+/* ============================================================================
+   WCAG 2 AA Accessibility - Color Contrast Overrides
+   These ensure 4.5:1 minimum contrast ratio for normal text
+   ============================================================================ */
+
+@layer utilities {
+  /* Gray text - improve contrast on white backgrounds */
+  .text-gray-400 {
+    color: #6b7280 !important; /* gray-500: 4.6:1 on white */
+  }
+  
+  .text-gray-500 {
+    color: #4b5563 !important; /* gray-600: 7.0:1 on white */
+  }
+  
+  /* Dark mode gray text stays lighter for contrast on dark backgrounds */
+  .dark .text-gray-400 {
+    color: #9ca3af !important; /* gray-400: good on dark */
+  }
+  
+  .dark .text-gray-500 {
+    color: #d1d5db !important; /* gray-300: good on dark */
+  }
+  
+  /* Amber/Yellow - improve contrast on white/light backgrounds */
+  .text-amber-500 {
+    color: #b45309 !important; /* amber-700: 4.8:1 on white */
+  }
+  
+  .text-amber-600 {
+    color: #92400e !important; /* amber-800: 7.5:1 on white */
+  }
+  
+  /* Blue - improve contrast on white backgrounds */
+  .text-blue-500 {
+    color: #1d4ed8 !important; /* blue-700: 5.6:1 on white */
+  }
+  
+  /* Red - improve contrast on white backgrounds */
+  .text-red-500 {
+    color: #b91c1c !important; /* red-700: 5.6:1 on white */
+  }
+  
+  /* Green - already good, but ensure consistency */
+  .text-green-600 {
+    color: #15803d !important; /* green-700: 5.2:1 on white */
+  }
+  
+  /* Pink - improve contrast */
+  .text-pink-600 {
+    color: #be185d !important; /* pink-700: 5.4:1 on white */
+  }
+  
+  /* Emerald button text - ensure readability */
+  .bg-emerald-500.text-white {
+    background-color: #059669 !important; /* emerald-600: better contrast */
+  }
+  
+  /* Preserve hover states for interactive elements */
+  .text-gray-400.hover\:text-red-400:hover,
+  .text-gray-400.hover\:text-red-500:hover {
+    color: #dc2626 !important;
+  }
+  
+  .text-gray-400.hover\:text-blue-500:hover {
+    color: #2563eb !important;
+  }
+  
+  .text-gray-400.hover\:text-gray-600:hover {
+    color: #4b5563 !important;
+  }
+  
+  .text-gray-400.hover\:text-purple-500:hover,
+  .text-gray-400.hover\:text-purple-600:hover {
+    color: #7c3aed !important;
+  }
+}
+
+/* Specific component overrides for meal plan cards */
+.bg-amber-50 .text-amber-600,
+.bg-green-50 .text-amber-600,
+.bg-indigo-50 .text-amber-600,
+.bg-pink-50 .text-amber-600 {
+  color: #92400e !important; /* Darker amber for visibility on tinted backgrounds */
+}
+
+/* xs text needs even more contrast */
+.text-xs.text-gray-400,
+.text-xs.text-gray-500 {
+  color: #4b5563 !important; /* gray-600 for small text */
+}
+
+.dark .text-xs.text-gray-400,
+.dark .text-xs.text-gray-500 {
+  color: #d1d5db !important; /* gray-300 for dark mode small text */
+}
