@@ -210,13 +210,10 @@ jobs:
       - name: Build project
         run: pnpm build
       
-      - name: Prepare Vercel output
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --yes || true
-      
       - name: Deploy to Vercel
         id: deploy
         run: |
-          URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          URL=$(vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> $GITHUB_OUTPUT
           echo "Deployed to: $URL"
       
