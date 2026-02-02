@@ -73,19 +73,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const fetchRoles = async (id: string) => {
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", id)
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", id)
 
-    if (error) {
-      console.warn("[auth] Failed to load roles:", error.message)
-      setRoles([])
-      return
+      if (error) {
+        // Handle missing table gracefully - assign default "user" role
+        if (error.message.includes("relation") && error.message.includes("does not exist")) {
+          console.warn("[auth] user_roles table missing, using default role")
+          setRoles(["user"])
+          return
+        }
+        console.warn("[auth] Failed to load roles:", error.message)
+        setRoles(["user"]) // Default to user role on error
+        return
+      }
+
+      const mapped = (data ?? []).map((row) => row.role as AppRole)
+      setRoles(mapped.length ? mapped : ["user"])
+    } catch (err) {
+      console.warn("[auth] Error fetching roles:", err)
+      setRoles(["user"]) // Default to user role on any error
     }
-
-    const mapped = (data ?? []).map((row) => row.role as AppRole)
-    setRoles(mapped.length ? mapped : ["user"])
   }
 
   const signIn = async (authEmail: string, password: string) => {
