@@ -1,19 +1,14 @@
 /**
  * Vercel Serverless Function: /api/ai/chat
- * Proxies requests to OpenAI ChatGPT API
+ * Uses Vercel AI SDK with OpenAI provider
  */
 
-const DEFAULTS = {
-    openaiBaseUrl: 'https://api.openai.com/v1/chat/completions',
-    model: 'gpt-4o-mini',
-    timeoutMs: 30000,
-    maxBodyBytes: 200000,
-};
+import { generateText } from 'ai';
+import { openai } from '@ai-sdk/openai';
 
-// Simple in-memory rate limiter (per-request basis for serverless)
-const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX = 60;
+const rateLimitStore = new Map();
 
 function getRateLimit(ip) {
     const now = Date.now();
@@ -39,48 +34,6 @@ function getClientIp(req) {
         return forwarded.split(',')[0].trim();
     }
     return req.socket?.remoteAddress ?? 'unknown';
-}
-
-function sanitizeMessages(messages) {
-    const sanitized = [];
-    for (const message of messages) {
-        if (!message || typeof message !== 'object') continue;
-        const role = typeof message.role === 'string' ? message.role : '';
-        const content = typeof message.content === 'string' ? message.content : '';
-        if (!role || !content) continue;
-        sanitized.push({ role, content });
-    }
-    return sanitized.length > 0 ? sanitized : null;
-}
-
-function buildOpenAIPayload(body, defaultModel) {
-    if (!body || typeof body !== 'object') {
-        return { ok: false, error: 'Request body must be a JSON object.' };
-    }
-
-    const messages = Array.isArray(body.messages) ? body.messages : [];
-    const sanitizedMessages = sanitizeMessages(messages);
-    if (!sanitizedMessages) {
-        return { ok: false, error: 'Request must include a non-empty messages array.' };
-    }
-
-    const payload = {
-        model: typeof body.model === 'string' && body.model.length > 0 ? body.model : defaultModel,
-        messages: sanitizedMessages,
-        temperature: typeof body.temperature === 'number' ? body.temperature : 0.3,
-        max_tokens: typeof body.max_tokens === 'number' ? body.max_tokens : 2000,
-        top_p: typeof body.top_p === 'number' ? body.top_p : undefined,
-        presence_penalty: typeof body.presence_penalty === 'number' ? body.presence_penalty : undefined,
-        frequency_penalty: typeof body.frequency_penalty === 'number' ? body.frequency_penalty : undefined,
-        response_format:
-            body.response_format && typeof body.response_format === 'object' ? body.response_format : undefined,
-    };
-
-    // Strip undefined values
-    return {
-        ok: true,
-        data: Object.fromEntries(Object.entries(payload).filter(([, v]) => v !== undefined)),
-    };
 }
 
 export default async function handler(req, res) {
@@ -142,49 +95,73 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: { message: 'Request body required' } });
     }
 
-    // Build OpenAI payload
-    const model = process.env.AI_PROXY_MODEL ?? DEFAULTS.model;
-    const payload = buildOpenAIPayload(body, model);
-    if (!payload.ok) {
-        return res.status(400).json({ error: { message: payload.error } });
+    // Validate messages
+    const messages = Array.isArray(body.messages) ? body.messages : [];
+    if (messages.length === 0) {
+        return res.status(400).json({ error: { message: 'Request must include a non-empty messages array.' } });
     }
 
-    // Call OpenAI
+    // Call OpenAI using Vercel AI SDK
     try {
-        const openaiUrl = process.env.AI_PROXY_OPENAI_BASE_URL ?? DEFAULTS.openaiBaseUrl;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), DEFAULTS.timeoutMs);
+        const modelId = body.model || process.env.AI_PROXY_MODEL || 'gpt-4o-mini';
+        const temperature = typeof body.temperature === 'number' ? body.temperature : 0.3;
+        const maxTokens = typeof body.max_tokens === 'number' ? body.max_tokens : 2000;
 
-        const response = await fetch(openaiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${openaiApiKey}`,
-            },
-            body: JSON.stringify(payload.data),
-            signal: controller.signal,
+        const result = await generateText({
+            model: openai(modelId),
+            messages: messages.map(m => ({
+                role: m.role,
+                content: m.content,
+            })),
+            temperature,
+            maxTokens,
         });
 
-        clearTimeout(timeoutId);
+        // Format response to match OpenAI API format for backwards compatibility
+        const response = {
+            id: `chatcmpl-${Date.now()}`,
+            object: 'chat.completion',
+            created: Math.floor(Date.now() / 1000),
+            model: modelId,
+            choices: [
+                {
+                    index: 0,
+                    message: {
+                        role: 'assistant',
+                        content: result.text,
+                    },
+                    finish_reason: result.finishReason || 'stop',
+                },
+            ],
+            usage: {
+                prompt_tokens: result.usage?.promptTokens ?? 0,
+                completion_tokens: result.usage?.completionTokens ?? 0,
+                total_tokens: result.usage?.totalTokens ?? 0,
+            },
+        };
 
-        const responseBody = await response.text();
-        const contentType = response.headers.get('content-type') ?? 'application/json';
-
-        res.setHeader('Content-Type', contentType);
+        res.setHeader('Content-Type', 'application/json');
         res.setHeader('Cache-Control', 'no-store');
-        return res.status(response.status).send(responseBody);
+        return res.status(200).json(response);
 
     } catch (error) {
-        console.error('[api/ai/chat] OpenAI request failed:', error);
+        console.error('[api/ai/chat] AI SDK error:', error);
 
+        // Handle specific error types
         if (error.name === 'AbortError') {
             return res.status(504).json({
                 error: { message: 'Request timeout. The AI service is taking too long to respond.' }
             });
         }
 
+        if (error.message?.includes('rate')) {
+            return res.status(429).json({
+                error: { message: 'Rate limit exceeded. Please retry later.' }
+            });
+        }
+
         return res.status(502).json({
-            error: { message: 'Upstream OpenAI request failed.' }
+            error: { message: error.message || 'AI request failed.' }
         });
     }
 }
