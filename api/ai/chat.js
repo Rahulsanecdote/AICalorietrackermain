@@ -58,17 +58,17 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: { message: 'Method not allowed' } });
     }
 
-    // Check auth if required
-    const authRequired = process.env.AI_PROXY_AUTH_REQUIRED !== 'false';
+    // Check auth if enabled (disabled by default for simpler setup)
+    const authRequired = process.env.AI_PROXY_AUTH_REQUIRED === 'true';
     const authToken = process.env.AI_PROXY_AUTH_TOKEN ?? '';
 
-    if (authRequired) {
+    if (authRequired && authToken) {
         const header = req.headers.authorization ?? '';
         const bearer = header.startsWith('Bearer ') ? header.slice(7) : '';
         const tokenHeader = req.headers['x-api-token'] ?? '';
         const token = bearer || tokenHeader;
 
-        if (!token || !authToken || token !== authToken) {
+        if (!token || token !== authToken) {
             return res.status(401).json({ error: { message: 'Unauthorized' } });
         }
     }
