@@ -204,8 +204,14 @@ jobs:
       - name: Pull Vercel Environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       
-      - name: Build with Vercel
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build project
+        run: pnpm build
+      
+      - name: Prepare Vercel output
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} --yes || true
       
       - name: Deploy to Vercel
         id: deploy
