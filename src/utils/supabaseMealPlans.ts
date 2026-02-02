@@ -24,7 +24,14 @@ export async function upsertMealPlan(userId: string, plan: DailyMealPlan): Promi
   const { error: planError } = await supabase
     .from("meal_plans")
     .upsert(planPayload, { onConflict: "user_id,plan_date" })
-  if (planError) throw new Error(planError.message)
+  if (planError) {
+    // Check for common database errors
+    if (planError.message.includes("relation") && planError.message.includes("does not exist")) {
+      console.error("[supabaseMealPlans] Database table missing. Run migrations from /supabase/migrations/0001_init.sql")
+      throw new Error("Database tables not set up. Please contact support or run database migrations.")
+    }
+    throw new Error(planError.message)
+  }
 
   const { error: deleteMealsError } = await supabase
     .from("meal_plan_meals")
@@ -101,7 +108,14 @@ export async function fetchMealPlanForDate(userId: string, date: string): Promis
     .eq("plan_date", date)
     .maybeSingle()
 
-  if (planError) throw new Error(planError.message)
+  if (planError) {
+    // Check for common database errors
+    if (planError.message.includes("relation") && planError.message.includes("does not exist")) {
+      console.error("[supabaseMealPlans] Database table missing. Run migrations from /supabase/migrations/0001_init.sql")
+      throw new Error("Database tables not set up. Please contact support or run database migrations.")
+    }
+    throw new Error(planError.message)
+  }
   if (!plan) return null
 
   const { data: meals, error: mealsError } = await supabase

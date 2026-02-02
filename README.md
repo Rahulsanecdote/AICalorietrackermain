@@ -160,6 +160,39 @@ pnpm dev
 2. Verify `OPENAI_API_KEY` is set on the server
 3. If auth is enabled, confirm `VITE_API_AUTH_TOKEN` matches `AI_PROXY_AUTH_TOKEN`
 
+### Database / Supabase Issues
+
+#### "Unable to load your meal plan" or "relation does not exist"
+
+This means the database tables haven't been created. Apply migrations:
+
+**Option 1: Using Supabase CLI (recommended for local)**
+```bash
+supabase db reset
+```
+
+**Option 2: Manual SQL (for production)**
+1. Go to your Supabase project dashboard → SQL Editor
+2. Run the contents of `supabase/migrations/0001_init.sql`
+3. Then run `supabase/migrations/0002_seed.sql` (optional sample data)
+4. Finally run `supabase/migrations/0003_roles.sql`
+
+#### "row level security" or permission errors
+
+1. Ensure you're logged in with a valid Supabase auth session
+2. Check that RLS policies exist (run `supabase/migrations/0001_init.sql`)
+3. Verify your user exists in `public.users` table
+
+#### Environment Variables
+
+Required for Supabase:
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Verify connection by checking browser console for `[supabase] VITE_SUPABASE_URL:` log
+
 ## License
 
 See [LICENSE](LICENSE) file for details.

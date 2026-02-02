@@ -92,7 +92,7 @@ create table if not exists public.meals (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.users(id) on delete cascade,
   logged_at timestamptz not null default now(),
-  meal_date date generated always as (logged_at::date) stored,
+  meal_date date not null default current_date,
   category public.meal_category not null,
   description text not null,
   food_name text not null,
