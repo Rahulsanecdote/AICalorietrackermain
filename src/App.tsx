@@ -424,6 +424,7 @@ function AppShell() {
               <button
                 onClick={goToPreviousDay} // FIXED: NoRedeclare issue for goToPreviousDay
                 className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                aria-label="Go to previous day"
               >
                 <svg
                   className="w-5 h-5 text-gray-600 dark:text-gray-400"
@@ -445,6 +446,7 @@ function AppShell() {
               <button
                 onClick={goToNextDay} // FIXED: NoRedeclare issue for goToNextDay
                 className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                aria-label="Go to next day"
               >
                 <svg
                   className="w-5 h-5 text-gray-600 dark:text-gray-400"

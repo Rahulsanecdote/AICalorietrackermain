@@ -48,7 +48,7 @@ export function MonitoringDebugPanel() {
               <Activity className="w-5 h-5 text-purple-600" />
               <h3 className="font-semibold text-gray-900 dark:text-white">Monitoring Debug</h3>
             </div>
-            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" aria-label="Close debug panel">
               <X className="w-4 h-4" />
             </button>
           </div>
