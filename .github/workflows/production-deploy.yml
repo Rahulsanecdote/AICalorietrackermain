@@ -244,12 +244,18 @@ jobs:
       
       - name: Health check
         id: health
+        env:
+          VERCEL_BYPASS_TOKEN: ${{ secrets.VERCEL_BYPASS_TOKEN }}
         run: |
           URL=$(cat deployment-url.txt)
           echo "Checking health at: $URL"
           
-          # Perform health check
-          RESPONSE=$(curl -s -w "\n%{http_code}" "${URL}/")
+          # Perform health check with protection bypass header
+          if [ -n "$VERCEL_BYPASS_TOKEN" ]; then
+            RESPONSE=$(curl -s -w "\n%{http_code}" -H "x-vercel-protection-bypass: $VERCEL_BYPASS_TOKEN" "${URL}/")
+          else
+            RESPONSE=$(curl -s -w "\n%{http_code}" "${URL}/")
+          fi
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           
           if [ "$HTTP_CODE" != "200" ]; then
