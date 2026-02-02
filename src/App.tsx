@@ -1190,7 +1190,7 @@ function AppShell() {
           onSignOut={handleSignOut}
         />
 
-        <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">{renderView()}</main>
+        <main id="main-content" className="max-w-4xl mx-auto px-4 py-6 space-y-6">{renderView()}</main>
 
         {/* Modals */}
         <SettingsModal
