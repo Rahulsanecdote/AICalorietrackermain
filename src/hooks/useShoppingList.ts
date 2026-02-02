@@ -51,7 +51,9 @@ export function useShoppingList(): UseShoppingListReturn {
       if (!meal.recipe?.ingredients) return;
 
       meal.recipe.ingredients.forEach((ingredient) => {
-        const key = `${ingredient.name.toLowerCase()}_${ingredient.unit.toLowerCase()}`;
+        const ingredientName = ingredient.name ?? '';
+        const ingredientUnit = ingredient.unit ?? '';
+        const key = `${ingredientName.toLowerCase()}_${ingredientUnit.toLowerCase()}`;
 
         if (ingredientMap[key]) {
           // Update existing item
@@ -143,8 +145,10 @@ export function useShoppingList(): UseShoppingListReturn {
       // Add ingredients from recipe
       if (meal.recipe?.ingredients) {
         meal.recipe.ingredients.forEach((ing) => {
+          const ingName = ing.name ?? '';
+          const ingUnit = ing.unit ?? '';
           const existingIndex = updatedItems.findIndex(
-            (item) => item.name.toLowerCase() === ing.name.toLowerCase() && item.unit.toLowerCase() === ing.unit.toLowerCase()
+            (item) => (item.name ?? '').toLowerCase() === ingName.toLowerCase() && (item.unit ?? '').toLowerCase() === ingUnit.toLowerCase()
           );
 
           if (existingIndex >= 0) {
@@ -176,8 +180,9 @@ export function useShoppingList(): UseShoppingListReturn {
 
       // Also add the main food item if no recipe
       if (!meal.recipe && meal.foodName) {
+        const mealFoodName = meal.foodName ?? '';
         const existingIndex = updatedItems.findIndex(
-          (item) => item.name.toLowerCase() === meal.foodName.toLowerCase()
+          (item) => (item.name ?? '').toLowerCase() === mealFoodName.toLowerCase()
         );
 
         if (existingIndex >= 0) {
@@ -235,7 +240,7 @@ export function useShoppingList(): UseShoppingListReturn {
 
 
       const existingIndex = currentItems.findIndex(
-        (item) => item.name.toLowerCase() === name.toLowerCase() && item.unit.toLowerCase() === unit.toLowerCase()
+        (item) => (item.name ?? '').toLowerCase() === (name ?? '').toLowerCase() && (item.unit ?? '').toLowerCase() === (unit ?? '').toLowerCase()
       );
 
       let updatedItems: ShoppingItem[] = [];
@@ -290,7 +295,7 @@ export function useShoppingList(): UseShoppingListReturn {
   const isItemInList = useCallback((itemName: string): boolean => {
     if (!shoppingList) return false;
     return shoppingList.items.some(
-      (item) => item.name.toLowerCase() === itemName.toLowerCase()
+      (item) => (item.name ?? '').toLowerCase() === (itemName ?? '').toLowerCase()
     );
   }, [shoppingList]);
 

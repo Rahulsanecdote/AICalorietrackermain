@@ -63,7 +63,8 @@ function analyzeMealPrepNeeds(meals: Meal[]): PrepTask[] {
     if (meal.recipe) {
       // Group ingredients by type for batch prep analysis
       meal.recipe.ingredients.forEach((ing) => {
-        const baseName = ing.name.toLowerCase().replace(/ chopped| diced| sliced| minced/gi, '');
+        const ingredientName = ing.name ?? '';
+        const baseName = ingredientName.toLowerCase().replace(/ chopped| diced| sliced| minced/gi, '');
         if (!ingredientUsage[baseName]) {
           ingredientUsage[baseName] = [];
         }
