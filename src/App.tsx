@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback, lazy, Suspense } from "react"
+import { useState, useEffect, useCallback, lazy, Suspense, useTransition } from "react"
 import "./i18n/config"
 
 import {
@@ -148,6 +148,13 @@ function AppShell() {
   const [activeView, setActiveView] = useState<
     "tracker" | "analytics" | "shopping" | "mealprep" | "favorites" | "lifestyle" | "insights"
   >("tracker")
+  const [isPending, startTransition] = useTransition() // Add useTransition
+
+  const handleViewChange = useCallback((view: typeof activeView) => {
+    startTransition(() => {
+      setActiveView(view)
+    })
+  }, [])
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false)
   const handleManualMode = useCallback(() => {
@@ -1187,7 +1194,7 @@ function AppShell() {
           onOpenVoice={() => setIsVoiceOpen(true)}
           onOpenCompare={() => setIsCompareOpen(true)}
           activeView={activeView}
-          onViewChange={setActiveView}
+          onViewChange={handleViewChange}
           userEmail={email}
           onSignOut={handleSignOut}
         />
