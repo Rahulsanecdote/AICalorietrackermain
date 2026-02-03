@@ -5,6 +5,45 @@
 @layer base {
   :root {
     --radius: 0.75rem;
+
+    /* Core surface colors */
+    --background: 0 0% 98%;
+    --foreground: 240 10% 3.9%;
+
+    /* Card surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    /* Popover/Dropdown surfaces - SOLID backgrounds for readability */
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    /* Primary accent */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    /* Muted */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    /* Accent (for hover states) */
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    /* Destructive */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders */
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 142 76% 36%;
+
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -16,6 +55,44 @@
   }
 
   .dark {
+    /* Core surface colors - Dark mode */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    /* Card surfaces - Dark mode (solid, opaque) */
+    --card: 240 6% 10%;
+    --card-foreground: 0 0% 98%;
+
+    /* Popover/Dropdown surfaces - SOLID dark backgrounds for readability */
+    --popover: 240 6% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary accent */
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    /* Muted */
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    /* Accent */
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Destructive */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders */
+    --border: 240 3.7% 20%;
+    --input: 240 3.7% 20%;
+    --ring: 142 76% 36%;
+
+    /* Sidebar - Dark mode */
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -31,6 +108,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-gray-50 text-gray-900 antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -76,6 +154,7 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -87,6 +166,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -98,6 +178,7 @@
     opacity: 0;
     transform: translateX(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -109,10 +190,12 @@
     transform: scale(0.95);
     opacity: 0.7;
   }
+
   50% {
     transform: scale(1);
     opacity: 1;
   }
+
   100% {
     transform: scale(0.95);
     opacity: 0.7;
@@ -223,72 +306,84 @@ select {
    ============================================================================ */
 
 @layer utilities {
+
   /* Gray text - improve contrast on white backgrounds */
   .text-gray-400 {
-    color: #6b7280 !important; /* gray-500: 4.6:1 on white */
+    color: #6b7280 !important;
+    /* gray-500: 4.6:1 on white */
   }
-  
+
   .text-gray-500 {
-    color: #4b5563 !important; /* gray-600: 7.0:1 on white */
+    color: #4b5563 !important;
+    /* gray-600: 7.0:1 on white */
   }
-  
+
   /* Dark mode gray text stays lighter for contrast on dark backgrounds */
   .dark .text-gray-400 {
-    color: #9ca3af !important; /* gray-400: good on dark */
+    color: #9ca3af !important;
+    /* gray-400: good on dark */
   }
-  
+
   .dark .text-gray-500 {
-    color: #d1d5db !important; /* gray-300: good on dark */
+    color: #d1d5db !important;
+    /* gray-300: good on dark */
   }
-  
+
   /* Amber/Yellow - improve contrast on white/light backgrounds */
   .text-amber-500 {
-    color: #b45309 !important; /* amber-700: 4.8:1 on white */
+    color: #b45309 !important;
+    /* amber-700: 4.8:1 on white */
   }
-  
+
   .text-amber-600 {
-    color: #92400e !important; /* amber-800: 7.5:1 on white */
+    color: #92400e !important;
+    /* amber-800: 7.5:1 on white */
   }
-  
+
   /* Blue - improve contrast on white backgrounds */
   .text-blue-500 {
-    color: #1d4ed8 !important; /* blue-700: 5.6:1 on white */
+    color: #1d4ed8 !important;
+    /* blue-700: 5.6:1 on white */
   }
-  
+
   /* Red - improve contrast on white backgrounds */
   .text-red-500 {
-    color: #b91c1c !important; /* red-700: 5.6:1 on white */
+    color: #b91c1c !important;
+    /* red-700: 5.6:1 on white */
   }
-  
+
   /* Green - already good, but ensure consistency */
   .text-green-600 {
-    color: #15803d !important; /* green-700: 5.2:1 on white */
+    color: #15803d !important;
+    /* green-700: 5.2:1 on white */
   }
-  
+
   /* Pink - improve contrast */
   .text-pink-600 {
-    color: #be185d !important; /* pink-700: 5.4:1 on white */
+    color: #be185d !important;
+    /* pink-700: 5.4:1 on white */
   }
-  
+
   /* Emerald button text - ensure readability */
   .bg-emerald-500.text-white {
-    background-color: #059669 !important; /* emerald-600: better contrast */
+    background-color: #059669 !important;
+    /* emerald-600: better contrast */
   }
-  
+
   /* Preserve hover states for interactive elements */
   .text-gray-400.hover\:text-red-400:hover,
   .text-gray-400.hover\:text-red-500:hover {
     color: #dc2626 !important;
   }
-  
+
   .text-gray-400.hover\:text-blue-500:hover {
     color: #2563eb !important;
   }
-  
+
   .text-gray-400.hover\:text-gray-600:hover {
     color: #4b5563 !important;
   }
-  
+
   .text-gray-400.hover\:text-purple-500:hover,
   .text-gray-400.hover\:text-purple-600:hover {
     color: #7c3aed !important;
@@ -300,16 +395,19 @@ select {
 .bg-green-50 .text-amber-600,
 .bg-indigo-50 .text-amber-600,
 .bg-pink-50 .text-amber-600 {
-  color: #92400e !important; /* Darker amber for visibility on tinted backgrounds */
+  color: #92400e !important;
+  /* Darker amber for visibility on tinted backgrounds */
 }
 
 /* xs text needs even more contrast */
 .text-xs.text-gray-400,
 .text-xs.text-gray-500 {
-  color: #4b5563 !important; /* gray-600 for small text */
+  color: #4b5563 !important;
+  /* gray-600 for small text */
 }
 
 .dark .text-xs.text-gray-400,
 .dark .text-xs.text-gray-500 {
-  color: #d1d5db !important; /* gray-300 for dark mode small text */
+  color: #d1d5db !important;
+  /* gray-300 for dark mode small text */
 }
