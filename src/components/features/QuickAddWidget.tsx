@@ -6,6 +6,7 @@ import { Plus, X, Send, Mic, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useQuickAdd, QUICK_ADD_PRESETS } from '../../hooks/useQuickAdd';
 import { useNutritionAI } from '../../hooks/useNutritionAI';
+import { useFoodTranslation } from '../../hooks/useFoodTranslation';
 import { MealCategory } from '../../types';
 
 interface QuickAddWidgetProps {
@@ -14,6 +15,7 @@ interface QuickAddWidgetProps {
 
 export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
   const { t } = useTranslation();
+  const { translateFood } = useFoodTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
   const [category, setCategory] = useState<MealCategory>('snack');
@@ -159,7 +161,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     <span className="text-sm font-medium">{t('quickAdd.added')}</span>
                   </div>
                   <p className="text-sm text-green-600 mt-1">
-                    {lastResult.foodName} - {lastResult.nutrition.calories} cal
+                    {translateFood(lastResult.foodName)} - {lastResult.nutrition.calories} {t('meals.cal')}
                   </p>
                 </div>
               )}

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit2, Shuffle, Heart, ShoppingCart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useFoodTranslation } from '../hooks/useFoodTranslation';
 import { FoodItem } from '../types';
 import { getMeasurementDisplay } from '../utils/foodMeasurements';
 
@@ -28,6 +29,7 @@ export default function EditableFoodItem({
   isSwapping = false
 }: EditableFoodItemProps) {
   const { t } = useTranslation();
+  const { translateFood } = useFoodTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [valueInput, setValueInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +83,7 @@ export default function EditableFoodItem({
 
           {/* Food Name */}
           <div className="flex-1">
-            <h4 className="font-medium text-gray-900">{item.name}</h4>
+            <h4 className="font-medium text-gray-900">{translateFood(item.name)}</h4>
           </div>
 
           {/* Intuitive Measurement */}

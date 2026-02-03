@@ -1,5 +1,6 @@
 import { Trash2, Edit2, Clock, Utensils, BookOpen, Heart, ShoppingCart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useFoodTranslation } from '../hooks/useFoodTranslation';
 import { Meal } from '../types';
 import { Recipe } from '../types/recipes';
 
@@ -56,6 +57,7 @@ export default function MealCard({
 
   const hasRecipe = !!meal.recipe;
   const { t } = useTranslation();
+  const { translateFood } = useFoodTranslation();
 
   // Get translated category label
   const getCategoryLabel = (cat: string) => t(`meals.${cat}`);
@@ -73,8 +75,8 @@ export default function MealCard({
             onToggleFavorite(meal.recipe!.id);
           }}
           className={`absolute top-3 right-12 p-1.5 rounded-lg transition-colors z-10 ${isFavorite
-              ? 'text-red-500 bg-red-50'
-              : 'text-gray-300 hover:text-red-400 hover:bg-red-50'
+            ? 'text-red-500 bg-red-50'
+            : 'text-gray-300 hover:text-red-400 hover:bg-red-50'
             }`}
           aria-label={isFavorite ? t('common.removeFavorite') : t('common.addFavorite')}
         >
@@ -86,7 +88,7 @@ export default function MealCard({
         <div className="flex items-start gap-3">
           <div className="text-2xl">{categoryIcons[meal.category]}</div>
           <div>
-            <h3 className="font-semibold text-gray-900">{meal.foodName}</h3>
+            <h3 className="font-semibold text-gray-900">{translateFood(meal.foodName)}</h3>
             <p className="text-sm text-gray-500 mt-1">"{meal.description}"</p>
           </div>
         </div>
@@ -158,8 +160,8 @@ export default function MealCard({
                 onAddToShoppingList(meal);
               }}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${isInShoppingList
-                  ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                  : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600'
+                ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600'
                 }`}
               aria-label="Add ingredients to shopping list"
             >
