@@ -3,42 +3,50 @@ import { FoodComparisonData, ComparisonFoodItem, AIProcessingStatus } from '../t
 import { API_CONFIG } from '../constants';
 import { postAIChat } from '../utils/aiClient';
 import { parseAIResponseWithSchema, ComparisonVerdictSchema, getUserFriendlyError } from '../utils/safeParseAI';
+import {
+  validateForComparison,
+  formatNutrientForAI,
+  generateDisclaimers,
+  calculateDataCompleteness
+} from '../utils/comparisonValidation';
 
 interface ComparisonState {
   status: AIProcessingStatus;
   data: FoodComparisonData | null;
   error: string | null;
+  validationIssues: string[];
 }
 
-const DEFAULT_SYSTEM_PROMPT = `You are a nutrition comparison assistant. Compare two food items and provide a detailed analysis.
+const DEFAULT_SYSTEM_PROMPT = `You are a nutrition comparison assistant. Compare two food items based ONLY on the data provided.
 
-IMPORTANT: Return ONLY raw JSON, do not wrap in markdown code fences.
+CRITICAL RULES:
+1. Return ONLY raw JSON, no markdown code fences
+2. If a value is "unknown", do NOT claim that food has 0 of that nutrient
+3. If data is incomplete, acknowledge it in your summary
+4. Never invent or assume nutritional values
 
-Return a JSON object with the following structure:
+Return a JSON object:
 {
   "verdict": {
-    "summary": "A concise comparison summary (2-3 sentences)",
-    "winner": "A", "B", or "tie",
-    "keyDifferences": ["Array of key nutritional differences"],
+    "summary": "Comparison summary (2-3 sentences). Acknowledge any data limitations.",
+    "winner": "A", "B", "tie", or "insufficient-data",
+    "keyDifferences": ["Based on available data..."],
     "recommendations": ["Context-aware recommendations"],
     "context": "general-health"
   }
 }
 
-Consider:
-- Calorie density
-- Protein content
-- Fiber and micronutrients
-- Overall nutritional value
-- Suitable for different goals (weight loss, muscle gain, energy)
+IMPORTANT: If key nutrients are "unknown" for a food, say something like:
+"Food A appears to have more protein, though complete data for Food B is not available."
 
-Keep recommendations practical and actionable.`;
+Do NOT say "Food B has no calories" when the calorie value is unknown.`;
 
 export function useFoodComparator() {
   const [state, setState] = useState<ComparisonState>({
     status: 'idle',
     data: null,
     error: null,
+    validationIssues: [],
   });
 
   const generateComparison = useCallback(async (
@@ -46,33 +54,43 @@ export function useFoodComparator() {
     foodB: ComparisonFoodItem,
     context: 'weight-loss' | 'muscle-gain' | 'general-health' | 'energy' = 'general-health'
   ): Promise<void> => {
-    setState({ status: 'processing', data: null, error: null });
+    // Validate before comparing
+    const validation = validateForComparison(foodA, foodB);
+
+    if (!validation.canCompare) {
+      setState({
+        status: 'error',
+        data: null,
+        error: 'Insufficient data for comparison. ' + validation.issues.join(' '),
+        validationIssues: validation.issues,
+      });
+      return;
+    }
+
+    setState({ status: 'processing', data: null, error: null, validationIssues: [] });
 
     try {
+      // Build null-aware prompt
       const userPrompt = `
-Compare these two foods:
+Compare these two foods for ${context.replace('-', ' ')}:
 
 **Food A: ${foodA.name}**
 - Serving Size: ${foodA.servingSize}
-- Calories: ${foodA.calories}
-- Protein: ${foodA.macros.protein_g}g
-- Carbs: ${foodA.macros.carbs_g}g
-- Fat: ${foodA.macros.fat_g}g
-${foodA.macros.fiber_g ? `- Fiber: ${foodA.macros.fiber_g}g` : ''}
-${foodA.macros.sodium_mg ? `- Sodium: ${foodA.macros.sodium_mg}mg` : ''}
+- Calories: ${formatNutrientForAI(foodA.calories, ' kcal')}
+- Protein: ${formatNutrientForAI(foodA.macros.protein_g, 'g')}
+- Carbs: ${formatNutrientForAI(foodA.macros.carbs_g, 'g')}
+- Fat: ${formatNutrientForAI(foodA.macros.fat_g, 'g')}
+- Data Completeness: ${calculateDataCompleteness(foodA)}%
 
 **Food B: ${foodB.name}**
 - Serving Size: ${foodB.servingSize}
-- Calories: ${foodB.calories}
-- Protein: ${foodB.macros.protein_g}g
-- Carbs: ${foodB.macros.carbs_g}g
-- Fat: ${foodB.macros.fat_g}g
-${foodB.macros.fiber_g ? `- Fiber: ${foodB.macros.fiber_g}g` : ''}
-${foodB.macros.sodium_mg ? `- Sodium: ${foodB.macros.sodium_mg}mg` : ''}
+- Calories: ${formatNutrientForAI(foodB.calories, ' kcal')}
+- Protein: ${formatNutrientForAI(foodB.macros.protein_g, 'g')}
+- Carbs: ${formatNutrientForAI(foodB.macros.carbs_g, 'g')}
+- Fat: ${formatNutrientForAI(foodB.macros.fat_g, 'g')}
+- Data Completeness: ${calculateDataCompleteness(foodB)}%
 
-Context: ${context}
-
-Provide a comparison focusing on which food is better for this goal.
+Remember: "unknown" means the data is not available. Do not treat it as 0.
       `.trim();
 
       const response = await postAIChat({
@@ -82,7 +100,7 @@ Provide a comparison focusing on which food is better for this goal.
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.3,
-        max_tokens: 500,
+        max_tokens: 600,
         response_format: { type: 'json_object' },
       });
 
@@ -106,23 +124,29 @@ Provide a comparison focusing on which food is better for this goal.
         throw new Error(getUserFriendlyError(parseResult.error));
       }
 
+      // Generate disclaimers based on data completeness
+      const disclaimers = generateDisclaimers(foodA, foodB);
+
       const comparisonData: FoodComparisonData = {
-        foodA,
-        foodB,
+        foodA: { ...foodA, dataCompleteness: validation.foodACompleteness },
+        foodB: { ...foodB, dataCompleteness: validation.foodBCompleteness },
         verdict: {
           summary: parseResult.data.verdict.summary,
-          winner: parseResult.data.verdict.winner.toUpperCase() as 'A' | 'B' | 'tie',
+          winner: parseResult.data.verdict.winner.toUpperCase() as 'A' | 'B' | 'tie' | 'insufficient-data',
           keyDifferences: parseResult.data.verdict.keyDifferences,
           recommendations: parseResult.data.verdict.recommendations,
           context,
+          disclaimers,
         },
         comparisonTimestamp: new Date().toISOString(),
+        hasIncompleteData: validation.hasIncompleteData,
       };
 
       setState({
         status: 'success',
         data: comparisonData,
         error: null,
+        validationIssues: [],
       });
     } catch (err) {
       console.error('Comparison error:', err);
@@ -130,12 +154,13 @@ Provide a comparison focusing on which food is better for this goal.
         status: 'error',
         data: null,
         error: err instanceof Error ? err.message : 'Failed to compare foods',
+        validationIssues: [],
       });
     }
   }, []);
 
   const clearComparison = useCallback(() => {
-    setState({ status: 'idle', data: null, error: null });
+    setState({ status: 'idle', data: null, error: null, validationIssues: [] });
   }, []);
 
   return {
@@ -149,10 +174,10 @@ Provide a comparison focusing on which food is better for this goal.
 export function createComparisonFood(
   name: string,
   servingSize: string,
-  calories: number,
-  protein: number,
-  carbs: number,
-  fat: number
+  calories: number | null,
+  protein: number | null,
+  carbs: number | null,
+  fat: number | null
 ): ComparisonFoodItem {
   return {
     name,
@@ -163,10 +188,11 @@ export function createComparisonFood(
       carbs_g: carbs,
       fat_g: fat,
     },
+    source: 'manual',
   };
 }
 
-// Predefined comparison scenarios for demo
+// Predefined comparison scenarios with verified data
 export const PRESET_COMPARISONS = {
   pizzaVsSalad: {
     foodA: {
@@ -174,12 +200,16 @@ export const PRESET_COMPARISONS = {
       servingSize: '2 slices (357g)',
       calories: 730,
       macros: { protein_g: 32, carbs_g: 80, fat_g: 32 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
     },
     foodB: {
       name: 'Garden Salad with Chicken',
       servingSize: '1 bowl (350g)',
       calories: 320,
       macros: { protein_g: 35, carbs_g: 20, fat_g: 12 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
     },
   },
   sodaVsWater: {
@@ -188,12 +218,16 @@ export const PRESET_COMPARISONS = {
       servingSize: '1 can (355ml)',
       calories: 140,
       macros: { protein_g: 0, carbs_g: 39, fat_g: 0 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
     },
     foodB: {
       name: 'Still Water',
       servingSize: '1 glass (250ml)',
       calories: 0,
       macros: { protein_g: 0, carbs_g: 0, fat_g: 0 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
     },
   },
   oatmealVsCereal: {
@@ -201,13 +235,35 @@ export const PRESET_COMPARISONS = {
       name: 'Oatmeal',
       servingSize: '1 cup cooked (234g)',
       calories: 158,
-      macros: { protein_g: 6, carbs_g: 27, fat_g: 3 },
+      macros: { protein_g: 6, carbs_g: 27, fat_g: 3, fiber_g: 4 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
     },
     foodB: {
       name: 'Sugary Cereal',
       servingSize: '1 cup (39g)',
       calories: 150,
-      macros: { protein_g: 2, carbs_g: 34, fat_g: 1 },
+      macros: { protein_g: 2, carbs_g: 34, fat_g: 1, fiber_g: 1 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
+    },
+  },
+  riceVsOatmeal: {
+    foodA: {
+      name: 'White Rice',
+      servingSize: '1 cup cooked (158g)',
+      calories: 205,
+      macros: { protein_g: 4.3, carbs_g: 45, fat_g: 0.4 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
+    },
+    foodB: {
+      name: 'Oatmeal',
+      servingSize: '1 cup cooked (234g)',
+      calories: 158,
+      macros: { protein_g: 6, carbs_g: 27, fat_g: 3 },
+      source: 'preset' as const,
+      dataCompleteness: 100,
     },
   },
 };

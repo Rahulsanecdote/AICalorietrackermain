@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2, Info } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +14,13 @@ import {
 import { useFoodComparator, PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
 import { useFoodTranslation } from '../../hooks/useFoodTranslation';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
+import {
+  calculateDataCompleteness,
+  formatNutrientDisplay,
+  getCompletenessColor,
+  getCompletenessLabel,
+  hasMinimumDataForComparison
+} from '../../utils/comparisonValidation';
 
 
 interface FoodVersusCardProps {
@@ -27,21 +34,17 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
   const [context, setContext] = useState<'weight-loss' | 'muscle-gain' | 'general-health' | 'energy'>('general-health');
   const [foodA, setFoodA] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodA);
   const [foodB, setFoodB] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodB);
-  const [useCustom, setUseCustom] = useState(false);
-  const [customA, setCustomA] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '' });
-  const [customB, setCustomB] = useState({ name: '', calories: '', protein: '', carbs: '', fat: '' });
+  const [inputMode, setInputMode] = useState<'preset' | 'custom'>('preset');
 
   const { status, data, error, generateComparison, clearComparison } = useFoodComparator();
 
-  const handleCompare = async () => {
-    const itemA = useCustom
-      ? { ...foodA, name: customA.name || foodA.name }
-      : foodA;
-    const itemB = useCustom
-      ? { ...foodB, name: customB.name || foodB.name }
-      : foodB;
+  // Calculate if we can compare
+  const canCompare = useMemo(() => {
+    return hasMinimumDataForComparison(foodA) && hasMinimumDataForComparison(foodB);
+  }, [foodA, foodB]);
 
-    await generateComparison(itemA, itemB, context);
+  const handleCompare = async () => {
+    await generateComparison(foodA, foodB, context);
   };
 
   const handleClose = () => {
@@ -50,21 +53,44 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
   };
 
   const loadPreset = (preset: keyof typeof PRESET_COMPARISONS) => {
-    setUseCustom(false);
+    setInputMode('preset');
     setFoodA(PRESET_COMPARISONS[preset].foodA);
     setFoodB(PRESET_COMPARISONS[preset].foodB);
   };
 
+  const startCustomEntry = () => {
+    setInputMode('custom');
+    setFoodA({
+      name: '',
+      servingSize: '1 serving',
+      calories: null,
+      macros: { protein_g: null, carbs_g: null, fat_g: null },
+      source: 'manual',
+    });
+    setFoodB({
+      name: '',
+      servingSize: '1 serving',
+      calories: null,
+      macros: { protein_g: null, carbs_g: null, fat_g: null },
+      source: 'manual',
+    });
+  };
+
+  const swapFoods = () => {
+    setFoodA(foodB);
+    setFoodB(foodA);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ArrowRightLeft className="h-5 w-5 text-indigo-600" />
-            Food Comparison
+            {t('compare.title') || 'Food Comparison'}
           </DialogTitle>
           <DialogDescription>
-            Compare nutritional values of different foods to make better choices.
+            {t('compare.description') || 'Compare nutritional values to make better choices.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -84,51 +110,57 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             ))}
           </div>
 
-          {/* Preset Buttons */}
-          {!useCustom && (
-            <div className="flex flex-wrap gap-2">
-              <span className="text-sm text-gray-500 py-1">Presets:</span>
-              {Object.keys(PRESET_COMPARISONS).map((key) => (
-                <Button
-                  key={key}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => loadPreset(key as keyof typeof PRESET_COMPARISONS)}
-                  className="text-xs"
-                >
-                  {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
-                </Button>
-              ))}
+          {/* Input Mode Selector */}
+          <div className="flex flex-wrap gap-2 border-b pb-4">
+            <span className="text-sm text-gray-500 py-1">Choose foods:</span>
+            {Object.keys(PRESET_COMPARISONS).map((key) => (
               <Button
-                variant="ghost"
+                key={key}
+                variant={inputMode === 'preset' &&
+                  foodA.name === PRESET_COMPARISONS[key as keyof typeof PRESET_COMPARISONS].foodA.name
+                  ? 'secondary' : 'ghost'}
                 size="sm"
-                onClick={() => setUseCustom(true)}
+                onClick={() => loadPreset(key as keyof typeof PRESET_COMPARISONS)}
                 className="text-xs"
               >
-                Custom
+                {key.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}
               </Button>
-            </div>
-          )}
+            ))}
+            <Button
+              variant={inputMode === 'custom' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={startCustomEntry}
+              className="text-xs"
+            >
+              ✏️ Custom
+            </Button>
+          </div>
 
-          {/* Food Comparison UI */}
-          <div className="grid grid-cols-2 gap-4">
+          {/* Food Comparison Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
             {/* Food A */}
-// Food A
             <FoodInputCard
               title="Food A"
               food={foodA}
               onChange={setFoodA}
-              isCustom={useCustom}
-              customValues={customA}
-              onCustomChange={setCustomA}
+              isEditable={inputMode === 'custom'}
               color="blue"
             />
 
-            {/* VS Badge */}
-            <div className="flex items-center justify-center">
+            {/* VS Badge + Swap */}
+            <div className="flex flex-col items-center justify-center gap-2 py-4">
               <div className="bg-indigo-600 text-white px-4 py-2 rounded-full font-bold text-lg">
                 VS
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={swapFoods}
+                className="text-xs"
+                aria-label="Swap foods"
+              >
+                <ArrowRightLeft className="w-4 h-4" />
+              </Button>
             </div>
 
             {/* Food B */}
@@ -136,9 +168,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
               title="Food B"
               food={foodB}
               onChange={setFoodB}
-              isCustom={useCustom}
-              customValues={customB}
-              onCustomChange={setCustomB}
+              isEditable={inputMode === 'custom'}
               color="green"
             />
           </div>
@@ -146,24 +176,34 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
           {/* Compare Button */}
           <Button
             onClick={handleCompare}
-            disabled={status === 'processing'}
+            disabled={status === 'processing' || !canCompare}
             className="w-full"
             size="lg"
           >
             {status === 'processing' ? (
               <>
-                <Sparkles className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                {t('common.analyzing') || 'Analyzing...'}
               </>
             ) : (
               <>
                 <TrendingUp className="mr-2 h-4 w-4" />
-                Compare Foods
+                {t('compare.compareButton') || 'Compare Foods'}
               </>
             )}
           </Button>
 
-          {/* Error Display - User Friendly */}
+          {/* Validation Warning */}
+          {!canCompare && inputMode === 'custom' && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
+              <Info className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-yellow-700">
+                {t('compare.needMoreData') || 'Enter at least a food name and either calories or 2 macros for each food.'}
+              </p>
+            </div>
+          )}
+
+          {/* Error Display */}
           {error && (
             <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
               <div className="flex items-start gap-3">
@@ -207,6 +247,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
               foodA={data.foodA}
               foodB={data.foodB}
               translateFood={translateFood}
+              hasIncompleteData={data.hasIncompleteData}
             />
           )}
         </div>
@@ -215,173 +256,173 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
   );
 }
 
+// ============================================================================
+// Food Input Card
+// ============================================================================
+
 interface FoodInputCardProps {
   title: string;
   food: ComparisonFoodItem;
   onChange: (food: ComparisonFoodItem) => void;
-  isCustom: boolean;
-  customValues: {
-    name: string;
-    calories: string;
-    protein: string;
-    carbs: string;
-    fat: string;
-  };
-  onCustomChange: React.Dispatch<React.SetStateAction<{
-    name: string;
-    calories: string;
-    protein: string;
-    carbs: string;
-    fat: string;
-  }>>;
+  isEditable: boolean;
   color: 'blue' | 'green';
 }
 
-function FoodInputCard({
-  title,
-  food,
-  onChange,
-  onCustomChange,
-  isCustom,
-  customValues,
-  color,
-}: FoodInputCardProps) {
+function FoodInputCard({ title, food, onChange, isEditable, color }: FoodInputCardProps) {
+  const completeness = calculateDataCompleteness(food);
   const colorClasses = {
-    blue: 'border-blue-200 bg-blue-50',
-    green: 'border-green-200 bg-green-50',
+    blue: 'border-blue-200 bg-blue-50/50',
+    green: 'border-green-200 bg-green-50/50',
+  };
+  const headerColors = {
+    blue: 'text-blue-700',
+    green: 'text-green-700',
+  };
+
+  const parseValue = (value: string): number | null => {
+    if (value === '' || value === '--') return null;
+    const num = parseFloat(value);
+    return isNaN(num) ? null : num;
   };
 
   return (
     <div className={`p-4 rounded-xl border-2 ${colorClasses[color]}`}>
-      <h3 className="font-semibold text-gray-900 mb-3">{title}</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className={`font-semibold ${headerColors[color]}`}>{title}</h3>
+        <span className={`text-xs px-2 py-0.5 rounded-full ${getCompletenessColor(completeness)}`}>
+          {getCompletenessLabel(completeness)} ({completeness}%)
+        </span>
+      </div>
 
       <div className="space-y-3">
+        {/* Food Name */}
         <div>
-          <label htmlFor={`${title.toLowerCase().replace(' ', '-')}-food-name`} className="text-xs text-gray-500">Food Name</label>
+          <label htmlFor={`${title}-name`} className="text-xs text-gray-500">Food Name</label>
           <input
-            id={`${title.toLowerCase().replace(' ', '-')}-food-name`}
-            name={`${title.toLowerCase().replace(' ', '-')}-food-name`}
+            id={`${title}-name`}
             type="text"
-            autoComplete="off"
-            value={isCustom ? customValues.name : food.name}
-            onChange={(e) =>
-              isCustom
-                ? onCustomChange({ ...customValues, name: e.target.value })
-                : onChange({ ...food, name: e.target.value })
-            }
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-            placeholder="Enter food name"
+            value={food.name}
+            onChange={(e) => onChange({ ...food, name: e.target.value })}
+            disabled={!isEditable}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+            placeholder="e.g., Oatmeal"
           />
         </div>
 
+        {/* Calories + Serving */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label htmlFor={`${title.toLowerCase().replace(' ', '-')}-calories`} className="text-xs text-gray-500">Calories</label>
+            <label htmlFor={`${title}-calories`} className="text-xs text-gray-500">Calories</label>
             <input
-              id={`${title.toLowerCase().replace(' ', '-')}-calories`}
-              name={`${title.toLowerCase().replace(' ', '-')}-calories`}
-              type="number"
-              autoComplete="off"
-              value={isCustom ? customValues.calories : food.calories}
-              onChange={(e) =>
-                isCustom
-                  ? onCustomChange({ ...customValues, calories: e.target.value })
-                  : onChange({ ...food, calories: Number(e.target.value) })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              placeholder="0"
+              id={`${title}-calories`}
+              type="text"
+              value={food.calories !== null ? food.calories : ''}
+              onChange={(e) => onChange({ ...food, calories: parseValue(e.target.value) })}
+              disabled={!isEditable}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+              placeholder="--"
             />
           </div>
           <div>
-            <label htmlFor={`${title.toLowerCase().replace(' ', '-')}-serving`} className="text-xs text-gray-500">Serving</label>
+            <label htmlFor={`${title}-serving`} className="text-xs text-gray-500">Serving Size</label>
             <input
-              id={`${title.toLowerCase().replace(' ', '-')}-serving`}
-              name={`${title.toLowerCase().replace(' ', '-')}-serving`}
+              id={`${title}-serving`}
               type="text"
-              autoComplete="off"
               value={food.servingSize}
               onChange={(e) => onChange({ ...food, servingSize: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              placeholder="1 serving"
-              disabled={isCustom}
+              disabled={!isEditable}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+              placeholder="1 cup (150g)"
             />
           </div>
         </div>
 
+        {/* Macros */}
         <div className="grid grid-cols-3 gap-2">
           <div>
-            <label htmlFor={`${title.toLowerCase().replace(' ', '-')}-protein`} className="text-xs text-gray-500">Protein (g)</label>
+            <label htmlFor={`${title}-protein`} className="text-xs text-gray-500">Protein (g)</label>
             <input
-              id={`${title.toLowerCase().replace(' ', '-')}-protein`}
-              name={`${title.toLowerCase().replace(' ', '-')}-protein`}
-              type="number"
-              autoComplete="off"
-              value={isCustom ? customValues.protein : food.macros.protein_g}
-              onChange={(e) =>
-                isCustom
-                  ? onCustomChange({ ...customValues, protein: e.target.value })
-                  : onChange({ ...food, macros: { ...food.macros, protein_g: Number(e.target.value) } })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              placeholder="0"
+              id={`${title}-protein`}
+              type="text"
+              value={food.macros.protein_g !== null ? food.macros.protein_g : ''}
+              onChange={(e) => onChange({
+                ...food,
+                macros: { ...food.macros, protein_g: parseValue(e.target.value) }
+              })}
+              disabled={!isEditable}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+              placeholder="--"
             />
           </div>
           <div>
-            <label htmlFor={`${title.toLowerCase().replace(' ', '-')}-carbs`} className="text-xs text-gray-500">Carbs (g)</label>
+            <label htmlFor={`${title}-carbs`} className="text-xs text-gray-500">Carbs (g)</label>
             <input
-              id={`${title.toLowerCase().replace(' ', '-')}-carbs`}
-              name={`${title.toLowerCase().replace(' ', '-')}-carbs`}
-              type="number"
-              autoComplete="off"
-              value={isCustom ? customValues.carbs : food.macros.carbs_g}
-              onChange={(e) =>
-                isCustom
-                  ? onCustomChange({ ...customValues, carbs: e.target.value })
-                  : onChange({ ...food, macros: { ...food.macros, carbs_g: Number(e.target.value) } })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              placeholder="0"
+              id={`${title}-carbs`}
+              type="text"
+              value={food.macros.carbs_g !== null ? food.macros.carbs_g : ''}
+              onChange={(e) => onChange({
+                ...food,
+                macros: { ...food.macros, carbs_g: parseValue(e.target.value) }
+              })}
+              disabled={!isEditable}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+              placeholder="--"
             />
           </div>
           <div>
-            <label htmlFor={`${title.toLowerCase().replace(' ', '-')}-fat`} className="text-xs text-gray-500">Fat (g)</label>
+            <label htmlFor={`${title}-fat`} className="text-xs text-gray-500">Fat (g)</label>
             <input
-              id={`${title.toLowerCase().replace(' ', '-')}-fat`}
-              name={`${title.toLowerCase().replace(' ', '-')}-fat`}
-              type="number"
-              autoComplete="off"
-              value={isCustom ? customValues.fat : food.macros.fat_g}
-              onChange={(e) =>
-                isCustom
-                  ? onCustomChange({ ...customValues, fat: e.target.value })
-                  : onChange({ ...food, macros: { ...food.macros, fat_g: Number(e.target.value) } })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
-              placeholder="0"
+              id={`${title}-fat`}
+              type="text"
+              value={food.macros.fat_g !== null ? food.macros.fat_g : ''}
+              onChange={(e) => onChange({
+                ...food,
+                macros: { ...food.macros, fat_g: parseValue(e.target.value) }
+              })}
+              disabled={!isEditable}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+              placeholder="--"
             />
           </div>
         </div>
+
+        {/* Source indicator */}
+        {food.source && (
+          <div className="text-xs text-gray-400">
+            Source: {food.source === 'preset' ? '✓ Verified' : food.source === 'logged' ? '📋 Your log' : '✏️ Manual'}
+          </div>
+        )}
       </div>
     </div>
   );
 }
+
+// ============================================================================
+// Comparison Result Card
+// ============================================================================
 
 interface ComparisonResultCardProps {
   verdict: ComparisonVerdict;
   foodA: ComparisonFoodItem;
   foodB: ComparisonFoodItem;
   translateFood: (name: string) => string;
+  hasIncompleteData?: boolean;
 }
 
-function ComparisonResultCard({ verdict, foodA, foodB, translateFood }: ComparisonResultCardProps) {
+function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompleteData }: ComparisonResultCardProps) {
   const winnerColor =
     verdict.winner === 'A'
       ? 'bg-blue-600'
       : verdict.winner === 'B'
         ? 'bg-green-600'
-        : 'bg-gray-600';
+        : verdict.winner === 'insufficient-data'
+          ? 'bg-gray-500'
+          : 'bg-gray-600';
 
-  const winnerName = verdict.winner === 'A' ? translateFood(foodA.name) : verdict.winner === 'B' ? translateFood(foodB.name) : 'Tie';
+  const winnerName =
+    verdict.winner === 'A' ? translateFood(foodA.name) :
+      verdict.winner === 'B' ? translateFood(foodB.name) :
+        verdict.winner === 'insufficient-data' ? 'Insufficient Data' : 'Tie';
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden">
@@ -389,18 +430,30 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood }: Comparis
       <div className={`${winnerColor} px-4 py-3 text-white`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {verdict.winner !== 'tie' ? (
+            {verdict.winner === 'insufficient-data' ? (
+              <AlertCircle className="h-5 w-5" />
+            ) : verdict.winner !== 'tie' ? (
               <TrendingUp className="h-5 w-5" />
             ) : (
               <Minus className="h-5 w-5" />
             )}
             <span className="font-semibold">
-              {verdict.winner === 'tie' ? "It's a Tie!" : `${winnerName} Wins!`}
+              {verdict.winner === 'tie' ? "It's a Tie!" :
+                verdict.winner === 'insufficient-data' ? 'Cannot Determine Winner' :
+                  `${winnerName} Wins!`}
             </span>
           </div>
           <span className="text-sm opacity-90 capitalize">{verdict.context.replace('-', ' ')}</span>
         </div>
       </div>
+
+      {/* Incomplete Data Warning */}
+      {hasIncompleteData && (
+        <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-100 flex items-center gap-2">
+          <Info className="w-4 h-4 text-yellow-600" />
+          <span className="text-xs text-yellow-700">Comparison based on available data. Some values were incomplete.</span>
+        </div>
+      )}
 
       {/* Summary */}
       <div className="p-4 bg-gray-50">
@@ -411,10 +464,30 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood }: Comparis
       <div className="p-4 space-y-3">
         <h4 className="font-medium text-gray-900">Macro Comparison</h4>
 
-        <MacroBar label="Calories" valueA={foodA.calories} valueB={foodB.calories} unit="" />
-        <MacroBar label="Protein" valueA={foodA.macros.protein_g} valueB={foodB.macros.protein_g} unit="g" />
-        <MacroBar label="Carbs" valueA={foodA.macros.carbs_g} valueB={foodB.macros.carbs_g} unit="g" />
-        <MacroBar label="Fat" valueA={foodA.macros.fat_g} valueB={foodB.macros.fat_g} unit="g" />
+        <MacroBar
+          label="Calories"
+          valueA={foodA.calories}
+          valueB={foodB.calories}
+          unit=""
+        />
+        <MacroBar
+          label="Protein"
+          valueA={foodA.macros.protein_g}
+          valueB={foodB.macros.protein_g}
+          unit="g"
+        />
+        <MacroBar
+          label="Carbs"
+          valueA={foodA.macros.carbs_g}
+          valueB={foodB.macros.carbs_g}
+          unit="g"
+        />
+        <MacroBar
+          label="Fat"
+          valueA={foodA.macros.fat_g}
+          valueB={foodB.macros.fat_g}
+          unit="g"
+        />
       </div>
 
       {/* Key Differences */}
@@ -446,45 +519,63 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood }: Comparis
           </ul>
         </div>
       )}
+
+      {/* Disclaimers */}
+      {verdict.disclaimers && verdict.disclaimers.length > 0 && (
+        <div className="px-4 pb-4 pt-2 border-t border-gray-100">
+          <div className="text-xs text-gray-500 space-y-1">
+            {verdict.disclaimers.map((disclaimer, index) => (
+              <p key={index}>ℹ️ {disclaimer}</p>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
+// ============================================================================
+// Macro Bar Component
+// ============================================================================
+
 interface MacroBarProps {
   label: string;
-  valueA: number;
-  valueB: number;
+  valueA: number | null;
+  valueB: number | null;
   unit: string;
 }
 
 function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
-  const maxValue = Math.max(valueA, valueB, 1);
-  const percentageA = (valueA / maxValue) * 100;
-  const percentageB = (valueB / maxValue) * 100;
+  // Handle null values
+  const hasA = valueA !== null;
+  const hasB = valueB !== null;
+
+  // Calculate bar widths (only if both values known)
+  const maxValue = Math.max(valueA ?? 0, valueB ?? 0, 1);
+  const percentageA = hasA ? ((valueA ?? 0) / maxValue) * 100 : 0;
+  const percentageB = hasB ? ((valueB ?? 0) / maxValue) * 100 : 0;
 
   return (
     <div>
       <div className="flex justify-between text-xs text-gray-500 mb-1">
         <span>{label}</span>
         <span>
-          {valueA}
-          {unit} vs {valueB}
-          {unit}
+          {formatNutrientDisplay(valueA, unit)} vs {formatNutrientDisplay(valueB, unit)}
         </span>
       </div>
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex">
+      <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex gap-0.5">
         <div
-          className="bg-blue-500 h-full"
-          style={{ width: `${percentageA}%` }}
+          className={`${hasA ? 'bg-blue-500' : 'bg-gray-400'} h-full transition-all`}
+          style={{ width: hasA ? `${percentageA / 2}%` : '50%' }}
         />
         <div
-          className="bg-green-500 h-full"
-          style={{ width: `${percentageB}%` }}
+          className={`${hasB ? 'bg-green-500' : 'bg-gray-400'} h-full transition-all`}
+          style={{ width: hasB ? `${percentageB / 2}%` : '50%' }}
         />
       </div>
       <div className="flex justify-between text-xs text-gray-400 mt-0.5">
-        <span>A</span>
-        <span>B</span>
+        <span>{hasA ? 'A' : 'A (--)'}</span>
+        <span>{hasB ? 'B' : 'B (--)'}</span>
       </div>
     </div>
   );

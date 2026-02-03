@@ -32,30 +32,36 @@ export interface FoodComparisonData {
   foodB: ComparisonFoodItem;
   verdict: ComparisonVerdict;
   comparisonTimestamp: string;
+  hasIncompleteData?: boolean;
 }
 
 export interface ComparisonFoodItem {
   id?: string;
   name: string;
   servingSize: string;
-  calories: number;
+  servingAmount?: number;
+  servingUnit?: 'g' | 'ml' | 'oz' | 'cup' | 'piece';
+  calories: number | null;  // null = unknown
   macros: {
-    protein_g: number;
-    carbs_g: number;
-    fat_g: number;
-    fiber_g?: number;
-    sugar_g?: number;
-    sodium_mg?: number;
+    protein_g: number | null;
+    carbs_g: number | null;
+    fat_g: number | null;
+    fiber_g?: number | null;
+    sugar_g?: number | null;
+    sodium_mg?: number | null;
   };
   category?: string;
+  source?: 'database' | 'logged' | 'manual' | 'preset';
+  dataCompleteness?: number;  // 0-100%
 }
 
 export interface ComparisonVerdict {
   summary: string;
-  winner: 'A' | 'B' | 'tie';
+  winner: 'A' | 'B' | 'tie' | 'insufficient-data';
   keyDifferences: string[];
   recommendations: string[];
   context: 'weight-loss' | 'muscle-gain' | 'general-health' | 'energy';
+  disclaimers?: string[];
 }
 
 // Nutritional Education Types
