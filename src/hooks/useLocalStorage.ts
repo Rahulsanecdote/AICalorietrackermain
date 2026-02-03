@@ -1,15 +1,25 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-  const [storedValue, setStoredValue] = useState<T>(() => {
+  // State to store our value
+  // Pass initial state function to useState so logic is only executed once
+  // Initialize with initialValue to prevent hydration mismatch
+  const [storedValue, setStoredValue] = useState<T>(initialValue);
+
+  // Sync with localStorage on mount
+
+
+  // Use effect to hydrate from local storage on mount
+  useEffect(() => {
     try {
       const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
+      if (item) {
+        setStoredValue(JSON.parse(item));
+      }
     } catch (error) {
       console.error('Error reading from localStorage:', error);
-      return initialValue;
     }
-  });
+  }, [key]);
 
   const setValue = useCallback((value: T | ((val: T) => T)) => {
     try {

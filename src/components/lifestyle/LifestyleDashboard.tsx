@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import WaterTracker from './WaterTracker';
 import ExerciseLogger from './ExerciseLogger';
@@ -24,33 +24,53 @@ export default function LifestyleDashboard({ date }: LifestyleDashboardProps) {
   const [wellnessData, setWellnessData] = useState(defaultWellnessData);
 
   // Update functions for each tracker
-  const handleWaterChange = (data: { totalMl: number; percentage: number; goalMl: number; streak: number }) => {
-    setWellnessData(prev => ({
-      ...prev,
-      water: data,
-    }));
-  };
+  // Update functions for each tracker
+  const handleWaterChange = useCallback((data: { totalMl: number; percentage: number; goalMl: number; streak: number }) => {
+    setWellnessData(prev => {
+      // Prevent unnecessary updates if data hasn't changed
+      if (
+        prev.water.totalMl === data.totalMl &&
+        prev.water.percentage === data.percentage &&
+        prev.water.goalMl === data.goalMl &&
+        prev.water.streak === data.streak
+      ) return prev;
 
-  const handleExerciseChange = (data: { totalMinutes: number; totalCaloriesBurned: number }) => {
-    setWellnessData(prev => ({
-      ...prev,
-      exercise: data,
-    }));
-  };
+      return {
+        ...prev,
+        water: data,
+      };
+    });
+  }, []);
 
-  const handleSleepChange = (data: { durationMinutes: number; qualityRating: number }) => {
-    setWellnessData(prev => ({
-      ...prev,
-      sleep: data,
-    }));
-  };
+  const handleExerciseChange = useCallback((data: { totalMinutes: number; totalCaloriesBurned: number }) => {
+    setWellnessData(prev => {
+      if (prev.exercise.totalMinutes === data.totalMinutes && prev.exercise.totalCaloriesBurned === data.totalCaloriesBurned) return prev;
+      return {
+        ...prev,
+        exercise: data,
+      };
+    });
+  }, []);
 
-  const handleMoodChange = (data: { averageScore: number; entryCount: number }) => {
-    setWellnessData(prev => ({
-      ...prev,
-      mood: data,
-    }));
-  };
+  const handleSleepChange = useCallback((data: { durationMinutes: number; qualityRating: number }) => {
+    setWellnessData(prev => {
+      if (prev.sleep.durationMinutes === data.durationMinutes && prev.sleep.qualityRating === data.qualityRating) return prev;
+      return {
+        ...prev,
+        sleep: data,
+      };
+    });
+  }, []);
+
+  const handleMoodChange = useCallback((data: { averageScore: number; entryCount: number }) => {
+    setWellnessData(prev => {
+      if (prev.mood.averageScore === data.averageScore && prev.mood.entryCount === data.entryCount) return prev;
+      return {
+        ...prev,
+        mood: data,
+      };
+    });
+  }, []);
 
   // Extract values from received data
   const { water, exercise, sleep, mood } = wellnessData;
