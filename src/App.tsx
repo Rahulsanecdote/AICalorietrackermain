@@ -114,7 +114,7 @@ const DashboardErrorCard = ({
 // ============================================================================
 
 function AppShell() {
-  const { t } = useTranslation("common")
+  const { t } = useTranslation()
   const { email, signOut } = useAuth()
   const handleSignOut = useCallback(() => {
     void signOut()

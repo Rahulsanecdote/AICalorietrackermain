@@ -13,7 +13,7 @@ interface QuickAddWidgetProps {
 }
 
 export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
-  const { t } = useTranslation('quickAdd');
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
   const [category, setCategory] = useState<MealCategory>('snack');
@@ -71,7 +71,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
           ? 'bg-gray-500 opacity-0 scale-0'
           : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-xl transform hover:scale-105'
           }`}
-        aria-label={t('title')}
+        aria-label={t('quickAdd.title')}
       >
         <Plus className="w-6 h-6 text-white" />
       </button>
@@ -84,7 +84,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
             <div className="flex items-center justify-between px-4 py-3 bg-emerald-600">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-white" />
-                <h3 className="font-semibold text-white">{t('title')}</h3>
+                <h3 className="font-semibold text-white">{t('quickAdd.title')}</h3>
               </div>
               <button
                 onClick={handleClose}
@@ -121,7 +121,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     autoComplete="off"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={t('placeholder')}
+                    placeholder={t('quickAdd.placeholder')}
                     className="w-full px-4 py-3 pr-12 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     rows={2}
                     disabled={isProcessing}
@@ -156,7 +156,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                 <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                   <div className="flex items-center gap-2 text-green-700">
                     <Sparkles className="w-4 h-4" />
-                    <span className="text-sm font-medium">{t('added')}</span>
+                    <span className="text-sm font-medium">{t('quickAdd.added')}</span>
                   </div>
                   <p className="text-sm text-green-600 mt-1">
                     {lastResult.foodName} - {lastResult.nutrition.calories} cal
@@ -202,7 +202,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
 // Compact version for the header
 export function QuickAddButton({ onClick }: { onClick: () => void }) {
-  const { t } = useTranslation('quickAdd');
+  const { t } = useTranslation();
 
   return (
     <Button
@@ -212,7 +212,7 @@ export function QuickAddButton({ onClick }: { onClick: () => void }) {
       className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
     >
       <Plus className="w-4 h-4 mr-1" />
-      {t('title')}
+      {t('quickAdd.title')}
     </Button>
   );
 }

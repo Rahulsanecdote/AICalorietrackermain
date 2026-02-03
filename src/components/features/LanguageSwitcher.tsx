@@ -22,7 +22,7 @@ export function LanguageSwitcher({
   variant = 'button',
   onLanguageChange,
 }: LanguageSwitcherProps) {
-  const { t } = useTranslation('language');
+  const { t } = useTranslation();
   const { language, setLanguage, availableLanguages } = useLanguage();
 
   const handleLanguageChange = (langCode: SupportedLanguage) => {
@@ -64,7 +64,7 @@ export function LanguageSwitcher({
     return (
       <div className="space-y-2">
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          {t('select')}
+          {t('language.select')}
         </span>
         <div className="grid grid-cols-2 gap-2">
           {availableLanguages.map((lang) => (
