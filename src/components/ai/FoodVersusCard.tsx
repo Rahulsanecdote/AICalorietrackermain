@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2, Info, Search, Check } from 'lucide-react';
+import { ArrowRightLeft, Sparkles, TrendingUp, Minus, AlertCircle, Loader2, Info, Search, Check, Grid3X3, List } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
 import {
@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from '../ui/dialog';
-import { useFoodComparator, PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
+import { PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
 import { useFoodTranslation } from '../../hooks/useFoodTranslation';
 import { useNutritionLookup, createFoodFromLookup } from '../../hooks/useNutritionLookup';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
@@ -23,6 +23,12 @@ import {
   getCompletenessLabel,
   hasMinimumDataForComparison
 } from '../../utils/comparisonValidation';
+import {
+  computeAllModes,
+  AllModeResults,
+  ComparisonMode,
+  modeResultToVerdict
+} from '../../utils/comparisonScorer';
 
 
 interface FoodVersusCardProps {
@@ -30,27 +36,46 @@ interface FoodVersusCardProps {
   onClose: () => void;
 }
 
+const MODE_LABELS: Record<ComparisonMode, string> = {
+  'weight-loss': 'Weight Loss',
+  'muscle-gain': 'Muscle Gain',
+  'general-health': 'General Health',
+  'energy': 'Energy',
+};
+
+const MODE_ICONS: Record<ComparisonMode, string> = {
+  'weight-loss': '🏃',
+  'muscle-gain': '💪',
+  'general-health': '❤️',
+  'energy': '⚡',
+};
+
 export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
   const { t } = useTranslation();
   const { translateFood } = useFoodTranslation();
-  const [context, setContext] = useState<'weight-loss' | 'muscle-gain' | 'general-health' | 'energy'>('general-health');
+  const [selectedMode, setSelectedMode] = useState<ComparisonMode>('general-health');
   const [foodA, setFoodA] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodA);
   const [foodB, setFoodB] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodB);
   const [inputMode, setInputMode] = useState<'preset' | 'custom'>('preset');
+  const [showAllModes, setShowAllModes] = useState(false);
 
-  const { status, data, error, generateComparison, clearComparison } = useFoodComparator();
-
-  // Calculate if we can compare
-  const canCompare = useMemo(() => {
-    return hasMinimumDataForComparison(foodA) && hasMinimumDataForComparison(foodB);
+  // Compute all mode results when foods change (cached via useMemo)
+  const allModeResults = useMemo<AllModeResults | null>(() => {
+    if (!hasMinimumDataForComparison(foodA) || !hasMinimumDataForComparison(foodB)) {
+      return null;
+    }
+    return computeAllModes(foodA, foodB);
   }, [foodA, foodB]);
 
-  const handleCompare = async () => {
-    await generateComparison(foodA, foodB, context);
-  };
+  // Current mode result for tab view
+  const currentResult = allModeResults?.[selectedMode];
+  const currentVerdict = currentResult
+    ? modeResultToVerdict(currentResult, !allModeResults?.hasCompleteData)
+    : null;
+
+  const canCompare = allModeResults !== null;
 
   const handleClose = () => {
-    clearComparison();
     onClose();
   };
 
@@ -58,6 +83,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
     setInputMode('preset');
     setFoodA(PRESET_COMPARISONS[preset].foodA);
     setFoodB(PRESET_COMPARISONS[preset].foodB);
+    setShowAllModes(false);
   };
 
   const startCustomEntry = () => {
@@ -76,6 +102,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
       macros: { protein_g: null, carbs_g: null, fat_g: null },
       source: 'manual',
     });
+    setShowAllModes(false);
   };
 
   const swapFoods = () => {
@@ -94,24 +121,40 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
           <DialogDescription>
             {inputMode === 'custom'
               ? 'Type food names to auto-fill nutrition data'
-              : 'Compare nutritional values to make better choices.'}
+              : 'Compare nutritional values across different goals.'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Context Selector */}
+          {/* Mode Tabs - Now instant switching */}
           <div className="flex flex-wrap gap-2">
-            {(['weight-loss', 'muscle-gain', 'general-health', 'energy'] as const).map((c) => (
+            {(Object.keys(MODE_LABELS) as ComparisonMode[]).map((mode) => (
               <Button
-                key={c}
-                variant={context === c ? 'default' : 'outline'}
+                key={mode}
+                variant={selectedMode === mode ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setContext(c)}
-                className="capitalize"
+                onClick={() => {
+                  setSelectedMode(mode);
+                  setShowAllModes(false);
+                }}
+                className="gap-1"
               >
-                {c.replace('-', ' ')}
+                <span>{MODE_ICONS[mode]}</span>
+                {MODE_LABELS[mode]}
               </Button>
             ))}
+            {/* View All Modes Toggle */}
+            {canCompare && (
+              <Button
+                variant={showAllModes ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setShowAllModes(!showAllModes)}
+                className="gap-1 ml-auto"
+              >
+                <Grid3X3 className="w-4 h-4" />
+                {showAllModes ? 'Single View' : 'All Modes'}
+              </Button>
+            )}
           </div>
 
           {/* Input Mode Selector */}
@@ -142,7 +185,6 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
 
           {/* Food Comparison Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
-            {/* Food A */}
             <AutoLookupFoodCard
               title="Food A"
               food={foodA}
@@ -151,7 +193,6 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
               color="blue"
             />
 
-            {/* VS Badge + Swap */}
             <div className="flex flex-col items-center justify-center gap-2 py-4">
               <div className="bg-indigo-600 text-white px-4 py-2 rounded-full font-bold text-lg">
                 VS
@@ -167,7 +208,6 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
               </Button>
             </div>
 
-            {/* Food B */}
             <AutoLookupFoodCard
               title="Food B"
               food={foodB}
@@ -176,26 +216,6 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
               color="green"
             />
           </div>
-
-          {/* Compare Button */}
-          <Button
-            onClick={handleCompare}
-            disabled={status === 'processing' || !canCompare}
-            className="w-full"
-            size="lg"
-          >
-            {status === 'processing' ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                {t('common.analyzing') || 'Analyzing...'}
-              </>
-            ) : (
-              <>
-                <TrendingUp className="mr-2 h-4 w-4" />
-                {t('compare.compareButton') || 'Compare Foods'}
-              </>
-            )}
-          </Button>
 
           {/* Validation Warning */}
           {!canCompare && inputMode === 'custom' && (
@@ -207,56 +227,104 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             </div>
           )}
 
-          {/* Error Display */}
-          {error && (
-            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-amber-800">{t('common.comparisonFailed') || "Couldn't generate comparison"}</p>
-                  <p className="text-sm text-amber-700 mt-1">{error}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCompare}
-                    className="mt-3"
-                  >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    {t('common.tryAgain') || 'Try Again'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Loading State */}
-          {status === 'processing' && (
-            <div className="border border-gray-200 rounded-xl p-6">
-              <div className="flex items-center justify-center gap-3">
-                <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
-                <span className="text-gray-600">{t('common.analyzing') || 'Analyzing foods...'}</span>
-              </div>
-              <div className="mt-4 space-y-2">
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
-              </div>
-            </div>
-          )}
-
-          {/* Results */}
-          {data && status === 'success' && (
-            <ComparisonResultCard
-              verdict={data.verdict}
-              foodA={data.foodA}
-              foodB={data.foodB}
-              translateFood={translateFood}
-              hasIncompleteData={data.hasIncompleteData}
-            />
+          {/* Results Section */}
+          {canCompare && (
+            <>
+              {showAllModes ? (
+                <AllModesGrid
+                  results={allModeResults!}
+                  foodA={foodA}
+                  foodB={foodB}
+                  translateFood={translateFood}
+                />
+              ) : (
+                currentVerdict && (
+                  <ComparisonResultCard
+                    verdict={currentVerdict}
+                    foodA={foodA}
+                    foodB={foodB}
+                    translateFood={translateFood}
+                    hasIncompleteData={!allModeResults?.hasCompleteData}
+                    showModeLabel={true}
+                  />
+                )
+              )}
+            </>
           )}
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// ============================================================================
+// All Modes Grid (4-card parallel view)
+// ============================================================================
+
+interface AllModesGridProps {
+  results: AllModeResults;
+  foodA: ComparisonFoodItem;
+  foodB: ComparisonFoodItem;
+  translateFood: (name: string) => string;
+}
+
+function AllModesGrid({ results, foodA, foodB, translateFood }: AllModesGridProps) {
+  const modes: ComparisonMode[] = ['weight-loss', 'muscle-gain', 'general-health', 'energy'];
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {modes.map((mode) => {
+        const result = results[mode];
+        const winnerName = result.winner === 'A' ? translateFood(foodA.name)
+          : result.winner === 'B' ? translateFood(foodB.name)
+            : 'Tie';
+
+        const winnerColor = result.winner === 'A' ? 'bg-blue-500'
+          : result.winner === 'B' ? 'bg-green-500'
+            : 'bg-gray-500';
+
+        return (
+          <div key={mode} className="border border-gray-200 rounded-lg overflow-hidden">
+            {/* Header */}
+            <div className={`${winnerColor} px-3 py-2 text-white`}>
+              <div className="flex items-center justify-between">
+                <span className="font-medium flex items-center gap-1">
+                  {MODE_ICONS[mode]} {MODE_LABELS[mode]}
+                </span>
+                <span className="text-sm font-semibold">
+                  {result.winner === 'tie' ? 'Tie' : `${winnerName} Wins`}
+                </span>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-3 bg-gray-50">
+              <p className="text-sm text-gray-700 mb-2">{result.summary}</p>
+
+              {/* Key Differences */}
+              {result.keyDifferences.length > 0 && (
+                <ul className="text-xs text-gray-600 space-y-0.5 mb-2">
+                  {result.keyDifferences.slice(0, 2).map((diff, i) => (
+                    <li key={i} className="flex items-start gap-1">
+                      <span className="text-indigo-500">•</span>
+                      {diff}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {/* Recommendation */}
+              {result.recommendations.length > 0 && (
+                <p className="text-xs text-gray-500 flex items-start gap-1">
+                  <Sparkles className="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5" />
+                  {result.recommendations[0]}
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
@@ -289,13 +357,11 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
     green: 'text-green-700',
   };
 
-  // Update inputs when food changes externally (e.g., preset selection)
   useEffect(() => {
     setNameInput(food.name);
     setServingInput(food.servingSize);
   }, [food.name, food.servingSize]);
 
-  // Debounced search
   useEffect(() => {
     if (!isCustomMode) return;
     const timer = setTimeout(() => {
@@ -304,7 +370,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
     return () => clearTimeout(timer);
   }, [nameInput, search, isCustomMode]);
 
-  // Auto-lookup when name or serving changes
   const performLookup = useCallback(async (name: string, serving: string) => {
     if (!isCustomMode || name.length < 2) return;
 
@@ -318,7 +383,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
   const handleNameChange = (value: string) => {
     setNameInput(value);
     setShowSuggestions(true);
-    // Clear macros when name is manually changed
     if (isCustomMode) {
       onChange({
         ...food,
@@ -349,7 +413,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
   };
 
   const handleServingBlur = () => {
-    // Re-lookup with new serving
     if (food.name && food.name.length >= 2) {
       performLookup(food.name, servingInput);
     }
@@ -370,7 +433,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
       </div>
 
       <div className="space-y-3">
-        {/* Food Name with Autocomplete */}
         <div className="relative">
           <label htmlFor={`${title}-name`} className="text-xs text-gray-500 flex items-center gap-1">
             <Search className="w-3 h-3" />
@@ -389,7 +451,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
             autoComplete="off"
           />
 
-          {/* Autocomplete Dropdown */}
           {showSuggestions && searchSuggestions.length > 0 && (
             <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
               {searchSuggestions.map((suggestion) => (
@@ -406,7 +467,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
             </div>
           )}
 
-          {/* Loading indicator */}
           {isLoading && (
             <div className="absolute right-3 top-7">
               <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
@@ -414,7 +474,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
           )}
         </div>
 
-        {/* Serving Size */}
         <div>
           <label htmlFor={`${title}-serving`} className="text-xs text-gray-500">Serving Size</label>
           <input
@@ -429,7 +488,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
           />
         </div>
 
-        {/* Macros (Read-only when auto-filled) */}
         <div className="grid grid-cols-4 gap-2">
           <div>
             <label className="text-xs text-gray-500">Calories</label>
@@ -457,7 +515,6 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
           </div>
         </div>
 
-        {/* Source indicator */}
         <div className="text-xs text-gray-400 flex items-center gap-1">
           {food.calories !== null && <Check className="w-3 h-3 text-green-500" />}
           Source: {sourceLabel}
@@ -468,7 +525,7 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
 }
 
 // ============================================================================
-// Comparison Result Card
+// Comparison Result Card (Single Mode View)
 // ============================================================================
 
 interface ComparisonResultCardProps {
@@ -477,9 +534,10 @@ interface ComparisonResultCardProps {
   foodB: ComparisonFoodItem;
   translateFood: (name: string) => string;
   hasIncompleteData?: boolean;
+  showModeLabel?: boolean;
 }
 
-function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompleteData }: ComparisonResultCardProps) {
+function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompleteData, showModeLabel }: ComparisonResultCardProps) {
   const winnerColor =
     verdict.winner === 'A'
       ? 'bg-blue-600'
@@ -496,7 +554,6 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden">
-      {/* Winner Header */}
       <div className={`${winnerColor} px-4 py-3 text-white`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -513,54 +570,33 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
                   `${winnerName} Wins!`}
             </span>
           </div>
-          <span className="text-sm opacity-90 capitalize">{verdict.context.replace('-', ' ')}</span>
+          {showModeLabel && (
+            <span className="text-sm opacity-90 capitalize flex items-center gap-1">
+              {MODE_ICONS[verdict.context as ComparisonMode]} {verdict.context.replace('-', ' ')}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Incomplete Data Warning */}
       {hasIncompleteData && (
         <div className="px-4 py-2 bg-yellow-50 border-b border-yellow-100 flex items-center gap-2">
           <Info className="w-4 h-4 text-yellow-600" />
-          <span className="text-xs text-yellow-700">Comparison based on available data. Some values were incomplete.</span>
+          <span className="text-xs text-yellow-700">Comparison based on available data.</span>
         </div>
       )}
 
-      {/* Summary */}
       <div className="p-4 bg-gray-50">
         <p className="text-gray-700">{verdict.summary}</p>
       </div>
 
-      {/* Macro Comparison */}
       <div className="p-4 space-y-3">
         <h4 className="font-medium text-gray-900">Macro Comparison</h4>
-
-        <MacroBar
-          label="Calories"
-          valueA={foodA.calories}
-          valueB={foodB.calories}
-          unit=""
-        />
-        <MacroBar
-          label="Protein"
-          valueA={foodA.macros.protein_g}
-          valueB={foodB.macros.protein_g}
-          unit="g"
-        />
-        <MacroBar
-          label="Carbs"
-          valueA={foodA.macros.carbs_g}
-          valueB={foodB.macros.carbs_g}
-          unit="g"
-        />
-        <MacroBar
-          label="Fat"
-          valueA={foodA.macros.fat_g}
-          valueB={foodB.macros.fat_g}
-          unit="g"
-        />
+        <MacroBar label="Calories" valueA={foodA.calories} valueB={foodB.calories} unit="" />
+        <MacroBar label="Protein" valueA={foodA.macros.protein_g} valueB={foodB.macros.protein_g} unit="g" />
+        <MacroBar label="Carbs" valueA={foodA.macros.carbs_g} valueB={foodB.macros.carbs_g} unit="g" />
+        <MacroBar label="Fat" valueA={foodA.macros.fat_g} valueB={foodB.macros.fat_g} unit="g" />
       </div>
 
-      {/* Key Differences */}
       {verdict.keyDifferences.length > 0 && (
         <div className="px-4 pb-4">
           <h4 className="font-medium text-gray-900 mb-2">Key Differences</h4>
@@ -575,7 +611,6 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
         </div>
       )}
 
-      {/* Recommendations */}
       {verdict.recommendations.length > 0 && (
         <div className="px-4 pb-4">
           <h4 className="font-medium text-gray-900 mb-2">Recommendations</h4>
@@ -590,7 +625,6 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
         </div>
       )}
 
-      {/* Disclaimers */}
       {verdict.disclaimers && verdict.disclaimers.length > 0 && (
         <div className="px-4 pb-4 pt-2 border-t border-gray-100">
           <div className="text-xs text-gray-500 space-y-1">
@@ -616,11 +650,9 @@ interface MacroBarProps {
 }
 
 function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
-  // Handle null values
   const hasA = valueA !== null;
   const hasB = valueB !== null;
 
-  // Calculate bar widths (only if both values known)
   const maxValue = Math.max(valueA ?? 0, valueB ?? 0, 1);
   const percentageA = hasA ? ((valueA ?? 0) / maxValue) * 100 : 0;
   const percentageB = hasB ? ((valueB ?? 0) / maxValue) * 100 : 0;
