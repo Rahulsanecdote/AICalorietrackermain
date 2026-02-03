@@ -11,6 +11,7 @@ interface InsightsDashboardProps {
 }
 
 export function InsightsDashboard({ meals }: InsightsDashboardProps) {
+  const { t } = useTranslation();
 
   const {
     insights,
