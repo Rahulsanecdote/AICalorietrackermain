@@ -127,6 +127,82 @@ const server = http.createServer(async (req, res) => {
     return
   }
 
+  if (url.pathname === "/api/ai/transcribe" && req.method === "POST") {
+    if (!isAuthorized(req)) {
+      sendJson(res, 401, { error: { message: "Unauthorized" } })
+      return
+    }
+
+    if (!config.openaiApiKey) {
+      sendJson(res, 503, { error: { message: "OpenAI API key is not configured on the server." } })
+      return
+    }
+
+    const clientIp = getClientIp(req)
+    const limit = rateLimiter.check(clientIp)
+    if (!limit.allowed) {
+      res.setHeader("Retry-After", Math.ceil((limit.resetAt - Date.now()) / 1000))
+      sendJson(res, 429, { error: { message: "Rate limit exceeded. Please retry later." } })
+      return
+    }
+
+    let body
+    try {
+      body = await readJson(req, config.maxBodyBytes * 10) // Allow larger body for audio
+    } catch (error) {
+      sendJson(res, 400, { error: { message: error instanceof Error ? error.message : "Invalid JSON body" } })
+      return
+    }
+
+    const { audio } = body
+    if (!audio) {
+      sendJson(res, 400, { error: { message: "Audio data is required" } })
+      return
+    }
+
+    try {
+      // Convert Base64 -> Buffer -> Blob
+      const base64Data = audio.split(";base64,").pop()
+      const buffer = Buffer.from(base64Data, "base64")
+
+      // Determine file extension
+      let filename = "audio.webm"
+      if (audio.startsWith("data:audio/mp4")) filename = "audio.mp4"
+      if (audio.startsWith("data:audio/m4a")) filename = "audio.m4a"
+      if (audio.startsWith("data:audio/wav")) filename = "audio.wav"
+      if (audio.startsWith("data:audio/ogg")) filename = "audio.ogg"
+
+      const blob = new Blob([buffer], { type: "audio/webm" })
+
+      const formData = new FormData()
+      formData.append("file", blob, filename)
+      formData.append("model", "whisper-1")
+
+      const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${config.openaiApiKey}`,
+        },
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("[Transcribe] OpenAI Error:", errorText)
+        throw new Error(`OpenAI API Error: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      sendJson(res, 200, { text: data.text })
+
+    } catch (error) {
+      console.error("[Transcribe] Error:", error)
+      sendJson(res, 500, { error: { message: error.message || "Transcription failed" } })
+    }
+    return
+  }
+
+  // Fallback for 404
   sendJson(res, 404, { error: { message: "Not Found" } })
 })
 
