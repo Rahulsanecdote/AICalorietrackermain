@@ -1,4 +1,5 @@
 import { Trash2, Edit2, Clock, Utensils, BookOpen, Heart, ShoppingCart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Meal } from '../types';
 import { Recipe } from '../types/recipes';
 
@@ -34,15 +35,15 @@ const categoryBgColors = {
   snack: 'bg-pink-500',
 };
 
-export default function MealCard({ 
-  meal, 
-  onDelete, 
-  onEdit, 
+export default function MealCard({
+  meal,
+  onDelete,
+  onEdit,
   onViewRecipe,
   onToggleFavorite,
   onAddToShoppingList,
   isFavorite = false,
-  isInShoppingList = false 
+  isInShoppingList = false
 }: MealCardProps) {
   const formatTime = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -54,6 +55,10 @@ export default function MealCard({
   };
 
   const hasRecipe = !!meal.recipe;
+  const { t } = useTranslation();
+
+  // Get translated category label
+  const getCategoryLabel = (cat: string) => t(`meals.${cat}`);
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-4 border border-gray-100 hover:shadow-md transition-shadow relative group">
@@ -67,12 +72,11 @@ export default function MealCard({
             e.stopPropagation();
             onToggleFavorite(meal.recipe!.id);
           }}
-          className={`absolute top-3 right-12 p-1.5 rounded-lg transition-colors z-10 ${
-            isFavorite
+          className={`absolute top-3 right-12 p-1.5 rounded-lg transition-colors z-10 ${isFavorite
               ? 'text-red-500 bg-red-50'
               : 'text-gray-300 hover:text-red-400 hover:bg-red-50'
-          }`}
-          aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            }`}
+          aria-label={isFavorite ? t('common.removeFavorite') : t('common.addFavorite')}
         >
           <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
         </button>
@@ -109,10 +113,9 @@ export default function MealCard({
           <Clock className="w-4 h-4" />
           <span>{formatTime(meal.timestamp)}</span>
         </div>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${
-          categoryColors[meal.category]
-        }`}>
-          {meal.category.charAt(0).toUpperCase() + meal.category.slice(1)}
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${categoryColors[meal.category]
+          }`}>
+          {getCategoryLabel(meal.category)}
         </span>
         {hasRecipe && (
           <button
@@ -120,7 +123,7 @@ export default function MealCard({
             className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-medium hover:bg-indigo-100 transition-colors"
           >
             <BookOpen className="w-3 h-3" />
-            Recipe
+            {t('meals.recipe')}
           </button>
         )}
       </div>
@@ -128,19 +131,19 @@ export default function MealCard({
       <div className="grid grid-cols-4 gap-3 pt-3 border-t border-gray-100">
         <div className="text-center">
           <div className="text-lg font-bold text-gray-900">{meal.nutrition.calories}</div>
-          <div className="text-xs text-gray-500">calories</div>
+          <div className="text-xs text-gray-500">{t('meals.calories')}</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-bold text-blue-500">{meal.nutrition.protein_g}g</div>
-          <div className="text-xs text-gray-500">protein</div>
+          <div className="text-xs text-gray-500">{t('meals.protein')}</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-bold text-amber-500">{meal.nutrition.carbs_g}g</div>
-          <div className="text-xs text-gray-500">carbs</div>
+          <div className="text-xs text-gray-500">{t('meals.carbs')}</div>
         </div>
         <div className="text-center">
           <div className="text-lg font-bold text-red-500">{meal.nutrition.fat_g}g</div>
-          <div className="text-xs text-gray-500">fat</div>
+          <div className="text-xs text-gray-500">{t('meals.fat')}</div>
         </div>
       </div>
 
@@ -154,15 +157,14 @@ export default function MealCard({
                 e.stopPropagation();
                 onAddToShoppingList(meal);
               }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                isInShoppingList
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${isInShoppingList
                   ? 'bg-purple-100 text-purple-700 border border-purple-200'
                   : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-600'
-              }`}
+                }`}
               aria-label="Add ingredients to shopping list"
             >
               <ShoppingCart className={`w-4 h-4 ${isInShoppingList ? 'fill-current' : ''}`} />
-              {isInShoppingList ? 'In List' : 'Add to Cart'}
+              {isInShoppingList ? t('shopping.inList') : t('shopping.addToCart')}
             </button>
           )}
         </div>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Edit2, Shuffle, Heart, ShoppingCart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { FoodItem } from '../types';
 import { getMeasurementDisplay } from '../utils/foodMeasurements';
 
@@ -26,6 +27,7 @@ export default function EditableFoodItem({
   isInShoppingList = false,
   isSwapping = false
 }: EditableFoodItemProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [valueInput, setValueInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -107,7 +109,7 @@ export default function EditableFoodItem({
               <button
                 onClick={handleClick}
                 className="flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-100 transition-colors group"
-                title="Click to edit amount"
+                title={t('common.clickToEdit')}
               >
                 <span className="text-sm font-medium text-gray-700">
                   {getMeasurementDisplay(item)}
@@ -124,19 +126,19 @@ export default function EditableFoodItem({
         <div className="grid grid-cols-4 gap-3 text-xs">
           <div className="text-center">
             <div className="font-semibold text-gray-900">{formatNumber(item.calories)}</div>
-            <div className="text-gray-500">cal</div>
+            <div className="text-gray-500">{t('meals.cal')}</div>
           </div>
           <div className="text-center">
             <div className="font-semibold text-blue-600">{formatNumber(item.protein)}g</div>
-            <div className="text-gray-500">protein</div>
+            <div className="text-gray-500">{t('meals.protein')}</div>
           </div>
           <div className="text-center">
             <div className="font-semibold text-amber-600">{formatNumber(item.carbs)}g</div>
-            <div className="text-gray-500">carbs</div>
+            <div className="text-gray-500">{t('meals.carbs')}</div>
           </div>
           <div className="text-center">
             <div className="font-semibold text-red-600">{formatNumber(item.fat)}g</div>
-            <div className="text-gray-500">fat</div>
+            <div className="text-gray-500">{t('meals.fat')}</div>
           </div>
         </div>
 
@@ -149,7 +151,7 @@ export default function EditableFoodItem({
                 ? 'text-red-500 bg-red-50'
                 : 'text-gray-400 hover:text-red-400 hover:bg-red-50'
                 }`}
-              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              title={isFavorite ? t('common.removeFavorite') : t('common.addFavorite')}
             >
               <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
             </button>
@@ -163,7 +165,7 @@ export default function EditableFoodItem({
                 ? 'text-purple-600 bg-purple-50'
                 : 'text-gray-400 hover:text-purple-500 hover:bg-purple-50'
                 }`}
-              title={isInShoppingList ? 'In shopping list' : 'Add to shopping list'}
+              title={isInShoppingList ? t('shopping.inList') : t('shopping.addToList')}
             >
               <ShoppingCart className={`w-4 h-4 ${isInShoppingList ? 'fill-current' : ''}`} />
             </button>
@@ -178,7 +180,7 @@ export default function EditableFoodItem({
                 ? 'text-purple-600 bg-purple-50 animate-pulse'
                 : 'text-gray-400 hover:text-purple-600 hover:bg-purple-50'
                 }`}
-              title="Swap food"
+              title={t('mealPlan.swapFood')}
             >
               {isSwapping ? (
                 <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -196,7 +198,7 @@ export default function EditableFoodItem({
       {/* Micronutrients */}
       {item.micronutrients && item.micronutrients.fiber && (
         <div className="mt-2 text-xs text-gray-500">
-          Fiber: {formatNumber(item.micronutrients.fiber)}g
+          {t('meals.fiber')}: {formatNumber(item.micronutrients.fiber)}g
         </div>
       )}
     </div>

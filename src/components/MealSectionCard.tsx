@@ -2,6 +2,7 @@
 
 
 import { Plus, Clock } from "lucide-react"
+import { useTranslation } from "react-i18next"
 import type { MealSection, FoodItem } from "../types"
 import EditableFoodItem from "./EditableFoodItem"
 
@@ -62,7 +63,10 @@ export default function MealSectionCard({
   isInShoppingList = () => false,
   isSwapping = () => false,
 }: MealSectionCardProps) {
+  const { t } = useTranslation();
 
+  // Get translated meal type label
+  const getMealTypeLabel = (type: string) => t(`meals.${type}`);
 
   const mealType = meal?.type || "snack"
   const colors = mealColors[mealType] || defaultColors
@@ -99,7 +103,7 @@ export default function MealSectionCard({
         <div className="flex items-center gap-3">
           <span className="text-2xl">{colors.icon}</span>
           <div>
-            <h3 className={`font-semibold ${colors.accent} capitalize`}>{mealType}</h3>
+            <h3 className={`font-semibold ${colors.accent} capitalize`}>{getMealTypeLabel(mealType)}</h3>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Clock className="w-4 h-4" />
               <span>{getTimeEstimate(mealType)}</span>
@@ -110,12 +114,12 @@ export default function MealSectionCard({
         <div className="flex items-center gap-3">
           <div className="text-right">
             <div className="text-lg font-bold text-gray-900">{meal.totalCalories || 0}</div>
-            <div className="text-xs text-gray-500">calories</div>
+            <div className="text-xs text-gray-500">{t('meals.calories')}</div>
           </div>
           <button
             onClick={onAddToLog}
             className={`${colors.accent} hover:bg-white/50 p-2 rounded-lg transition-colors`}
-            title="Add all to log"
+            title={t('mealPlan.addAllToLog')}
           >
             <Plus className="w-5 h-5" />
           </button>
@@ -152,15 +156,15 @@ export default function MealSectionCard({
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <div className="text-sm font-semibold text-gray-900">{Math.round(meal.totalProtein || 0)}g</div>
-            <div className="text-xs text-gray-500">Protein</div>
+            <div className="text-xs text-gray-500">{t('meals.protein')}</div>
           </div>
           <div>
             <div className="text-sm font-semibold text-gray-900">{Math.round(meal.totalCarbs || 0)}g</div>
-            <div className="text-xs text-gray-500">Carbs</div>
+            <div className="text-xs text-gray-500">{t('meals.carbs')}</div>
           </div>
           <div>
             <div className="text-sm font-semibold text-gray-900">{Math.round(meal.totalFat || 0)}g</div>
-            <div className="text-xs text-gray-500">Fat</div>
+            <div className="text-xs text-gray-500">{t('meals.fat')}</div>
           </div>
         </div>
       </div>

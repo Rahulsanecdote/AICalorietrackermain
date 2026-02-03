@@ -10,17 +10,15 @@ interface MealInputProps {
   onVoiceClick?: () => void;
 }
 
-const categoryOptions: { value: MealCategory; label: string }[] = [
-  { value: 'breakfast', label: 'Breakfast' },
-  { value: 'lunch', label: 'Lunch' },
-  { value: 'dinner', label: 'Dinner' },
-  { value: 'snack', label: 'Snack' },
-];
+const categoryValues: MealCategory[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 
 export default function MealInput({ onSubmit, isLoading, error }: MealInputProps) {
   const { t } = useTranslation();
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<MealCategory>('breakfast');
+
+  // Use translated labels for categories
+  const getCategoryLabel = (cat: MealCategory) => t(`meals.${cat}`);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,17 +56,17 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
             {t('mealInput.category')}
           </span>
           <div className="flex gap-2 flex-wrap">
-            {categoryOptions.map((option) => (
+            {categoryValues.map((cat) => (
               <button
-                key={option.value}
+                key={cat}
                 type="button"
-                onClick={() => setCategory(option.value)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${category === option.value
-                    ? 'bg-emerald-500 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                onClick={() => setCategory(cat)}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${category === cat
+                  ? 'bg-emerald-500 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
-                {option.label}
+                {getCategoryLabel(cat)}
               </button>
             ))}
           </div>
@@ -95,8 +93,8 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
               type="submit"
               disabled={!description.trim() || isLoading}
               className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${!description.trim() || isLoading
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-emerald-500 text-white hover:bg-emerald-600'
                 }`}
               aria-label="Submit meal"
             >

@@ -22,6 +22,9 @@ const en = {
     settings: 'Settings',
     help: 'Help',
     about: 'About',
+    addFavorite: 'Add to favorites',
+    removeFavorite: 'Remove from favorites',
+    clickToEdit: 'Click to edit amount',
   },
   nav: {
     tracker: 'Tracker',
@@ -51,9 +54,12 @@ const en = {
     todaysMeals: "Today's Meals",
     noMeals: 'No meals logged yet',
     calories: 'Calories',
+    cal: 'cal',
     protein: 'Protein',
     carbs: 'Carbs',
     fat: 'Fat',
+    fiber: 'Fiber',
+    recipe: 'Recipe',
   },
   quickAdd: {
     title: 'Quick Add',
@@ -167,6 +173,8 @@ const en = {
     protein: 'Protein',
     carbs: 'Carbs',
     fat: 'Fat',
+    addAllToLog: 'Add all to log',
+    swapFood: 'Swap food',
   },
   lifestyle: {
     title: 'Lifestyle Tracking',
@@ -227,6 +235,9 @@ const en = {
     noteOptional: 'Note (optional)',
     recentEntries: 'Recent Entries',
     weightTrend: 'Weight Trend',
+    inList: 'In List',
+    addToCart: 'Add to Cart',
+    addToList: 'Add to list',
   },
   mealPrep: {
     title: 'Meal Prep Suggestions',
@@ -1494,6 +1505,9 @@ const te = {
     settings: 'సెట్టింగ్స్',
     help: 'సహాయం',
     about: 'గురించి',
+    addFavorite: 'ఇష్టపడినవాటికి జోడించండి',
+    removeFavorite: 'ఇష్టపడినవాటి నుండి తొలగించండి',
+    clickToEdit: 'మొత్తం మార్చడానికి క్లిక్ చేయండి',
   },
   nav: {
     tracker: 'ట్రాకర్',
@@ -1523,9 +1537,12 @@ const te = {
     todaysMeals: 'ఈరోజు భోజనం',
     noMeals: 'ఇంకా భోజనం నమోదు కాలేదు',
     calories: 'కేలరీలు',
+    cal: 'కేలరీ',
     protein: 'ప్రోటీన్',
     carbs: 'కార్బోహైడ్రేట్లు',
     fat: 'కొవ్వు',
+    fiber: 'ఫైబర్',
+    recipe: 'రెసిపీ',
   },
   quickAdd: {
     title: 'త్వరితగా జోడించండి',
@@ -1641,6 +1658,8 @@ const te = {
     protein: 'ప్రోటీన్',
     carbs: 'కార్బోహైడ్రేట్లు',
     fat: 'కొవ్వు',
+    addAllToLog: 'అన్నీ లాగ్‌కు జోడించండి',
+    swapFood: 'ఆహారం మార్చండి',
   },
   lifestyle: {
     title: 'జీవనశైలి ట్రాకింగ్',
@@ -1701,6 +1720,9 @@ const te = {
     noteOptional: 'నోట్ (ఐచ్ఛికం)',
     recentEntries: 'ఇటీవలి ఎంట్రీలు',
     weightTrend: 'బరువు ట్రెండ్',
+    inList: 'లిస్ట్‌లో ఉంది',
+    addToCart: 'కార్ట్‌కు జోడించండి',
+    addToList: 'లిస్ట్‌కు జోడించండి',
   },
   mealPrep: {
     title: 'భోజనం తయారీ సలహాలు',
