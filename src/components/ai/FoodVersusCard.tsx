@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ArrowRightLeft, Sparkles, TrendingUp, Minus } from 'lucide-react';
+import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '../ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,7 @@ import {
   DialogDescription,
 } from '../ui/dialog';
 import { useFoodComparator, PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
+import { useFoodTranslation } from '../../hooks/useFoodTranslation';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
 
 
@@ -20,6 +22,8 @@ interface FoodVersusCardProps {
 }
 
 export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
+  const { t } = useTranslation();
+  const { translateFood } = useFoodTranslation();
   const [context, setContext] = useState<'weight-loss' | 'muscle-gain' | 'general-health' | 'energy'>('general-health');
   const [foodA, setFoodA] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodA);
   const [foodB, setFoodB] = useState<ComparisonFoodItem>(PRESET_COMPARISONS.pizzaVsSalad.foodB);
@@ -159,16 +163,51 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             )}
           </Button>
 
-          {/* Error Display */}
+          {/* Error Display - User Friendly */}
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-medium text-amber-800">{t('common.comparisonFailed') || "Couldn't generate comparison"}</p>
+                  <p className="text-sm text-amber-700 mt-1">{error}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCompare}
+                    className="mt-3"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    {t('common.tryAgain') || 'Try Again'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading State */}
+          {status === 'processing' && (
+            <div className="border border-gray-200 rounded-xl p-6">
+              <div className="flex items-center justify-center gap-3">
+                <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
+                <span className="text-gray-600">{t('common.analyzing') || 'Analyzing foods...'}</span>
+              </div>
+              <div className="mt-4 space-y-2">
+                <div className="h-4 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+                <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2" />
+              </div>
             </div>
           )}
 
           {/* Results */}
-          {data && (
-            <ComparisonResultCard verdict={data.verdict} foodA={data.foodA} foodB={data.foodB} />
+          {data && status === 'success' && (
+            <ComparisonResultCard
+              verdict={data.verdict}
+              foodA={data.foodA}
+              foodB={data.foodB}
+              translateFood={translateFood}
+            />
           )}
         </div>
       </DialogContent>
@@ -331,9 +370,10 @@ interface ComparisonResultCardProps {
   verdict: ComparisonVerdict;
   foodA: ComparisonFoodItem;
   foodB: ComparisonFoodItem;
+  translateFood: (name: string) => string;
 }
 
-function ComparisonResultCard({ verdict, foodA, foodB }: ComparisonResultCardProps) {
+function ComparisonResultCard({ verdict, foodA, foodB, translateFood }: ComparisonResultCardProps) {
   const winnerColor =
     verdict.winner === 'A'
       ? 'bg-blue-600'
@@ -341,7 +381,7 @@ function ComparisonResultCard({ verdict, foodA, foodB }: ComparisonResultCardPro
         ? 'bg-green-600'
         : 'bg-gray-600';
 
-  const winnerName = verdict.winner === 'A' ? foodA.name : verdict.winner === 'B' ? foodB.name : 'Tie';
+  const winnerName = verdict.winner === 'A' ? translateFood(foodA.name) : verdict.winner === 'B' ? translateFood(foodB.name) : 'Tie';
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden">

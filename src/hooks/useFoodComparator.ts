@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { FoodComparisonData, ComparisonFoodItem, AIProcessingStatus } from '../types/ai';
 import { API_CONFIG } from '../constants';
 import { postAIChat } from '../utils/aiClient';
+import { parseAIResponseWithSchema, ComparisonVerdictSchema, getUserFriendlyError } from '../utils/safeParseAI';
 
 interface ComparisonState {
   status: AIProcessingStatus;
@@ -11,11 +12,13 @@ interface ComparisonState {
 
 const DEFAULT_SYSTEM_PROMPT = `You are a nutrition comparison assistant. Compare two food items and provide a detailed analysis.
 
+IMPORTANT: Return ONLY raw JSON, do not wrap in markdown code fences.
+
 Return a JSON object with the following structure:
 {
   "verdict": {
     "summary": "A concise comparison summary (2-3 sentences)",
-    "winner": "A, B, or tie",
+    "winner": "A", "B", or "tie",
     "keyDifferences": ["Array of key nutritional differences"],
     "recommendations": ["Context-aware recommendations"],
     "context": "general-health"
@@ -95,13 +98,22 @@ Provide a comparison focusing on which food is better for this goal.
         throw new Error('No response from AI');
       }
 
-      const parsedContent = JSON.parse(content);
+      // Safe parse with schema validation
+      const parseResult = parseAIResponseWithSchema(content, ComparisonVerdictSchema);
+
+      if (!parseResult.success) {
+        console.error('AI Parse Error:', parseResult.error, 'Raw:', parseResult.rawContent);
+        throw new Error(getUserFriendlyError(parseResult.error));
+      }
 
       const comparisonData: FoodComparisonData = {
         foodA,
         foodB,
         verdict: {
-          ...parsedContent.verdict,
+          summary: parseResult.data.verdict.summary,
+          winner: parseResult.data.verdict.winner.toUpperCase() as 'A' | 'B' | 'tie',
+          keyDifferences: parseResult.data.verdict.keyDifferences,
+          recommendations: parseResult.data.verdict.recommendations,
           context,
         },
         comparisonTimestamp: new Date().toISOString(),
