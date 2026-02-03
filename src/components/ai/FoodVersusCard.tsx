@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2, Info } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';

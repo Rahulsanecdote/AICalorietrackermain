@@ -133,8 +133,8 @@ Remember: "unknown" means the data is not available. Do not treat it as 0.
         verdict: {
           summary: parseResult.data.verdict.summary,
           winner: parseResult.data.verdict.winner.toUpperCase() as 'A' | 'B' | 'tie' | 'insufficient-data',
-          keyDifferences: parseResult.data.verdict.keyDifferences,
-          recommendations: parseResult.data.verdict.recommendations,
+          keyDifferences: parseResult.data.verdict.keyDifferences ?? [],
+          recommendations: parseResult.data.verdict.recommendations ?? [],
           context,
           disclaimers,
         },
