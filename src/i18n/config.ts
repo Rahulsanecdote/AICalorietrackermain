@@ -255,6 +255,11 @@ const en = {
     noFavorites: 'No favorites yet',
     heartIcon: 'Click the heart icon on any meal or food item to add it to your favorites',
   },
+  compare: {
+    title: 'Food Comparison',
+    compareButton: 'Compare Foods',
+    needMoreData: 'Type a food name to auto-fill nutrition.',
+  },
 };
 
 // Spanish translations
@@ -497,8 +502,13 @@ const es = {
   favorites: {
     title: 'Tus Favoritos',
     subtitle: 'Tus recetas y alimentos favoritos',
-    noFavorites: 'Sin favoritos aún',
-    heartIcon: 'Haz clic en el icono de corazón en cualquier comida para agregarla a tus favoritos',
+    noFavorites: 'Aún no hay favoritos',
+    heartIcon: 'Haz clic en el icono de corazón en cualquier comida o alimento para añadirlo a tus favoritos',
+  },
+  compare: {
+    title: 'Comparación de Alimentos',
+    compareButton: 'Comparar Alimentos',
+    needMoreData: 'Escribe el nombre de un alimento para autocompletar la nutrición.',
   },
 };
 
@@ -742,8 +752,13 @@ const fr = {
   favorites: {
     title: 'Vos Favoris',
     subtitle: 'Vos recettes et aliments préférés',
-    noFavorites: 'Aucun favori encore',
-    heartIcon: 'Cliquez sur l\'icône cœur sur n\'importe quel repas pour l\'ajouter à vos favoris',
+    noFavorites: 'Pas encore de favoris',
+    heartIcon: 'Cliquez sur l\'icône cœur sur n\'importe quel repas ou aliment pour l\'ajouter à vos favoris',
+  },
+  compare: {
+    title: 'Comparaison des Aliments',
+    compareButton: 'Comparer les Aliments',
+    needMoreData: 'Tapez un nom d\'aliment pour remplir automatiquement la nutrition.',
   },
 };
 
@@ -988,7 +1003,12 @@ const de = {
     title: 'Ihre Favoriten',
     subtitle: 'Ihre Lieblingsrezepte und Lebensmittel',
     noFavorites: 'Noch keine Favoriten',
-    heartIcon: 'Klicken Sie auf das Herz-Symbol bei jeder Mahlzeit, um sie zu Ihren Favoriten hinzuzufügen',
+    heartIcon: 'Klicken Sie auf das Herzsymbol bei einer Mahlzeit oder einem Lebensmittel, um es zu Ihren Favoriten hinzuzufügen',
+  },
+  compare: {
+    title: 'Lebensmittelvergleich',
+    compareButton: 'Lebensmittel vergleichen',
+    needMoreData: 'Geben Sie einen Lebensmittelnamen ein, um die Nährwerte automatisch auszufüllen.',
   },
 };
 
@@ -1231,9 +1251,14 @@ const zh = {
   },
   favorites: {
     title: '您的收藏',
-    subtitle: '您最喜欢的食谱和食物',
-    noFavorites: '还没有收藏',
-    heartIcon: '点击任何餐食上的心形图标，将其添加到收藏夹',
+    subtitle: '您最喜爱的食谱和食物',
+    noFavorites: '暂无收藏',
+    heartIcon: '点击任何餐食或食物上的心形图标将其添加到您的收藏中',
+  },
+  compare: {
+    title: '食物对比',
+    compareButton: '对比食物',
+    needMoreData: '输入食物名称以自动填充营养信息',
   },
 };
 
@@ -1477,10 +1502,15 @@ const hi = {
     goToTracker: 'फूड ट्रैकर पर जाएं',
   },
   favorites: {
-    title: 'आपके पसंदीदा',
+    title: 'आपकी पसंद',
     subtitle: 'आपकी पसंदीदा रेसिपी और खाद्य पदार्थ',
     noFavorites: 'अभी तक कोई पसंदीदा नहीं',
-    heartIcon: 'किसी भी भोजन पर दिल के आइकन पर क्लिक करके इसे अपने पसंदीदा में जोड़ें',
+    heartIcon: 'किसी भी भोजन या खाद्य पदार्थ पर दिल के आइकन पर क्लिक करके उसे अपनी पसंद में जोड़ें',
+  },
+  compare: {
+    title: 'खाद्य तुलना',
+    compareButton: 'खाद्य पदार्थों की तुलना करें',
+    needMoreData: 'पोषण स्वतः भरने के लिए भोजन का नाम टाइप करें।',
   },
 };
 
@@ -1739,6 +1769,11 @@ const te = {
     subtitle: 'మీ ఇష్టమైన రెసిపీలు మరియు ఆహార పదార్థాలు',
     noFavorites: 'ఇంకా ఇష్టపడినవి లేవు',
     heartIcon: 'దీన్ని మీ ఇష్టపడినవాటికి జోడించడానికి ఏదైనా భోజనంపై హార్ట్ ఐకాన్‌ని క్లిక్ చేయండి',
+  },
+  compare: {
+    title: 'ఆహార పోలిక',
+    compareButton: 'ఆహార పదార్థాలను పోల్చండి',
+    needMoreData: 'పోషకాహారాన్ని ఆటో-ఫిల్ చేయడానికి ఆహారం పేరు టైప్ చేయండి.',
   },
 };
 
