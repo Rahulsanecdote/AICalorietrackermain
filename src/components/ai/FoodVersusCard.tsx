@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2, Info } from 'lucide-react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { ArrowRightLeft, Sparkles, TrendingUp, Minus, RefreshCw, AlertCircle, Loader2, Info, Search, Check } from 'lucide-react';
 import { Button } from '../ui/button';
 import { useTranslation } from 'react-i18next';
 import {
@@ -13,7 +13,9 @@ import {
 } from '../ui/dialog';
 import { useFoodComparator, PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
 import { useFoodTranslation } from '../../hooks/useFoodTranslation';
+import { useNutritionLookup, createFoodFromLookup } from '../../hooks/useNutritionLookup';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
+import { CatalogFood } from '../../data/foodCatalog';
 import {
   calculateDataCompleteness,
   formatNutrientDisplay,
@@ -62,14 +64,14 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
     setInputMode('custom');
     setFoodA({
       name: '',
-      servingSize: '1 serving',
+      servingSize: '1 cup',
       calories: null,
       macros: { protein_g: null, carbs_g: null, fat_g: null },
       source: 'manual',
     });
     setFoodB({
       name: '',
-      servingSize: '1 serving',
+      servingSize: '1 cup',
       calories: null,
       macros: { protein_g: null, carbs_g: null, fat_g: null },
       source: 'manual',
@@ -90,7 +92,9 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             {t('compare.title') || 'Food Comparison'}
           </DialogTitle>
           <DialogDescription>
-            {t('compare.description') || 'Compare nutritional values to make better choices.'}
+            {inputMode === 'custom'
+              ? 'Type food names to auto-fill nutrition data'
+              : 'Compare nutritional values to make better choices.'}
           </DialogDescription>
         </DialogHeader>
 
@@ -139,11 +143,11 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
           {/* Food Comparison Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-4 items-start">
             {/* Food A */}
-            <FoodInputCard
+            <AutoLookupFoodCard
               title="Food A"
               food={foodA}
               onChange={setFoodA}
-              isEditable={inputMode === 'custom'}
+              isCustomMode={inputMode === 'custom'}
               color="blue"
             />
 
@@ -164,11 +168,11 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             </div>
 
             {/* Food B */}
-            <FoodInputCard
+            <AutoLookupFoodCard
               title="Food B"
               food={foodB}
               onChange={setFoodB}
-              isEditable={inputMode === 'custom'}
+              isCustomMode={inputMode === 'custom'}
               color="green"
             />
           </div>
@@ -198,7 +202,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-2">
               <Info className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
               <p className="text-sm text-yellow-700">
-                {t('compare.needMoreData') || 'Enter at least a food name and either calories or 2 macros for each food.'}
+                {t('compare.needMoreData') || 'Type a food name to auto-fill nutrition. Try "oatmeal" or "chicken breast".'}
               </p>
             </div>
           )}
@@ -257,19 +261,25 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
 }
 
 // ============================================================================
-// Food Input Card
+// Auto-Lookup Food Card (with autocomplete)
 // ============================================================================
 
-interface FoodInputCardProps {
+interface AutoLookupFoodCardProps {
   title: string;
   food: ComparisonFoodItem;
   onChange: (food: ComparisonFoodItem) => void;
-  isEditable: boolean;
+  isCustomMode: boolean;
   color: 'blue' | 'green';
 }
 
-function FoodInputCard({ title, food, onChange, isEditable, color }: FoodInputCardProps) {
+function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: AutoLookupFoodCardProps) {
+  const { searchSuggestions, search, clearSuggestions, lookupFood, isLoading } = useNutritionLookup();
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [nameInput, setNameInput] = useState(food.name);
+  const [servingInput, setServingInput] = useState(food.servingSize);
+
   const completeness = calculateDataCompleteness(food);
+
   const colorClasses = {
     blue: 'border-blue-200 bg-blue-50/50',
     green: 'border-green-200 bg-green-50/50',
@@ -279,119 +289,179 @@ function FoodInputCard({ title, food, onChange, isEditable, color }: FoodInputCa
     green: 'text-green-700',
   };
 
-  const parseValue = (value: string): number | null => {
-    if (value === '' || value === '--') return null;
-    const num = parseFloat(value);
-    return isNaN(num) ? null : num;
+  // Update inputs when food changes externally (e.g., preset selection)
+  useEffect(() => {
+    setNameInput(food.name);
+    setServingInput(food.servingSize);
+  }, [food.name, food.servingSize]);
+
+  // Debounced search
+  useEffect(() => {
+    if (!isCustomMode) return;
+    const timer = setTimeout(() => {
+      search(nameInput);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [nameInput, search, isCustomMode]);
+
+  // Auto-lookup when name or serving changes
+  const performLookup = useCallback(async (name: string, serving: string) => {
+    if (!isCustomMode || name.length < 2) return;
+
+    const result = await lookupFood(name, serving);
+    if (result.found && result.nutrition) {
+      const newFood = createFoodFromLookup(name, serving, result);
+      onChange(newFood);
+    }
+  }, [isCustomMode, lookupFood, onChange]);
+
+  const handleNameChange = (value: string) => {
+    setNameInput(value);
+    setShowSuggestions(true);
+    // Clear macros when name is manually changed
+    if (isCustomMode) {
+      onChange({
+        ...food,
+        name: value,
+        calories: null,
+        macros: { protein_g: null, carbs_g: null, fat_g: null },
+        source: 'manual',
+        dataCompleteness: 10,
+      });
+    }
   };
 
+  const handleSelectSuggestion = async (suggestion: CatalogFood) => {
+    setNameInput(suggestion.name);
+    setShowSuggestions(false);
+    clearSuggestions();
+
+    const result = await lookupFood(suggestion.name, servingInput);
+    if (result.found && result.nutrition) {
+      const newFood = createFoodFromLookup(suggestion.name, servingInput, result);
+      onChange(newFood);
+    }
+  };
+
+  const handleServingChange = (value: string) => {
+    setServingInput(value);
+    onChange({ ...food, servingSize: value });
+  };
+
+  const handleServingBlur = () => {
+    // Re-lookup with new serving
+    if (food.name && food.name.length >= 2) {
+      performLookup(food.name, servingInput);
+    }
+  };
+
+  const sourceLabel = food.source === 'database' ? '✓ Verified'
+    : food.source === 'logged' ? '📋 Your log'
+      : food.source === 'manual' && food.calories !== null ? '🤖 Estimated'
+        : '✏️ Manual';
+
   return (
-    <div className={`p-4 rounded-xl border-2 ${colorClasses[color]}`}>
+    <div className={`p-4 rounded-xl border-2 ${colorClasses[color]} relative`}>
       <div className="flex items-center justify-between mb-3">
         <h3 className={`font-semibold ${headerColors[color]}`}>{title}</h3>
         <span className={`text-xs px-2 py-0.5 rounded-full ${getCompletenessColor(completeness)}`}>
-          {getCompletenessLabel(completeness)} ({completeness}%)
+          {getCompletenessLabel(completeness)}
         </span>
       </div>
 
       <div className="space-y-3">
-        {/* Food Name */}
-        <div>
-          <label htmlFor={`${title}-name`} className="text-xs text-gray-500">Food Name</label>
+        {/* Food Name with Autocomplete */}
+        <div className="relative">
+          <label htmlFor={`${title}-name`} className="text-xs text-gray-500 flex items-center gap-1">
+            <Search className="w-3 h-3" />
+            Food Name {isCustomMode && <span className="text-gray-400">(type to search)</span>}
+          </label>
           <input
             id={`${title}-name`}
             type="text"
-            value={food.name}
-            onChange={(e) => onChange({ ...food, name: e.target.value })}
-            disabled={!isEditable}
+            value={nameInput}
+            onChange={(e) => handleNameChange(e.target.value)}
+            onFocus={() => isCustomMode && setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            disabled={!isCustomMode}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
-            placeholder="e.g., Oatmeal"
+            placeholder={isCustomMode ? "e.g., oatmeal, chicken..." : ""}
+            autoComplete="off"
+          />
+
+          {/* Autocomplete Dropdown */}
+          {showSuggestions && searchSuggestions.length > 0 && (
+            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+              {searchSuggestions.map((suggestion) => (
+                <button
+                  key={suggestion.id}
+                  type="button"
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-indigo-50 flex items-center justify-between"
+                  onMouseDown={() => handleSelectSuggestion(suggestion)}
+                >
+                  <span>{suggestion.name}</span>
+                  <span className="text-xs text-gray-400">{suggestion.per100g.calories} cal/100g</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Loading indicator */}
+          {isLoading && (
+            <div className="absolute right-3 top-7">
+              <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+            </div>
+          )}
+        </div>
+
+        {/* Serving Size */}
+        <div>
+          <label htmlFor={`${title}-serving`} className="text-xs text-gray-500">Serving Size</label>
+          <input
+            id={`${title}-serving`}
+            type="text"
+            value={servingInput}
+            onChange={(e) => handleServingChange(e.target.value)}
+            onBlur={handleServingBlur}
+            disabled={!isCustomMode}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+            placeholder="1 cup, 100g, 2 slices..."
           />
         </div>
 
-        {/* Calories + Serving */}
-        <div className="grid grid-cols-2 gap-2">
+        {/* Macros (Read-only when auto-filled) */}
+        <div className="grid grid-cols-4 gap-2">
           <div>
-            <label htmlFor={`${title}-calories`} className="text-xs text-gray-500">Calories</label>
-            <input
-              id={`${title}-calories`}
-              type="text"
-              value={food.calories !== null ? food.calories : ''}
-              onChange={(e) => onChange({ ...food, calories: parseValue(e.target.value) })}
-              disabled={!isEditable}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
-              placeholder="--"
-            />
+            <label className="text-xs text-gray-500">Calories</label>
+            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center font-medium">
+              {formatNutrientDisplay(food.calories)}
+            </div>
           </div>
           <div>
-            <label htmlFor={`${title}-serving`} className="text-xs text-gray-500">Serving Size</label>
-            <input
-              id={`${title}-serving`}
-              type="text"
-              value={food.servingSize}
-              onChange={(e) => onChange({ ...food, servingSize: e.target.value })}
-              disabled={!isEditable}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
-              placeholder="1 cup (150g)"
-            />
-          </div>
-        </div>
-
-        {/* Macros */}
-        <div className="grid grid-cols-3 gap-2">
-          <div>
-            <label htmlFor={`${title}-protein`} className="text-xs text-gray-500">Protein (g)</label>
-            <input
-              id={`${title}-protein`}
-              type="text"
-              value={food.macros.protein_g !== null ? food.macros.protein_g : ''}
-              onChange={(e) => onChange({
-                ...food,
-                macros: { ...food.macros, protein_g: parseValue(e.target.value) }
-              })}
-              disabled={!isEditable}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
-              placeholder="--"
-            />
+            <label className="text-xs text-gray-500">Protein</label>
+            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center">
+              {formatNutrientDisplay(food.macros.protein_g, 'g')}
+            </div>
           </div>
           <div>
-            <label htmlFor={`${title}-carbs`} className="text-xs text-gray-500">Carbs (g)</label>
-            <input
-              id={`${title}-carbs`}
-              type="text"
-              value={food.macros.carbs_g !== null ? food.macros.carbs_g : ''}
-              onChange={(e) => onChange({
-                ...food,
-                macros: { ...food.macros, carbs_g: parseValue(e.target.value) }
-              })}
-              disabled={!isEditable}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
-              placeholder="--"
-            />
+            <label className="text-xs text-gray-500">Carbs</label>
+            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center">
+              {formatNutrientDisplay(food.macros.carbs_g, 'g')}
+            </div>
           </div>
           <div>
-            <label htmlFor={`${title}-fat`} className="text-xs text-gray-500">Fat (g)</label>
-            <input
-              id={`${title}-fat`}
-              type="text"
-              value={food.macros.fat_g !== null ? food.macros.fat_g : ''}
-              onChange={(e) => onChange({
-                ...food,
-                macros: { ...food.macros, fat_g: parseValue(e.target.value) }
-              })}
-              disabled={!isEditable}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
-              placeholder="--"
-            />
+            <label className="text-xs text-gray-500">Fat</label>
+            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center">
+              {formatNutrientDisplay(food.macros.fat_g, 'g')}
+            </div>
           </div>
         </div>
 
         {/* Source indicator */}
-        {food.source && (
-          <div className="text-xs text-gray-400">
-            Source: {food.source === 'preset' ? '✓ Verified' : food.source === 'logged' ? '📋 Your log' : '✏️ Manual'}
-          </div>
-        )}
+        <div className="text-xs text-gray-400 flex items-center gap-1">
+          {food.calories !== null && <Check className="w-3 h-3 text-green-500" />}
+          Source: {sourceLabel}
+        </div>
       </div>
     </div>
   );
