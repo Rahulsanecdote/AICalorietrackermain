@@ -21,8 +21,13 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
   const caloriesRemaining = Math.max(settings.dailyCalorieGoal - totals.calories, 0);
   const isOverGoal = totals.calories > settings.dailyCalorieGoal;
 
+  const chartLabels = {
+    consumed: t('dashboard.consumed'),
+    remaining: t('dashboard.remaining'),
+  };
+
   const chartData = {
-    labels: ['Consumed', 'Remaining'],
+    labels: [chartLabels.consumed, chartLabels.remaining],
     datasets: [
       {
         data: [
@@ -56,8 +61,14 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
     },
   };
 
+  const macroLabels = {
+    protein: t('mealPlan.protein'),
+    carbs: t('mealPlan.carbs'),
+    fat: t('mealPlan.fat'),
+  };
+
   const macroData = {
-    labels: ['Protein', 'Carbs', 'Fat'],
+    labels: [macroLabels.protein, macroLabels.carbs, macroLabels.fat],
     datasets: [
       {
         data: [totals.protein_g, totals.carbs_g, totals.fat_g],
@@ -84,7 +95,7 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
   return (
     <div className="bg-white rounded-2xl shadow-sm p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.todaysProgress')}</h2>
-      
+
       <div className="flex flex-col items-center mb-6">
         <div className="relative w-48 h-48">
           <Doughnut data={chartData} options={chartOptions} />
@@ -108,9 +119,8 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
         </div>
         <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${
-              isOverGoal ? 'bg-red-500' : 'bg-emerald-500'
-            }`}
+            className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? 'bg-red-500' : 'bg-emerald-500'
+              }`}
             style={{ width: `${calorieProgress}%` }}
           />
         </div>

@@ -30,10 +30,10 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Your Insights
+              {t('insights.title')}
             </h2>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Personalized tips based on your eating patterns
+              {t('insights.subtitle')}
             </p>
           </div>
         </div>
@@ -43,10 +43,10 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
             <Sparkles className="w-8 h-8 text-indigo-500" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            Start Logging Meals
+            {t('insights.startLogging')}
           </h3>
           <p className="text-gray-500 dark:text-gray-400 mb-4 max-w-sm mx-auto">
-            Log your first meal to unlock personalized insights about your nutrition habits, patterns, and achievements.
+            {t('insights.logFirstMeal')}
           </p>
         </div>
       </div>
