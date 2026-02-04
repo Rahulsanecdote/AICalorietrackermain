@@ -139,7 +139,7 @@ export default function EditableFoodItem({
             <div className="text-muted-foreground">{t('meals.carbs')}</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-red-600">{formatNumber(item.fat)}g</div>
+            <div className="font-semibold text-destructive">{formatNumber(item.fat)}g</div>
             <div className="text-muted-foreground">{t('meals.fat')}</div>
           </div>
         </div>

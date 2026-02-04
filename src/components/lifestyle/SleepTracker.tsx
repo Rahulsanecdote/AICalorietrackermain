@@ -214,7 +214,7 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                   deleteEntry(entry.id);
                   setShowForm(false);
                 }}
-                className="flex items-center gap-1 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                className="flex items-center gap-1 px-3 py-2 text-destructive hover:bg-red-50 rounded-lg transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Delete

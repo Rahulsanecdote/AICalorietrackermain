@@ -147,12 +147,12 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
             {stage === 'recording' && (
               <div className="flex flex-col items-center">
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center animate-pulse">
-                    <Mic className="w-10 h-10 text-red-600" />
+                  <div className="w-20 h-20 rounded-full bg-destructive/20 dark:bg-red-900/30 flex items-center justify-center animate-pulse">
+                    <Mic className="w-10 h-10 text-destructive" />
                   </div>
                   <div className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping opacity-75"></div>
                 </div>
-                <div className="mt-3 flex items-center gap-2 text-red-600">
+                <div className="mt-3 flex items-center gap-2 text-destructive">
                   <Clock className="w-4 h-4" />
                   <span className="text-lg font-mono font-bold">{formatDuration(recordingDuration)}</span>
                 </div>
@@ -209,11 +209,11 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
           {error && (
             <div className="space-y-3">
               <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+                <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-red-800 dark:text-red-200">{error}</p>
+                  <p className="text-sm font-medium text-red-800 text-destructive-foreground">{error}</p>
                   {error.includes('denied') && (
-                    <div className="mt-3 text-xs text-red-700 dark:text-red-300">
+                    <div className="mt-3 text-xs text-destructive text-destructive-foreground">
                       <p className="font-medium mb-1">To enable microphone access:</p>
                       <ul className="list-disc list-inside space-y-0.5">
                         <li>Click the lock/camera icon in your address bar</li>
@@ -304,7 +304,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   ? 'text-green-600'
                   : result.confidence > 0.5
                     ? 'text-yellow-600'
-                    : 'text-red-600'
+                    : 'text-destructive'
                   }`}
               >
                 {Math.round(result.confidence * 100)}%

@@ -120,20 +120,20 @@ function AnalyticsFallback({ error, onReset, onRawView }: AnalyticsFallbackProps
   return (
     <div className="border-2 border-dashed border-red-200 bg-red-50 rounded-xl p-6 my-4">
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-          <BarChart3 className="w-6 h-6 text-red-600" />
+        <div className="flex-shrink-0 w-12 h-12 bg-destructive/20 rounded-full flex items-center justify-center">
+          <BarChart3 className="w-6 h-6 text-destructive" />
         </div>
 
         <div className="flex-1">
           <h3 className="text-lg font-medium text-red-800 mb-1">Analytics unavailable</h3>
-          <p className="text-sm text-red-700 mb-4">
+          <p className="text-sm text-destructive mb-4">
             Charts and reports couldn't be loaded. View your raw data instead.
           </p>
 
           {error && (
             <details className="mb-4">
-              <summary className="text-xs text-red-600 cursor-pointer hover:text-red-800">Show error details</summary>
-              <pre className="mt-2 text-xs text-red-600 font-mono overflow-auto max-h-24 whitespace-pre-wrap">
+              <summary className="text-xs text-destructive cursor-pointer hover:text-red-800">Show error details</summary>
+              <pre className="mt-2 text-xs text-destructive font-mono overflow-auto max-h-24 whitespace-pre-wrap">
                 {error.message}
               </pre>
             </details>
@@ -142,7 +142,7 @@ function AnalyticsFallback({ error, onReset, onRawView }: AnalyticsFallbackProps
           <div className="flex flex-wrap gap-2">
             <button
               onClick={onReset}
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-800 bg-red-100 rounded-lg hover:bg-red-200 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-800 bg-destructive/20 rounded-lg hover:bg-red-200 transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
               Retry

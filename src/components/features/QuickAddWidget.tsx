@@ -81,7 +81,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
       {/* Expanded Widget */}
       {isExpanded && (
         <div className="fixed bottom-6 left-6 z-50 w-80 sm:w-96">
-          <div className="bg-card dark:bg-gray-800 rounded-2xl shadow-2xl border border-border dark:border-border overflow-hidden animate-fade-in">
+          <div className="bg-card dark:bg-card rounded-2xl shadow-2xl border border-border border-border overflow-hidden animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-emerald-600">
               <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     onClick={() => setCategory(cat)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${category === cat
                       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
-                      : 'bg-accent text-muted-foreground dark:bg-gray-700 dark:text-gray-300 hover:bg-accent'
+                      : 'bg-accent text-muted-foreground dark:bg-card dark:text-muted-foreground hover:bg-accent'
                       }`}
                   >
                     {t(`meals.${cat}`)}
@@ -124,7 +124,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={t('quickAdd.placeholder')}
-                    className="w-full px-4 py-3 pr-12 border border-border dark:border-border rounded-xl bg-card dark:bg-gray-900 text-foreground dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    className="w-full px-4 py-3 pr-12 border border-border border-border rounded-xl bg-card dark:bg-card text-foreground dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     rows={2}
                     disabled={isProcessing}
                     autoFocus
@@ -149,7 +149,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
               {/* Error Message */}
               {error && (
                 <div className="p-2 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-600">{error}</p>
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
 
@@ -175,7 +175,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                       key={preset.name}
                       onClick={() => handlePresetClick(preset)}
                       disabled={isProcessing}
-                      className="text-xs px-2.5 py-1 bg-accent dark:bg-gray-700 text-muted-foreground dark:text-gray-300 rounded-full hover:bg-emerald-100 hover:text-emerald-700 dark:hover:bg-emerald-900 dark:hover:text-emerald-300 transition-colors"
+                      className="text-xs px-2.5 py-1 bg-accent dark:bg-card text-muted-foreground dark:text-muted-foreground rounded-full hover:bg-emerald-100 hover:text-emerald-700 dark:hover:bg-emerald-900 dark:hover:text-emerald-300 transition-colors"
                     >
                       {preset.name}
                     </button>
@@ -193,7 +193,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
           {/* Backdrop for mobile */}
           <div
-            className="fixed inset-0 bg-black/20 -z-10 lg:hidden"
+            className="fixed inset-0 bg-background/80 -z-10 lg:hidden"
             onClick={handleClose}
           />
         </div>

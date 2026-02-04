@@ -76,12 +76,12 @@ interface AppContextType {
 
 const initialContext: AppContextType = {
   settings: DEFAULT_SETTINGS,
-  updateSettings: () => {},
+  updateSettings: () => { },
   meals: [],
-  addMeal: async () => {},
-  addMealDirectly: () => {},
-  updateMeal: () => {},
-  deleteMeal: () => {},
+  addMeal: async () => { },
+  addMealDirectly: () => { },
+  updateMeal: () => { },
+  deleteMeal: () => { },
   dailyTotals: { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
   getMealsForDate: () => [],
   getWeeklyMeals: () => [],
@@ -93,14 +93,14 @@ const initialContext: AppContextType = {
     corruptionError: null,
     recoveryAttempted: false,
   },
-  enterReadOnlyMode: () => {},
-  exitReadOnlyMode: () => {},
+  enterReadOnlyMode: () => { },
+  exitReadOnlyMode: () => { },
   offlineQueue: [],
-  addToOfflineQueue: () => {},
-  removeFromOfflineQueue: () => {},
-  clearOfflineQueue: () => {},
-  processOfflineQueue: async () => {},
-  exportUserData: () => {},
+  addToOfflineQueue: () => { },
+  removeFromOfflineQueue: () => { },
+  clearOfflineQueue: () => { },
+  processOfflineQueue: async () => { },
+  exportUserData: () => { },
 }
 
 const AppContext = createContext<AppContextType>(initialContext)
@@ -273,8 +273,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
           if (migrated || invalidCount > 0) {
             console.log(
-              `Meals ${migrated ? "migrated" : ""}${
-                invalidCount > 0 ? `, ${invalidCount} invalid entries removed` : ""
+              `Meals ${migrated ? "migrated" : ""}${invalidCount > 0 ? `, ${invalidCount} invalid entries removed` : ""
               }`,
             )
             safePersistData(STORAGE_KEYS.MEALS, validMeals)
@@ -361,6 +360,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     )
   }, [meals])
 
+  // Optimize settings update with deferred persistence
   const updateSettings = useCallback(
     (newSettings: Partial<UserSettings>) => {
       if (!isRemote && storageState.isReadOnly) {

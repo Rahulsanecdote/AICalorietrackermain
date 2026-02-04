@@ -434,7 +434,7 @@ Requirements:
                       ? "bg-green-100 text-green-700"
                       : accuracy.status === "good"
                         ? "bg-yellow-100 text-yellow-700"
-                        : "bg-red-100 text-red-700"
+                        : "bg-destructive/20 text-destructive"
                       }`}
                   >
                     <Target className="w-3 h-3" />

@@ -122,7 +122,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
       underweight: { color: 'text-blue-600', bg: 'bg-blue-50 border-blue-200', label: 'Underweight' },
       normal: { color: 'text-green-600', bg: 'bg-green-50 border-green-200', label: 'Normal Weight' },
       overweight: { color: 'text-yellow-600', bg: 'bg-yellow-50 border-yellow-200', label: 'Overweight' },
-      obese: { color: 'text-red-600', bg: 'bg-red-50 border-red-200', label: 'Obese' },
+      obese: { color: 'text-destructive', bg: 'bg-red-50 border-red-200', label: 'Obese' },
     };
     const config = statusConfig[stats.bmiCategory];
     return (
@@ -143,7 +143,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
           </div>
           <div className="bg-muted/50 rounded-xl p-4">
             <p className="text-xs text-muted-foreground mb-1">Change</p>
-            <p className={`text-xl font-bold flex items-center gap-1 ${stats.change < 0 ? 'text-green-600' : stats.change > 0 ? 'text-red-600' : 'text-muted-foreground'}`}>
+            <p className={`text-xl font-bold flex items-center gap-1 ${stats.change < 0 ? 'text-green-600' : stats.change > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
               {stats.change < 0 ? <TrendingDown className="w-4 h-4" /> : stats.change > 0 ? <TrendingUp className="w-4 h-4" /> : null}
               {stats.change > 0 ? '+' : ''}{stats.change.toFixed(1)} kg
             </p>

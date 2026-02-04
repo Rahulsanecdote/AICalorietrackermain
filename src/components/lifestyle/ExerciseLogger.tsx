@@ -63,8 +63,8 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-red-100 rounded-lg">
-            <Flame className="w-5 h-5 text-red-600" />
+          <div className="p-2 bg-destructive/20 rounded-lg">
+            <Flame className="w-5 h-5 text-destructive" />
           </div>
           <div>
             <h3 className="font-semibold text-foreground">Exercise</h3>
@@ -123,7 +123,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                   type="button"
                   onClick={() => setSelectedType(type)}
                   className={`p-2 rounded-lg text-center transition-colors ${selectedType?.id === type.id
-                    ? 'bg-red-100 border-2 border-red-500'
+                    ? 'bg-destructive/20 border-2 border-red-500'
                     : 'bg-card border border-border hover:bg-accent'
                     }`}
                 >
@@ -161,7 +161,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
           <div className="mb-3 p-3 bg-card rounded-lg border border-border">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Estimated burn</span>
-              <span className="font-bold text-red-600">~{estimatedCalories} cal</span>
+              <span className="font-bold text-destructive">~{estimatedCalories} cal</span>
             </div>
           </div>
 
@@ -179,7 +179,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                       ? 'bg-green-100 text-green-700 border-2 border-green-500'
                       : level === 'medium'
                         ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-500'
-                        : 'bg-red-100 text-red-700 border-2 border-red-500'
+                        : 'bg-destructive/20 text-destructive border-2 border-red-500'
                     : 'bg-card border border-border text-muted-foreground'
                     }`}
                 >
@@ -231,8 +231,8 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
               key={entry.id}
               className="flex items-center gap-3 p-3 bg-card rounded-lg"
             >
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                <Flame className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 bg-destructive/20 rounded-lg flex items-center justify-center">
+                <Flame className="w-5 h-5 text-destructive" />
               </div>
               <div className="flex-1">
                 <p className="font-medium text-foreground">{entry.type}</p>

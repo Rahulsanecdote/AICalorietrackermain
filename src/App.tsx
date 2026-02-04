@@ -61,13 +61,13 @@ const InsightsDashboard = lazy(() =>
 )
 
 const DashboardLoadingCard = ({ title, description }: { title: string; description?: string }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+  <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
     <div className="animate-pulse space-y-3">
-      <div className="h-4 w-40 bg-gray-200 rounded dark:bg-gray-700" />
-      {description ? <div className="h-3 w-56 bg-gray-100 rounded dark:bg-gray-700" /> : null}
-      <div className="h-32 w-full bg-gray-100 rounded-xl dark:bg-gray-700" />
+      <div className="h-4 w-40 bg-accent rounded dark:bg-card" />
+      {description ? <div className="h-3 w-56 bg-accent rounded dark:bg-card" /> : null}
+      <div className="h-32 w-full bg-accent rounded-xl dark:bg-card" />
     </div>
-    <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">{title}</div>
+    <div className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">{title}</div>
   </div>
 )
 
@@ -82,16 +82,16 @@ const DashboardErrorCard = ({
   onRetry?: () => void
   errorDetails?: string
 }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-6 dark:bg-gray-800 dark:border-red-700">
+  <div className="bg-card rounded-2xl shadow-sm border border-red-200 p-6 dark:bg-card border-destructive/50">
     <div className="flex items-start gap-3">
-      <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center dark:bg-red-900/40">
-        <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-300" />
+      <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center dark:bg-red-900/40">
+        <AlertTriangle className="w-5 h-5 text-destructive text-destructive-foreground" />
       </div>
       <div className="flex-1">
-        <h3 className="text-sm font-semibold text-red-700 dark:text-red-300">{title}</h3>
-        <p className="text-sm text-red-600 dark:text-red-200 mt-1">{message}</p>
+        <h3 className="text-sm font-semibold text-destructive text-destructive-foreground">{title}</h3>
+        <p className="text-sm text-destructive text-destructive-foreground mt-1">{message}</p>
         {errorDetails ? (
-          <details className="mt-2 text-xs text-red-600 dark:text-red-200">
+          <details className="mt-2 text-xs text-destructive text-destructive-foreground">
             <summary className="cursor-pointer">Show details</summary>
             <pre className="mt-1 whitespace-pre-wrap">{errorDetails}</pre>
           </details>
@@ -602,13 +602,13 @@ function AppShell() {
         return (
           <>
             {/* Date Navigator */}
-            <div className="flex items-center justify-between bg-white rounded-xl p-3 mb-4 dark:bg-gray-800">
+            <div className="flex items-center justify-between bg-card rounded-xl p-3 mb-4 dark:bg-card">
               <button
                 onClick={goToPreviousDay} // FIXED: NoRedeclare issue for goToPreviousDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground dark:text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -619,17 +619,17 @@ function AppShell() {
               <div className="text-center">
                 <button
                   onClick={goToToday} // FIXED: NoRedeclare issue for goToToday
-                  className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 transition-colors"
+                  className="font-semibold text-foreground dark:text-white hover:text-primary transition-colors"
                 >
                   {formatDate(currentDate, "weekday")} {/* FIXED: NoRedeclare issue for formatDate and currentDate */}
                 </button>
               </div>
               <button
                 onClick={goToNextDay} // FIXED: NoRedeclare issue for goToNextDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground dark:text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -654,13 +654,13 @@ function AppShell() {
         return (
           <>
             {/* Date Navigator */}
-            <div className="flex items-center justify-between bg-white rounded-xl p-3 mb-4 dark:bg-gray-800">
+            <div className="flex items-center justify-between bg-card rounded-xl p-3 mb-4 dark:bg-card">
               <button
                 onClick={goToPreviousDay} // FIXED: NoRedeclare issue for goToPreviousDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground dark:text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -671,17 +671,17 @@ function AppShell() {
               <div className="text-center">
                 <button
                   onClick={goToToday} // FIXED: NoRedeclare issue for goToToday
-                  className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 transition-colors"
+                  className="font-semibold text-foreground dark:text-white hover:text-primary transition-colors"
                 >
                   {formatDate(currentDate, "weekday")} {/* FIXED: NoRedeclare issue for formatDate and currentDate */}
                 </button>
               </div>
               <button
                 onClick={goToNextDay} // FIXED: NoRedeclare issue for goToNextDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground dark:text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -711,13 +711,13 @@ function AppShell() {
         return (
           <>
             {/* Date Navigator */}
-            <div className="flex items-center justify-between bg-white rounded-xl p-3 mb-4 dark:bg-gray-800">
+            <div className="flex items-center justify-between bg-card rounded-xl p-3 mb-4 dark:bg-card">
               <button
                 onClick={goToPreviousDay} // FIXED: NoRedeclare issue for goToPreviousDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground dark:text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -728,17 +728,17 @@ function AppShell() {
               <div className="text-center">
                 <button
                   onClick={goToToday} // FIXED: NoRedeclare issue for goToToday
-                  className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 transition-colors"
+                  className="font-semibold text-foreground dark:text-white hover:text-primary transition-colors"
                 >
                   {formatDate(currentDate, "weekday")} {/* FIXED: NoRedeclare issue for formatDate and currentDate */}
                 </button>
               </div>
               <button
                 onClick={goToNextDay} // FIXED: NoRedeclare issue for goToNextDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground dark:text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -791,16 +791,16 @@ function AppShell() {
           <MealPrepBoundary onBackToTracker={() => setActiveView("tracker")}>
             <div className="space-y-4">
               {/* Meal Prep Header */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+              <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t("mealPrep.title")}</h2>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{t("mealPrep.basedOnMeals")}</p>
+                    <h2 className="text-lg font-semibold text-foreground dark:text-white">{t("mealPrep.title")}</h2>
+                    <p className="text-sm text-muted-foreground dark:text-muted-foreground">{t("mealPrep.basedOnMeals")}</p>
                   </div>
                   <button
                     onClick={handleGenerateMealPrep}
                     disabled={isMealPrepGenerating}
-                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isMealPrepGenerating ? (
                       <>
@@ -832,13 +832,13 @@ function AppShell() {
 
                 {/* Error display */}
                 {mealPrepError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-destructive text-sm">
                     {mealPrepError}
                   </div>
                 )}
 
                 {/* Quick stats */}
-                <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
@@ -872,7 +872,7 @@ function AppShell() {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 dark:bg-gray-800 dark:border-gray-700">
+                <div className="bg-card rounded-2xl shadow-sm border border-border p-8 dark:bg-card border-border">
                   <div className="text-center">
                     <div className="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-full flex items-center justify-center">
                       <svg className="w-8 h-8 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -884,13 +884,13 @@ function AppShell() {
                         />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    <h3 className="text-lg font-medium text-foreground dark:text-white mb-2">
                       {t("mealPrep.noSuggestionsYet")}
                     </h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-4">{t("mealPrep.logMealsFirst")}</p>
+                    <p className="text-muted-foreground dark:text-muted-foreground mb-4">{t("mealPrep.logMealsFirst")}</p>
                     <button
                       onClick={() => setActiveView("tracker")}
-                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                      className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
                     >
                       {t("mealPrep.goToTracker")}
                     </button>
@@ -901,7 +901,7 @@ function AppShell() {
               {/* Batch Prep Tips Section */}
               {mealPrepSuggestions.length > 0 && (
                 <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
+                  <h3 className="font-semibold text-foreground dark:text-white mb-3 flex items-center gap-2">
                     <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
@@ -912,7 +912,7 @@ function AppShell() {
                     </svg>
                     Quick Batch Prep Tips
                   </h3>
-                  <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                  <ul className="space-y-2 text-sm text-foreground dark:text-muted-foreground">
                     <li className="flex items-start gap-2">
                       <span className="text-emerald-500 mt-0.5">•</span>
                       Cook grains in bulk (rice, quinoa, oats) for the week
@@ -938,11 +938,11 @@ function AppShell() {
 
       case "favorites":
         return (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+          <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">{t("favorites.title")}</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{t("favorites.subtitle")}</p>
+                <h2 className="text-lg font-semibold text-foreground dark:text-white">{t("favorites.title")}</h2>
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground">{t("favorites.subtitle")}</p>
               </div>
             </div>
 
@@ -957,21 +957,21 @@ function AppShell() {
                   <div className="space-y-6">
                     {/* Food Items Section */}
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider dark:text-gray-300">
+                      <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wider dark:text-muted-foreground">
                         Food Items
                       </h3>
                       <div className="grid md:grid-cols-2 gap-4">
                         {foodItemFavorites.map((item) => (
                           <div
                             key={item.id}
-                            className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow dark:bg-gray-700"
+                            className="bg-card rounded-xl p-4 hover:shadow-md transition-shadow dark:bg-card"
                           >
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex items-center gap-3">
                                 <span className="text-2xl">{item.emoji || "🍽️"}</span>
                                 <div>
-                                  <h3 className="font-semibold text-gray-900 dark:text-white">{item.name}</h3>
-                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  <h3 className="font-semibold text-foreground dark:text-white">{item.name}</h3>
+                                  <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                                     {item.calories} cal per serving
                                   </p>
                                 </div>
@@ -980,16 +980,16 @@ function AppShell() {
                                 onClick={() => {
                                   removeFoodItemFavorite(item.foodItemId!) // FIXED: NoRedeclare issue for removeFoodItemFavorite
                                 }}
-                                className="text-red-500 hover:text-red-600 transition-colors"
+                                className="text-red-500 hover:text-destructive transition-colors"
                                 title="Remove from favorites"
                               >
                                 <Heart className="w-5 h-5 fill-current" />
                               </button>
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                               <span className="text-blue-600 font-medium">{item.protein}g protein</span>
                               <span className="text-amber-600 font-medium">{item.carbs}g carbs</span>
-                              <span className="text-red-600 font-medium">{item.fat}g fat</span>
+                              <span className="text-destructive font-medium">{item.fat}g fat</span>
                             </div>
                           </div>
                         ))}
@@ -999,7 +999,7 @@ function AppShell() {
                     {/* Recipe Favorites Section */}
                     {recipeFavorites.length > 0 && (
                       <div>
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider dark:text-gray-300">
+                        <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wider dark:text-muted-foreground">
                           Recipes
                         </h3>
                         <div className="grid md:grid-cols-2 gap-4">
@@ -1010,15 +1010,15 @@ function AppShell() {
                             return (
                               <div
                                 key={fav.id}
-                                className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer dark:bg-gray-700"
+                                className="bg-card rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer dark:bg-card"
                                 onClick={() => mealWithRecipe.recipe && handleViewRecipe(mealWithRecipe.recipe)}
                               >
                                 <div className="flex items-start justify-between mb-2">
                                   <div>
-                                    <h3 className="font-semibold text-gray-900 dark:text-white">
+                                    <h3 className="font-semibold text-foreground dark:text-white">
                                       {mealWithRecipe.recipe.title}
                                     </h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                                       {mealWithRecipe.recipe.description}
                                     </p>
                                   </div>
@@ -1027,18 +1027,18 @@ function AppShell() {
                                       e.stopPropagation()
                                       handleToggleFavorite(mealWithRecipe.recipe!.id)
                                     }}
-                                    className="text-red-500 hover:text-red-600 transition-colors"
+                                    className="text-red-500 hover:text-destructive transition-colors"
                                     title="Remove from favorites"
                                   >
                                     <Heart className="w-5 h-5 fill-current" />
                                   </button>
                                 </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                                   <span className="flex items-center gap-1">
                                     <Clock className="w-4 h-4" />
                                     {mealWithRecipe.recipe.prepTimeMinutes + mealWithRecipe.recipe.cookTimeMinutes} min
                                   </span>
-                                  <span className="text-indigo-600 font-medium dark:text-indigo-400">
+                                  <span className="text-primary font-medium dark:text-indigo-400">
                                     {mealWithRecipe.recipe.caloriesPerServing} cal
                                   </span>
                                 </div>
@@ -1063,15 +1063,15 @@ function AppShell() {
                       return (
                         <div
                           key={fav.id}
-                          className="bg-gray-50 rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer dark:bg-gray-700"
+                          className="bg-card rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer dark:bg-card"
                           onClick={() => mealWithRecipe.recipe && handleViewRecipe(mealWithRecipe.recipe)}
                         >
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="font-semibold text-gray-900 dark:text-white">
+                              <h3 className="font-semibold text-foreground dark:text-white">
                                 {mealWithRecipe.recipe.title}
                               </h3>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                                 {mealWithRecipe.recipe.description}
                               </p>
                             </div>
@@ -1080,18 +1080,18 @@ function AppShell() {
                                 e.stopPropagation()
                                 removeRecipeFavorite(mealWithRecipe.recipe!.id) // FIXED: NoRedeclare issue for removeRecipeFavorite
                               }}
-                              className="text-red-500 hover:text-red-600 transition-colors"
+                              className="text-red-500 hover:text-destructive transition-colors"
                               title="Remove from favorites"
                             >
                               <Heart className="w-5 h-5 fill-current" />
                             </button>
                           </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground dark:text-muted-foreground">
                             <span className="flex items-center gap-1">
                               <Clock className="w-4 h-4" />
                               {mealWithRecipe.recipe.prepTimeMinutes + mealWithRecipe.recipe.cookTimeMinutes} min
                             </span>
-                            <span className="text-indigo-600 font-medium dark:text-indigo-400">
+                            <span className="text-primary font-medium dark:text-indigo-400">
                               {mealWithRecipe.recipe.caloriesPerServing} cal
                             </span>
                           </div>
@@ -1103,7 +1103,7 @@ function AppShell() {
               }
 
               return (
-                <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+                <div className="text-center py-12 text-muted-foreground dark:text-muted-foreground">
                   <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
                   <p>{t("favorites.noFavorites")}</p>
                   <p className="text-sm mt-1">{t("favorites.heartIcon")}</p>
@@ -1121,11 +1121,11 @@ function AppShell() {
   return (
     <RootErrorBoundary
       fallback={({ error, reset }) => (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-          <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="min-h-screen bg-card flex items-center justify-center p-4">
+          <div className="max-w-lg w-full bg-card rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-red-50 px-6 py-8 text-center border-b border-red-100">
-              <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mx-auto w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-destructive" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -1134,13 +1134,13 @@ function AppShell() {
                   />
                 </svg>
               </div>
-              <h1 className="text-xl font-semibold text-gray-900 mb-2">Something went wrong</h1>
-              <p className="text-sm text-gray-600">
+              <h1 className="text-xl font-semibold text-foreground mb-2">Something went wrong</h1>
+              <p className="text-sm text-muted-foreground">
                 The application encountered an unexpected error. Your data is safe.
               </p>
             </div>
-            <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-              <div className="text-xs text-gray-500 font-mono break-all">{error?.message ?? "Unknown error type"}</div>
+            <div className="px-6 py-4 bg-card border-b border-border">
+              <div className="text-xs text-muted-foreground font-mono break-all">{error?.message ?? "Unknown error type"}</div>
             </div>
             <div className="px-6 py-4 space-y-3">
               <button
@@ -1170,7 +1170,7 @@ function AppShell() {
                   document.body.removeChild(a)
                   URL.revokeObjectURL(url)
                 }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-border text-foreground rounded-lg hover:bg-card transition-colors text-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
@@ -1187,7 +1187,7 @@ function AppShell() {
         </div>
       )}
     >
-      <div className="min-h-screen bg-gray-50 pb-20 dark:bg-gray-900">
+      <div className="min-h-screen bg-card pb-20 dark:bg-card">
         <Header
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenUtilities={() => setIsUtilityOpen(true)}
@@ -1258,7 +1258,7 @@ function AppShell() {
 
         <MonitoringDebugPanel />
 
-        <footer className="text-center py-6 text-sm text-gray-400 dark:text-gray-500">
+        <footer className="text-center py-6 text-sm text-muted-foreground dark:text-muted-foreground">
           <p>NutriAI - AI-Powered Calorie Tracking & Meal Planning</p>
         </footer>
       </div>
@@ -1271,8 +1271,8 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-sm text-gray-500 dark:text-gray-400">Checking your session...</div>
+      <div className="min-h-screen flex items-center justify-center bg-card dark:bg-card">
+        <div className="text-sm text-muted-foreground dark:text-muted-foreground">Checking your session...</div>
       </div>
     )
   }

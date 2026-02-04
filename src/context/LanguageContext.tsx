@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useTransition, ReactNode } from 'react';
 import i18n from '../i18n/config';
 
 // Supported languages configuration
@@ -49,6 +49,7 @@ export function LanguageProvider({
       return (i18n.language as SupportedLanguage) || DEFAULT_LANGUAGE;
     }
   );
+  const [isPending, startTransition] = useTransition();
 
   // Listen for language changes from i18n and sync the context state
   useEffect(() => {
@@ -86,8 +87,13 @@ export function LanguageProvider({
 
   // Set language - will trigger the event listener which handles persistence
   const setLanguage = (lang: SupportedLanguage) => {
+    // Optimistic update for the UI (Context consumers)
     setLanguageState(lang);
-    i18n.changeLanguage(lang);
+
+    // Defer the heavy i18n change (which triggers global re-renders for all translated components)
+    startTransition(() => {
+      i18n.changeLanguage(lang);
+    });
   };
 
   // Translation function using global i18n instance
@@ -99,13 +105,13 @@ export function LanguageProvider({
   const currentLangData = supportedLanguages.find(l => l.code === language);
   const isRtl = (currentLangData?.dir as string) === 'rtl';
 
-  const value: LanguageContextType = {
+  const value: LanguageContextType = useMemo(() => ({
     language,
     setLanguage,
     t,
     isRtl,
     availableLanguages: supportedLanguages,
-  };
+  }), [language, isRtl]);
 
   return (
     <LanguageContext.Provider value={value}>

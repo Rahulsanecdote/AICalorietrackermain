@@ -315,12 +315,12 @@ export function UtilityPanel({
 
                 {importStatus === 'error' && (
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-red-700">
+                    <div className="flex items-center gap-2 text-destructive">
                       <AlertCircle className="h-4 w-4" />
                       <span className="text-sm font-medium">Import Failed</span>
                     </div>
                     {importResult.errors.map((error, index) => (
-                      <p key={index} className="text-sm text-red-600">
+                      <p key={index} className="text-sm text-destructive">
                         {error}
                       </p>
                     ))}

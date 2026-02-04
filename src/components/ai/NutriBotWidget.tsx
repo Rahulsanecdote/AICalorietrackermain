@@ -61,7 +61,7 @@ export function NutriBotWidget() {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-card dark:bg-gray-900 rounded-2xl shadow-2xl border border-border dark:border-border flex flex-col overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-card dark:bg-card rounded-2xl shadow-2xl border border-border border-border flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
             <div className="flex items-center gap-2">
@@ -126,7 +126,7 @@ export function NutriBotWidget() {
 
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
 
@@ -135,13 +135,13 @@ export function NutriBotWidget() {
 
           {/* Quick Prompts */}
           {session && (
-            <div className="px-4 py-2 border-t border-border dark:border-border">
+            <div className="px-4 py-2 border-t border-border border-border">
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {quickPrompts.slice(0, 5).map((prompt) => (
                   <button
                     key={prompt.id}
                     onClick={() => handleQuickPrompt(prompt.prompt)}
-                    className="flex-shrink-0 text-xs px-3 py-1.5 bg-accent dark:bg-gray-800 text-foreground dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
+                    className="flex-shrink-0 text-xs px-3 py-1.5 bg-accent dark:bg-card text-foreground dark:text-muted-foreground rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
                   >
                     {prompt.label}
                   </button>
@@ -151,7 +151,7 @@ export function NutriBotWidget() {
           )}
 
           {/* Input */}
-          <div className="p-4 border-t border-border dark:border-border">
+          <div className="p-4 border-t border-border border-border">
             <div className="flex gap-2">
               <input
                 id="nutribot-input"
@@ -163,7 +163,7 @@ export function NutriBotWidget() {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about nutrition..."
                 disabled={status === 'processing'}
-                className="flex-1 px-4 py-2 border border-border dark:border-border rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-card dark:bg-gray-800 text-foreground dark:text-white"
+                className="flex-1 px-4 py-2 border border-border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-card dark:bg-card text-foreground dark:text-white"
               />
               <Button
                 onClick={handleSend}
@@ -188,7 +188,7 @@ function MessageBubble({ message }: { message: EduMessage }) {
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-2 ${isUser
             ? 'bg-primary text-white rounded-br-md'
-            : 'bg-accent dark:bg-gray-800 text-foreground dark:text-white rounded-bl-md'
+            : 'bg-accent dark:bg-card text-foreground dark:text-white rounded-bl-md'
           }`}
       >
         <div className="flex items-start gap-2">

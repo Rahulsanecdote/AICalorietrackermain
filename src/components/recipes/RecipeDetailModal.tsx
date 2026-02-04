@@ -184,7 +184,7 @@ export default function RecipeDetailModal({
                     <span className="text-amber-600">
                       <strong>{recipe.macros.carbs}g</strong> Carbs
                     </span>
-                    <span className="text-red-600">
+                    <span className="text-destructive">
                       <strong>{recipe.macros.fat}g</strong> Fat
                     </span>
                   </div>

@@ -23,8 +23,8 @@ const variantStyles: Record<
 > = {
   error: {
     container: "border border-red-200 dark:border-red-800",
-    iconWrap: "bg-red-100 dark:bg-red-900/30",
-    icon: "text-red-600 dark:text-red-400",
+    iconWrap: "bg-destructive/20 dark:bg-red-900/30",
+    icon: "text-destructive dark:text-red-400",
   },
   warning: {
     container: "border border-amber-200 dark:border-amber-700",
@@ -69,10 +69,10 @@ const getActionClasses = (actionType: NotificationActionType, variant: Notificat
   }
 
   if (actionType === "manualMode") {
-    return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground dark:text-gray-300 bg-accent dark:bg-gray-700 rounded-lg hover:bg-accent dark:hover:bg-gray-600 transition-colors"
+    return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground dark:text-muted-foreground bg-accent dark:bg-card rounded-lg hover:bg-accent dark:hover:bg-gray-600 transition-colors"
   }
 
-  return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground dark:text-gray-300 border border-border dark:border-border rounded-lg hover:bg-card dark:hover:bg-gray-700 transition-colors"
+  return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground dark:text-muted-foreground border border-border border-border rounded-lg hover:bg-card dark:hover:bg-gray-700 transition-colors"
 }
 
 export function ErrorBanner(): React.ReactElement | null {
@@ -115,7 +115,7 @@ export function ErrorBanner(): React.ReactElement | null {
       aria-live={state.variant === "error" ? "assertive" : "polite"}
     >
       <div
-        className={`bg-card dark:bg-gray-800 rounded-xl shadow-lg ${styles.container} overflow-hidden`}
+        className={`bg-card dark:bg-card rounded-xl shadow-lg ${styles.container} overflow-hidden`}
       >
         <div className="flex items-start gap-3 p-4">
           <div

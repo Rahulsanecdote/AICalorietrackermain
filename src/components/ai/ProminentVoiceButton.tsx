@@ -82,8 +82,8 @@ export function InlineVoiceButton({ onClick, isActive = false, className = '' }:
         flex items-center gap-2 px-4 py-2 rounded-xl
         transition-all duration-200
         ${isActive
-          ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400'
-          : 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
+          ? 'bg-destructive/20 text-destructive dark:bg-red-900/30 dark:text-red-400'
+          : 'bg-red-50 text-destructive hover:bg-destructive/20 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30'
         }
         ${className}
       `}

@@ -24,7 +24,7 @@ const CATEGORY_LABELS: Record<ShoppingItem['category'], string> = {
 const CATEGORY_COLORS: Record<ShoppingItem['category'], string> = {
   produce: 'bg-green-100 text-green-800 border-green-200',
   dairy: 'bg-blue-100 text-blue-800 border-blue-200',
-  meat: 'bg-red-100 text-red-800 border-red-200',
+  meat: 'bg-destructive/20 text-red-800 border-red-200',
   frozen: 'bg-cyan-100 text-cyan-800 border-cyan-200',
   pantry: 'bg-amber-100 text-amber-800 border-amber-200',
   other: 'bg-accent text-foreground border-border',
@@ -141,7 +141,7 @@ export default function ShoppingListView({
         </button>
         <button
           onClick={onClearList}
-          className="flex items-center justify-center gap-2 px-3 py-2 bg-red-50 hover:bg-red-100 rounded-lg text-sm font-medium text-red-600 transition-colors"
+          className="flex items-center justify-center gap-2 px-3 py-2 bg-red-50 hover:bg-destructive/20 rounded-lg text-sm font-medium text-destructive transition-colors"
         >
           <Trash2 className="w-4 h-4" />
         </button>

@@ -41,9 +41,9 @@ export function MonitoringDebugPanel() {
 
       {/* Debug Panel */}
       {isOpen && (
-        <div className="fixed bottom-20 right-4 z-50 w-96 max-h-[600px] bg-card dark:bg-gray-800 rounded-lg shadow-2xl border border-border dark:border-border flex flex-col">
+        <div className="fixed bottom-20 right-4 z-50 w-96 max-h-[600px] bg-card dark:bg-card rounded-lg shadow-2xl border border-border border-border flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border dark:border-border">
+          <div className="flex items-center justify-between p-4 border-b border-border border-border">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-purple-600" />
               <h3 className="font-semibold text-foreground dark:text-white">Monitoring Debug</h3>
@@ -54,7 +54,7 @@ export function MonitoringDebugPanel() {
           </div>
 
           {/* Stats */}
-          <div className="p-4 border-b border-border dark:border-border">
+          <div className="p-4 border-b border-border border-border">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
@@ -104,7 +104,7 @@ export function MonitoringDebugPanel() {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
-                        <div className="text-xs font-mono text-red-600 dark:text-red-400 truncate">
+                        <div className="text-xs font-mono text-destructive dark:text-red-400 truncate">
                           {entry.error.code}
                         </div>
                         <div className="text-xs text-muted-foreground dark:text-muted-foreground">
@@ -112,13 +112,13 @@ export function MonitoringDebugPanel() {
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-foreground dark:text-gray-300 mb-2">{entry.error.userMessage}</p>
+                    <p className="text-sm text-foreground dark:text-muted-foreground mb-2">{entry.error.userMessage}</p>
                     {entry.error.context && (
                       <details className="text-xs">
                         <summary className="cursor-pointer text-muted-foreground dark:text-muted-foreground hover:text-foreground">
                           Context
                         </summary>
-                        <pre className="mt-2 p-2 bg-accent dark:bg-gray-900 rounded text-xs overflow-auto max-h-32">
+                        <pre className="mt-2 p-2 bg-accent dark:bg-card rounded text-xs overflow-auto max-h-32">
                           {JSON.stringify(entry.error.context, null, 2)}
                         </pre>
                       </details>
@@ -130,7 +130,7 @@ export function MonitoringDebugPanel() {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-border dark:border-border text-xs text-center text-muted-foreground dark:text-muted-foreground">
+          <div className="p-3 border-t border-border border-border text-xs text-center text-muted-foreground dark:text-muted-foreground">
             Development Mode Only
           </div>
         </div>

@@ -27,7 +27,7 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
   // Show empty state if no meals
   if (!hasMeals) {
     return (
-      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-gray-800 dark:border-border">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-foreground dark:text-white">
@@ -57,7 +57,7 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-gray-800 dark:border-border">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold text-foreground dark:text-white">
@@ -91,19 +91,19 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
 
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="bg-card dark:bg-card/50 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.avgCaloriesPerDay}</p>
             <p className="text-xs text-muted-foreground dark:text-muted-foreground">Avg Calories/Day</p>
           </div>
-          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="bg-card dark:bg-card/50 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.avgProteinPerDay}g</p>
             <p className="text-xs text-muted-foreground dark:text-muted-foreground">Avg Protein/Day</p>
           </div>
-          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="bg-card dark:bg-card/50 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.dayStreak}</p>
             <p className="text-xs text-muted-foreground dark:text-muted-foreground">Day Streak</p>
           </div>
-          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="bg-card dark:bg-card/50 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.mealCount}</p>
             <p className="text-xs text-muted-foreground dark:text-muted-foreground">Total Meals</p>
           </div>
@@ -112,7 +112,7 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-card rounded-2xl shadow-sm border border-border p-8 dark:bg-gray-800 dark:border-border">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8 dark:bg-card border-border">
           <div className="flex flex-col items-center justify-center py-8">
             <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
@@ -125,7 +125,7 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
 
       {/* No Insights State */}
       {!isLoading && !hasInsights && (
-        <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-gray-800 dark:border-border">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
           <div className="text-center py-6">
             <div className="w-16 h-16 mx-auto mb-4 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
               <Lightbulb className="w-8 h-8 text-amber-500" />
@@ -149,7 +149,7 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
       {/* Insights Cards */}
       {!isLoading && hasInsights && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-foreground dark:text-gray-300 px-1">
+          <h3 className="text-sm font-medium text-foreground dark:text-muted-foreground px-1">
             Your Personalized Insights
           </h3>
           {insights.map((insight) => (
@@ -212,7 +212,7 @@ function InsightCard({ insight, onDismiss }: InsightCardProps) {
               {insight.title}
             </h4>
           </div>
-          <p className="text-sm text-muted-foreground dark:text-gray-300">
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
             {insight.description}
           </p>
           {insight.actionItem && (
