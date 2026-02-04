@@ -43,6 +43,34 @@
     --chart-5: 18 62% 44%;       /* Rust */
   }
 
+  .light {
+    /* FORCE Forest Night Theme even in Light Mode */
+    --background: 160 29% 6%;
+    --foreground: 142 20% 92%;
+    --card: 165 33% 12%;
+    --card-foreground: 142 20% 92%;
+    --popover: 159 32% 9%;
+    --popover-foreground: 142 20% 92%;
+    --primary: 142 45% 34%;
+    --primary-foreground: 142 20% 92%;
+    --secondary: 159 32% 9%;
+    --secondary-foreground: 147 13% 70%;
+    --muted: 159 32% 9%;
+    --muted-foreground: 147 13% 70%;
+    --accent: 154 25% 22%;
+    --accent-foreground: 142 20% 92%;
+    --destructive: 9 59% 40%;
+    --destructive-foreground: 142 20% 92%;
+    --border: 154 25% 22%;
+    --input: 154 25% 22%;
+    --ring: 38 63% 47%;
+    --chart-1: 142 45% 34%;
+    --chart-2: 130 28% 56%;
+    --chart-3: 148 50% 24%;
+    --chart-4: 38 63% 47%;
+    --chart-5: 18 62% 44%;
+  }
+
   .dark {
     /* Ensure Dark Mode uses the same palette if class is present */
     --background: 160 29% 6%;
