@@ -27,7 +27,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
+    <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg border-b border-border">
       <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Branding Section */}

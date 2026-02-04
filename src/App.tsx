@@ -1187,7 +1187,7 @@ function AppShell() {
         </div>
       )}
     >
-      <div className="min-h-screen bg-card pb-20 dark:bg-card">
+      <div className="min-h-screen bg-background pb-20 dark:bg-background">
         <Header
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenUtilities={() => setIsUtilityOpen(true)}
