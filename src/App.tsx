@@ -427,14 +427,14 @@ function AppShell() {
         return (
           <>
             {/* Date Navigator - now using context */}
-            <div className="flex items-center justify-between bg-white rounded-xl p-3 mb-4 dark:bg-gray-800">
+            <div className="flex items-center justify-between bg-card rounded-xl p-3 mb-4 border border-border">
               <button
-                onClick={goToPreviousDay} // FIXED: NoRedeclare issue for goToPreviousDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                onClick={goToPreviousDay}
+                className="p-2 hover:bg-accent rounded-lg"
                 aria-label="Go to previous day"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -444,19 +444,19 @@ function AppShell() {
               </button>
               <div className="text-center">
                 <button
-                  onClick={goToToday} // FIXED: NoRedeclare issue for goToToday
-                  className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 transition-colors"
+                  onClick={goToToday}
+                  className="font-semibold text-foreground hover:text-primary transition-colors"
                 >
-                  {formatDate(currentDate, "weekday")} {/* FIXED: NoRedeclare issue for formatDate and currentDate */}
+                  {formatDate(currentDate, "weekday")}
                 </button>
               </div>
               <button
-                onClick={goToNextDay} // FIXED: NoRedeclare issue for goToNextDay
-                className="p-2 hover:bg-gray-100 rounded-lg dark:hover:bg-gray-700"
+                onClick={goToNextDay}
+                className="p-2 hover:bg-accent rounded-lg"
                 aria-label="Go to next day"
               >
                 <svg
-                  className="w-5 h-5 text-gray-600 dark:text-gray-400"
+                  className="w-5 h-5 text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -578,8 +578,8 @@ function AppShell() {
             />
 
             {/* Today's Meals List */}
-            <div className="bg-white rounded-2xl shadow-sm p-6 dark:bg-gray-800">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 dark:text-white">
+            <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
+              <h2 className="text-lg font-semibold text-foreground mb-4">
                 {t("meals.todaysMeals") || "Today's Meals"}
               </h2>
               <MealList

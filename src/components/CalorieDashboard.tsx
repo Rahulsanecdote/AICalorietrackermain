@@ -35,8 +35,8 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
           Math.max(settings.dailyCalorieGoal - totals.calories, 0),
         ],
         backgroundColor: [
-          isOverGoal ? '#EF4444' : '#10B981',
-          isOverGoal ? '#FECACA' : '#E5E7EB',
+          isOverGoal ? '#A13B2A' : '#2F7D4C', // Rowan Red or Fern
+          isOverGoal ? '#3A2A1B' : 'hsl(var(--muted))', // Walnut or Muted
         ],
         borderWidth: 0,
         cutout: '75%',
@@ -57,6 +57,12 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
             return `${context.label}: ${context.parsed} cal`;
           },
         },
+        backgroundColor: '#0F1D18', // Spruce Shadow
+        titleColor: '#E7EFEA', // Fog Text
+        bodyColor: '#A9BDB2', // Moss Muted
+        padding: 10,
+        cornerRadius: 8,
+        displayColors: true,
       },
     },
   };
@@ -72,7 +78,7 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
     datasets: [
       {
         data: [totals.protein_g, totals.carbs_g, totals.fat_g],
-        backgroundColor: ['#3B82F6', '#F59E0B', '#EF4444'],
+        backgroundColor: ['#6FAE7A', '#C28A2C', '#B4532A'], // Sage, Ochre, Rust
         borderWidth: 0,
       },
     ],
@@ -85,6 +91,7 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
       legend: {
         position: 'bottom' as const,
         labels: {
+          color: '#A9BDB2', // Moss Muted
           usePointStyle: true,
           padding: 20,
         },
@@ -93,16 +100,16 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('dashboard.todaysProgress')}</h2>
+    <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t('dashboard.todaysProgress')}</h2>
 
       <div className="flex flex-col items-center mb-6">
         <div className="relative w-48 h-48">
           <Doughnut data={chartData} options={chartOptions} />
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-3xl font-bold text-gray-900">{totals.calories}</span>
-            <span className="text-sm text-gray-500">{t('dashboard.consumed')}</span>
-            <span className={`text-sm font-medium ${isOverGoal ? 'text-red-500' : 'text-emerald-500'}`}>
+            <span className="text-3xl font-bold text-foreground">{totals.calories}</span>
+            <span className="text-sm text-muted-foreground">{t('dashboard.consumed')}</span>
+            <span className={`text-sm font-medium ${isOverGoal ? 'text-destructive' : 'text-primary'}`}>
               {caloriesRemaining} {t('dashboard.remaining')}
             </span>
           </div>
@@ -112,14 +119,14 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-600">{t('dashboard.dailyGoal')}</span>
-          <span className="font-medium text-gray-900">
+          <span className="text-muted-foreground">{t('dashboard.dailyGoal')}</span>
+          <span className="font-medium text-foreground">
             {Math.round(calorieProgress)}%
           </span>
         </div>
-        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+        <div className="h-3 bg-muted rounded-full overflow-hidden">
           <div
-            className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? 'bg-red-500' : 'bg-emerald-500'
+            className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? 'bg-destructive' : 'bg-primary'
               }`}
             style={{ width: `${calorieProgress}%` }}
           />
@@ -128,25 +135,25 @@ export default function CalorieDashboard({ totals, settings }: CalorieDashboardP
 
       {/* Macro Breakdown */}
       <div>
-        <h3 className="text-sm font-medium text-gray-700 mb-3">{t('dashboard.macronutrients')}</h3>
+        <h3 className="text-sm font-medium text-muted-foreground mb-3">{t('dashboard.macronutrients')}</h3>
         <div className="h-40">
           <Doughnut data={macroData} options={macroOptions} />
         </div>
         <div className="flex justify-around mt-4 text-sm">
           <div className="text-center">
-            <div className="font-semibold text-blue-500">{totals.protein_g}g</div>
-            <div className="text-gray-500">{t('mealPlan.protein')}</div>
-            <div className="text-xs text-gray-400">{t('mealPlan.goal')}: {settings.proteinGoal_g}g</div>
+            <div className="font-semibold text-[#6FAE7A]">{totals.protein_g}g</div>
+            <div className="text-muted-foreground">{t('mealPlan.protein')}</div>
+            <div className="text-xs text-muted-foreground">{t('mealPlan.goal')}: {settings.proteinGoal_g}g</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-amber-500">{totals.carbs_g}g</div>
-            <div className="text-gray-500">{t('mealPlan.carbs')}</div>
-            <div className="text-xs text-gray-400">{t('mealPlan.goal')}: {settings.carbsGoal_g}g</div>
+            <div className="font-semibold text-[#C28A2C]">{totals.carbs_g}g</div>
+            <div className="text-muted-foreground">{t('mealPlan.carbs')}</div>
+            <div className="text-xs text-muted-foreground">{t('mealPlan.goal')}: {settings.carbsGoal_g}g</div>
           </div>
           <div className="text-center">
-            <div className="font-semibold text-red-500">{totals.fat_g}g</div>
-            <div className="text-gray-500">{t('mealPlan.fat')}</div>
-            <div className="text-xs text-gray-400">{t('mealPlan.goal')}: {settings.fatGoal_g}g</div>
+            <div className="font-semibold text-[#B4532A]">{totals.fat_g}g</div>
+            <div className="text-muted-foreground">{t('mealPlan.fat')}</div>
+            <div className="text-xs text-muted-foreground">{t('mealPlan.goal')}: {settings.fatGoal_g}g</div>
           </div>
         </div>
       </div>
