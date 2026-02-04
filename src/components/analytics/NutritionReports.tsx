@@ -93,5 +93,6 @@ export default function NutritionReports({ generateReport, exportCSV }: Nutritio
           Export as CSV
         </button>
       </div>
-      );
+    </div>
+  );
 }
