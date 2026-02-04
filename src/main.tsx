@@ -22,6 +22,8 @@ if (monitoringConfig.enabled && monitoringConfig.dsn) {
   console.info("[App] Monitoring disabled - running in development mode")
 }
 
+console.log("%c Build Timestamp: " + new Date().toISOString(), "background: #222; color: #bada55");
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RootErrorBoundary>
