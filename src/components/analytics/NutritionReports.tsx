@@ -71,15 +71,24 @@ export default function NutritionReports({ generateReport, exportCSV }: Nutritio
       onClick={() => setShowDetail(!showDetail)}
       className="flex items-center justify-between w-full p-3 bg-card rounded-lg hover:bg-accent transition-colors"
     >
-// ...
-      {/* Export Button */}
-      <button
-        onClick={() => exportCSV(period)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium border border-border"
-      >
-        <Download className="w-4 h-4" />
-        Export as CSV
-      </button>
+      <span className="font-medium text-sm">View Daily Details</span>
+      <ChevronDown className={`w-4 h-4 transition-transform ${showDetail ? 'rotate-180' : ''}`} />
+    </button>
+
+    {showDetail && (
+      <div className="mt-2 text-sm text-muted-foreground p-3 border border-border rounded-lg">
+        {/* Placeholder for detailed table - previously missing */}
+        No detailed logs available for this period.
+      </div>
+    )}
+    {/* Export Button */}
+    <button
+      onClick={() => exportCSV(period)}
+      className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium border border-border"
+    >
+      <Download className="w-4 h-4" />
+      Export as CSV
+    </button>
   </div>
   );
 }

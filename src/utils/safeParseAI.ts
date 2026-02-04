@@ -43,7 +43,7 @@ export function extractJsonFromAIResponse(rawContent: string): string {
         return '';
     }
 
-    let content = rawContent.trim();
+    const content = rawContent.trim();
 
     // Pattern 1: Remove markdown code fences with language tag
     // Matches: ```json ... ``` or ```JSON ... ```
