@@ -278,7 +278,7 @@ Requirements:
         <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
           <div className="text-center">
             <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl mb-4">
-              <ChefHat className="w-8 h-8 text-amber-600 dark:text-amber-500" />
+              <ChefHat className="w-8 h-8 text-primary" />
             </div>
 
             <h2 className="text-xl font-semibold text-foreground mb-2">{t("mealPlan.title")}</h2>
@@ -360,8 +360,8 @@ Requirements:
 
             <p className="text-muted-foreground mb-4">{t("mealPlan.loadingSubtitle")}</p>
 
-            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+            <div className="bg-muted/50 border border-border rounded-xl p-4">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Sparkles className="w-4 h-4 animate-pulse" />
                 <span className="text-sm font-medium">{t("mealPlan.loadingAnalyzing")}</span>
               </div>
@@ -411,7 +411,7 @@ Requirements:
         <div className="flex items-start justify-between mb-6">
           <div className="flex-1">
             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-              <ChefHat className="w-6 h-6 text-amber-500" />
+              <ChefHat className="w-6 h-6 text-primary" />
               {t("mealPlan.planTitle")}
               {currentPlan?.sourceType === "pantry_based" && (
                 <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
@@ -463,14 +463,14 @@ Requirements:
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowTemplateModal(true)}
-              className="p-2 text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
               title={t("mealPlan.saveTemplate")}
             >
               <Save className="w-5 h-5" />
             </button>
             <button
               onClick={onRegeneratePlan}
-              className="p-2 text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
               title={t("mealPlan.regenerate")}
             >
               <RotateCcw className="w-5 h-5" />
@@ -504,16 +504,16 @@ Requirements:
         </div>
 
         {/* Daily Progress */}
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-xl p-4 mb-6">
+        <div className="bg-primary/5 rounded-xl p-4 mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm font-medium text-foreground">{t("mealPlan.dailyProgress")}</span>
-            <span className={`text-sm font-bold ${isOverGoal ? "text-destructive" : "text-amber-600 dark:text-amber-400"}`}>
+            <span className={`text-sm font-bold ${isOverGoal ? "text-destructive" : "text-primary"}`}>
               {Math.round(calorieProgress)}%
             </span>
           </div>
           <div className="h-3 bg-muted rounded-full overflow-hidden mb-3">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? "bg-destructive" : "bg-gradient-to-r from-amber-400 to-orange-400"
+              className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? "bg-destructive" : "bg-primary"
                 }`}
               style={{ width: `${calorieProgress}%` }}
             />
@@ -530,7 +530,7 @@ Requirements:
               <div className="text-xs text-muted-foreground">{t("mealPlan.protein")}</div>
             </div>
             <div>
-              <div className="text-lg font-bold text-amber-500">{Math.round(dailyTotals.carbs)}g</div>
+              <div className="text-lg font-bold text-foreground">{Math.round(dailyTotals.carbs)}g</div>
               <div className="text-xs text-muted-foreground">{t("mealPlan.carbs")}</div>
             </div>
             <div>

@@ -22,24 +22,24 @@ const variantStyles: Record<
   { container: string; iconWrap: string; icon: string }
 > = {
   error: {
-    container: "border border-red-200 dark:border-red-800",
-    iconWrap: "bg-destructive/20 dark:bg-red-900/30",
-    icon: "text-destructive dark:text-red-400",
+    container: "border border-destructive/50",
+    iconWrap: "bg-destructive/10",
+    icon: "text-destructive",
   },
   warning: {
-    container: "border border-amber-200 dark:border-amber-700",
-    iconWrap: "bg-amber-100 dark:bg-amber-900/30",
-    icon: "text-amber-600 dark:text-amber-400",
+    container: "border border-ring/50",
+    iconWrap: "bg-ring/10",
+    icon: "text-ring",
   },
   success: {
-    container: "border border-emerald-200 dark:border-emerald-700",
-    iconWrap: "bg-emerald-100 dark:bg-emerald-900/30",
-    icon: "text-emerald-600 dark:text-emerald-400",
+    container: "border border-primary/50",
+    iconWrap: "bg-primary/10",
+    icon: "text-primary",
   },
   info: {
-    container: "border border-blue-200 dark:border-blue-700",
-    iconWrap: "bg-blue-100 dark:bg-blue-900/30",
-    icon: "text-blue-600 dark:text-blue-400",
+    container: "border border-accent/50",
+    iconWrap: "bg-accent/10",
+    icon: "text-foreground",
   },
 }
 

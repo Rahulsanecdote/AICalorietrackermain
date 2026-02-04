@@ -99,7 +99,7 @@ const DashboardErrorCard = ({
         {onRetry ? (
           <button
             onClick={onRetry}
-            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-destructive-foreground bg-destructive rounded-lg hover:bg-destructive/90 transition-colors"
           >
             Retry
           </button>
