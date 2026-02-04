@@ -70,7 +70,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
       <button
         onClick={() => setIsExpanded(true)}
         className={`fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center ${isExpanded
-          ? 'bg-gray-500 opacity-0 scale-0'
+          ? 'bg-card0 opacity-0 scale-0'
           : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-xl transform hover:scale-105'
           }`}
         aria-label={t('quickAdd.title')}
@@ -81,7 +81,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
       {/* Expanded Widget */}
       {isExpanded && (
         <div className="fixed bottom-6 left-6 z-50 w-80 sm:w-96">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-fade-in">
+          <div className="bg-card dark:bg-gray-800 rounded-2xl shadow-2xl border border-border dark:border-border overflow-hidden animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-emerald-600">
               <div className="flex items-center gap-2">
@@ -106,7 +106,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     onClick={() => setCategory(cat)}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${category === cat
                       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300'
-                      : 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300 hover:bg-gray-200'
+                      : 'bg-accent text-muted-foreground dark:bg-gray-700 dark:text-gray-300 hover:bg-accent'
                       }`}
                   >
                     {t(`meals.${cat}`)}
@@ -124,7 +124,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={t('quickAdd.placeholder')}
-                    className="w-full px-4 py-3 pr-12 border border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
+                    className="w-full px-4 py-3 pr-12 border border-border dark:border-border rounded-xl bg-card dark:bg-gray-900 text-foreground dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none"
                     rows={2}
                     disabled={isProcessing}
                     autoFocus
@@ -133,7 +133,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
                     type="submit"
                     disabled={!input.trim() || isProcessing}
                     className={`absolute right-2 bottom-2 p-2 rounded-lg transition-colors ${!input.trim() || isProcessing
-                      ? 'bg-gray-200 text-gray-400'
+                      ? 'bg-accent text-muted-foreground'
                       : 'bg-emerald-600 text-white hover:bg-emerald-700'
                       }`}
                   >
@@ -168,14 +168,14 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
               {/* Presets */}
               <div>
-                <p className="text-xs text-gray-500 mb-2">{t('quickAdd.quickPresets') || 'Quick presets:'}</p>
+                <p className="text-xs text-muted-foreground mb-2">{t('quickAdd.quickPresets') || 'Quick presets:'}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {QUICK_ADD_PRESETS.slice(0, 6).map((preset) => (
                     <button
                       key={preset.name}
                       onClick={() => handlePresetClick(preset)}
                       disabled={isProcessing}
-                      className="text-xs px-2.5 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full hover:bg-emerald-100 hover:text-emerald-700 dark:hover:bg-emerald-900 dark:hover:text-emerald-300 transition-colors"
+                      className="text-xs px-2.5 py-1 bg-accent dark:bg-gray-700 text-muted-foreground dark:text-gray-300 rounded-full hover:bg-emerald-100 hover:text-emerald-700 dark:hover:bg-emerald-900 dark:hover:text-emerald-300 transition-colors"
                     >
                       {preset.name}
                     </button>
@@ -184,7 +184,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
               </div>
 
               {/* Voice Input Hint */}
-              <div className="flex items-center gap-2 text-xs text-gray-400">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Mic className="w-4 h-4" />
                 <span>{t('quickAdd.voiceHint') || 'Tip: Use the Voice button in the header for hands-free entry'}</span>
               </div>

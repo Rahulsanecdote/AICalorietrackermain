@@ -27,7 +27,7 @@ const CATEGORY_COLORS: Record<ShoppingItem['category'], string> = {
   meat: 'bg-red-100 text-red-800 border-red-200',
   frozen: 'bg-cyan-100 text-cyan-800 border-cyan-200',
   pantry: 'bg-amber-100 text-amber-800 border-amber-200',
-  other: 'bg-gray-100 text-gray-800 border-gray-200',
+  other: 'bg-accent text-foreground border-border',
 };
 
 export default function ShoppingListView({
@@ -46,14 +46,14 @@ export default function ShoppingListView({
   // Handle null or undefined shoppingList
   if (!shoppingList) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 text-center">
+      <div className="bg-card rounded-2xl shadow-lg border border-border p-6 text-center">
         <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-        <p className="text-gray-500">{t('shopping.noShoppingList')}</p>
-        <p className="text-sm text-gray-400 mt-1">{t('shopping.generateFromMealPlan')}</p>
+        <p className="text-muted-foreground">{t('shopping.noShoppingList')}</p>
+        <p className="text-sm text-muted-foreground mt-1">{t('shopping.generateFromMealPlan')}</p>
         {onClose && (
           <button
             onClick={onClose}
-            className="mt-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
+            className="mt-4 px-4 py-2 bg-accent text-foreground rounded-lg text-sm hover:bg-accent"
           >
             {t('shopping.goBack')}
           </button>
@@ -91,7 +91,7 @@ export default function ShoppingListView({
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <div className="bg-card rounded-2xl shadow-lg border border-border overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-4 text-white">
         <div className="flex items-center justify-between">
@@ -102,7 +102,7 @@ export default function ShoppingListView({
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-1 hover:bg-card/20 rounded-lg transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -115,26 +115,26 @@ export default function ShoppingListView({
         </p>
 
         {/* Progress bar */}
-        <div className="mt-3 h-2 bg-white/20 rounded-full overflow-hidden">
+        <div className="mt-3 h-2 bg-card/20 rounded-full overflow-hidden">
           <div
-            className="h-full bg-white rounded-full transition-all duration-300"
+            className="h-full bg-card rounded-full transition-all duration-300"
             style={{ width: `${totalCount > 0 ? (checkedCount / totalCount) * 100 : 0}%` }}
           />
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 p-3 border-b border-gray-100">
+      <div className="flex gap-2 p-3 border-b border-border">
         <button
           onClick={copyToClipboard}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-accent hover:bg-accent rounded-lg text-sm font-medium text-foreground transition-colors"
         >
           <Copy className="w-4 h-4" />
           {t('shopping.copyList') || 'Copy List'}
         </button>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium text-gray-700 transition-colors"
+          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-accent hover:bg-accent rounded-lg text-sm font-medium text-foreground transition-colors"
         >
           <Plus className="w-4 h-4" />
           {t('shopping.addItem') || 'Add Item'}
@@ -149,7 +149,7 @@ export default function ShoppingListView({
 
       {/* Add Item Form */}
       {showAddForm && (
-        <form onSubmit={handleAddItem} className="p-3 bg-gray-50 border-b border-gray-100">
+        <form onSubmit={handleAddItem} className="p-3 bg-card border-b border-border">
           <div className="flex gap-2">
             <input
               id="shopping-item-name"
@@ -159,7 +159,7 @@ export default function ShoppingListView({
               value={newItemName}
               onChange={(e) => setNewItemName(e.target.value)}
               placeholder="Item name"
-              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
             />
             <select
               id="shopping-item-category"
@@ -167,7 +167,7 @@ export default function ShoppingListView({
               autoComplete="off"
               value={newItemCategory}
               onChange={(e) => setNewItemCategory(e.target.value as ShoppingItem['category'])}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
+              className="px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-indigo-500"
             >
               {Object.entries(CATEGORY_LABELS).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
@@ -175,7 +175,7 @@ export default function ShoppingListView({
             </select>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
             >
               Add
             </button>
@@ -191,34 +191,34 @@ export default function ShoppingListView({
           if (!items || items.length === 0) return null;
 
           return (
-            <div key={category} className="border-b border-gray-100 last:border-0">
-              <div className="px-4 py-2 bg-gray-50 flex items-center gap-2">
+            <div key={category} className="border-b border-border last:border-0">
+              <div className="px-4 py-2 bg-card flex items-center gap-2">
                 <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${CATEGORY_COLORS[category]}`}>
                   {CATEGORY_LABELS[category]}
                 </span>
-                <span className="text-xs text-gray-500">{items.length} items</span>
+                <span className="text-xs text-muted-foreground">{items.length} items</span>
               </div>
               <div className="divide-y divide-gray-50">
                 {items.map((item) => (
                   <div
                     key={item.id}
-                    className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${item.checked ? 'bg-gray-50' : ''
+                    className={`flex items-center gap-3 px-4 py-3 hover:bg-card transition-colors ${item.checked ? 'bg-card' : ''
                       }`}
                   >
                     <button
                       onClick={() => onToggleItem(item.id)}
                       className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${item.checked
                           ? 'bg-green-500 border-green-500 text-white'
-                          : 'border-gray-300 hover:border-green-400'
+                          : 'border-border hover:border-green-400'
                         }`}
                     >
                       {item.checked && <Check className="w-3 h-3" />}
                     </button>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium truncate ${item.checked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>
+                      <p className={`text-sm font-medium truncate ${item.checked ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
                         {item.amount} {item.unit} {item.name}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         For: {item.recipeNames.slice(0, 2).join(', ')}
                         {item.recipeNames.length > 2 && ` +${item.recipeNames.length - 2} more`}
                       </p>
@@ -228,7 +228,7 @@ export default function ShoppingListView({
                     </span>
                     <button
                       onClick={() => onRemoveItem(item.id)}
-                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-1 text-muted-foreground hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -240,7 +240,7 @@ export default function ShoppingListView({
         })}
 
         {shoppingList.items.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
+          <div className="p-8 text-center text-muted-foreground">
             <ShoppingCart className="w-12 h-12 mx-auto mb-3 text-gray-300" />
             <p>{t('shopping.noItems') || 'No items in your shopping list'}</p>
             <p className="text-sm mt-1">{t('shopping.addMealsFirst') || 'Add meals to your plan first'}</p>

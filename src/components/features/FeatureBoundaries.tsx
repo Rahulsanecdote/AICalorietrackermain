@@ -378,22 +378,22 @@ interface SettingsFallbackProps {
 
 function SettingsFallback({ error, onReset }: SettingsFallbackProps): ReactNode {
   return (
-    <div className="border-2 border-dashed border-gray-300 bg-gray-50 rounded-xl p-6 my-4">
+    <div className="border-2 border-dashed border-border bg-card rounded-xl p-6 my-4">
       <div className="flex items-start gap-4">
-        <div className="flex-shrink-0 w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
-          <AlertTriangle className="w-6 h-6 text-gray-600" />
+        <div className="flex-shrink-0 w-12 h-12 bg-accent rounded-full flex items-center justify-center">
+          <AlertTriangle className="w-6 h-6 text-muted-foreground" />
         </div>
 
         <div className="flex-1">
-          <h3 className="text-lg font-medium text-gray-800 mb-1">Settings unavailable</h3>
-          <p className="text-sm text-gray-700 mb-4">
+          <h3 className="text-lg font-medium text-foreground mb-1">Settings unavailable</h3>
+          <p className="text-sm text-foreground mb-4">
             Could not load settings. Your current configuration is preserved.
           </p>
 
           {error && (
             <details className="mb-4">
-              <summary className="text-xs text-gray-500 cursor-pointer hover:text-gray-700">Show error details</summary>
-              <pre className="mt-2 text-xs text-gray-600 font-mono overflow-auto max-h-24 whitespace-pre-wrap">
+              <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">Show error details</summary>
+              <pre className="mt-2 text-xs text-muted-foreground font-mono overflow-auto max-h-24 whitespace-pre-wrap">
                 {error.message}
               </pre>
             </details>
@@ -401,7 +401,7 @@ function SettingsFallback({ error, onReset }: SettingsFallbackProps): ReactNode 
 
           <button
             onClick={onReset}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-800 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-foreground bg-accent rounded-lg hover:bg-gray-300 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
             Retry
@@ -520,7 +520,7 @@ function InsightsFallback({ error, onReset, onViewMeals }: InsightsFallbackProps
     <div className="border-2 border-dashed border-indigo-200 bg-indigo-50 rounded-xl p-6 my-4">
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0 w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-          <Sparkles className="w-6 h-6 text-indigo-600" />
+          <Sparkles className="w-6 h-6 text-primary" />
         </div>
 
         <div className="flex-1">
@@ -531,10 +531,10 @@ function InsightsFallback({ error, onReset, onViewMeals }: InsightsFallbackProps
 
           {error && (
             <details className="mb-4">
-              <summary className="text-xs text-indigo-600 cursor-pointer hover:text-indigo-800">
+              <summary className="text-xs text-primary cursor-pointer hover:text-indigo-800">
                 Show error details
               </summary>
-              <pre className="mt-2 text-xs text-indigo-600 font-mono overflow-auto max-h-24 whitespace-pre-wrap">
+              <pre className="mt-2 text-xs text-primary font-mono overflow-auto max-h-24 whitespace-pre-wrap">
                 {error.message}
               </pre>
             </details>
@@ -551,7 +551,7 @@ function InsightsFallback({ error, onReset, onViewMeals }: InsightsFallbackProps
             {onViewMeals && (
               <button
                 onClick={onViewMeals}
-                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-indigo-700 transition-colors"
               >
                 <FileText className="w-4 h-4" />
                 View Meals

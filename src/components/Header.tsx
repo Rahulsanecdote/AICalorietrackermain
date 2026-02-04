@@ -27,20 +27,20 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-gray-100 dark:bg-gray-900/80 dark:border-gray-800">
+    <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Branding Section */}
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-xl flex-shrink-0">
-              <Flame className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/60 rounded-xl flex-shrink-0">
+              <Flame className="w-6 h-6 text-primary-foreground" />
             </div>
             <div className="flex-shrink-0 hidden sm:block">
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white leading-none">NutriAI</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Smart Calorie Tracker</p>
+              <h1 className="text-xl font-bold text-foreground leading-none">NutriAI</h1>
+              <p className="text-xs text-muted-foreground mt-0.5">Smart Calorie Tracker</p>
             </div>
             <div className="block sm:hidden">
-              <h1 className="text-lg font-bold text-gray-900 dark:text-white leading-none">NutriAI</h1>
+              <h1 className="text-lg font-bold text-foreground leading-none">NutriAI</h1>
             </div>
           </div>
 
@@ -49,28 +49,28 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
             {/* Voice Button - Compact and non-overlapping */}
             <button
               onClick={onOpenVoice}
-              className="flex items-center gap-1 px-3 py-2 text-gray-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors dark:text-gray-300 dark:bg-red-900/20 dark:hover:bg-red-900/30"
+              className="flex items-center gap-1 px-3 py-2 text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors"
               title="Voice Input"
               aria-label="Voice Input"
             >
-              <Mic2 className="w-4 h-4 text-red-500" />
-              <span className="text-sm font-medium text-red-600 dark:text-red-400 hidden xs:inline">Voice</span>
+              <Mic2 className="w-4 h-4 text-destructive" />
+              <span className="text-sm font-medium text-destructive hidden xs:inline">Voice</span>
             </button>
 
             {/* Secondary Actions - Icons only to save space */}
             <div className="flex items-center gap-0.5">
               <button
                 onClick={onOpenCompare}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
+                className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
                 title="Compare Foods"
                 aria-label="Compare Foods"
               >
-                <ArrowRightLeft className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                <ArrowRightLeft className="w-4 h-4 text-primary" />
               </button>
 
               <button
                 onClick={onOpenUtilities}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
+                className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
                 title="Utilities"
                 aria-label="Utilities"
               >
@@ -84,7 +84,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
               {onSignOut ? (
                 <button
                   onClick={onSignOut}
-                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
+                  className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
                   title={userEmail ? `Sign out (${userEmail})` : "Sign out"}
                   aria-label={userEmail ? `Sign out (${userEmail})` : "Sign out"}
                 >
@@ -94,7 +94,7 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
 
               <button
                 onClick={onOpenSettings}
-                className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors dark:text-gray-300 dark:hover:bg-gray-800"
+                className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
                 title="Settings"
                 aria-label="Settings"
               >
@@ -114,8 +114,8 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
                 key={item.id}
                 onClick={() => onViewChange(item.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${isActive
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
                   }`}
               >
                 <Icon className="w-3.5 h-3.5" />

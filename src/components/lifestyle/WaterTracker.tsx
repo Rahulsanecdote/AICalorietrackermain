@@ -39,7 +39,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
   const getProgressColor = () => {
     if (percentage >= 100) return 'text-green-500';
     if (percentage >= 50) return 'text-blue-500';
-    return 'text-gray-400';
+    return 'text-muted-foreground';
   };
 
   const handleEdit = (entry: typeof entries[0]) => {
@@ -56,7 +56,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -64,8 +64,8 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
             <Droplets className="w-5 h-5 text-blue-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Water Intake</h3>
-            <p className="text-xs text-gray-500">{formatAmount(totalMl)} / {formatAmount(goalMl)}</p>
+            <h3 className="font-semibold text-foreground">Water Intake</h3>
+            <p className="text-xs text-muted-foreground">{formatAmount(totalMl)} / {formatAmount(goalMl)}</p>
           </div>
         </div>
         {streak > 0 && (
@@ -108,7 +108,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
             <span className={`text-2xl font-bold ${getProgressColor()}`}>
               {percentage}%
             </span>
-            <span className="text-xs text-gray-500">of goal</span>
+            <span className="text-xs text-muted-foreground">of goal</span>
           </div>
         </div>
       </div>
@@ -131,7 +131,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
       <div className="mb-4">
         <button
           onClick={() => setShowCustom(!showCustom)}
-          className="w-full py-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {showCustom ? 'Hide custom amount' : 'Add custom amount'}
         </button>
@@ -144,7 +144,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
               autoComplete="off"
               value={customAmount}
               onChange={(e) => setCustomAmount(Number(e.target.value))}
-              className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               placeholder="Amount (ml)"
             />
             <button
@@ -165,8 +165,8 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
 
       {/* Today's Entries */}
       {entries.length > 0 && (
-        <div className="border-t border-gray-100 pt-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">Today's entries</p>
+        <div className="border-t border-border pt-4">
+          <p className="text-sm font-medium text-foreground mb-2">Today's entries</p>
           <div className="space-y-2 max-h-32 overflow-y-auto">
             {entries.map((entry) => (
               <div
@@ -184,7 +184,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
                         autoComplete="off"
                         value={editAmount}
                         onChange={(e) => setEditAmount(Number(e.target.value))}
-                        className="w-20 px-2 py-1 text-sm border border-gray-200 rounded"
+                        className="w-20 px-2 py-1 text-sm border border-border rounded"
                       />
                       <button
                         onClick={saveEdit}
@@ -194,15 +194,15 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
                       </button>
                       <button
                         onClick={() => setEditingId(null)}
-                        className="text-xs text-gray-500"
+                        className="text-xs text-muted-foreground"
                       >
                         Cancel
                       </button>
                     </div>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-gray-900">{formatAmount(entry.amountMl)}</p>
-                      <p className="text-xs text-gray-500">{formatTime(entry.timestamp)}</p>
+                      <p className="text-sm font-medium text-foreground">{formatAmount(entry.amountMl)}</p>
+                      <p className="text-xs text-muted-foreground">{formatTime(entry.timestamp)}</p>
                     </>
                   )}
                 </div>
@@ -210,13 +210,13 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
                   <div className="flex gap-1">
                     <button
                       onClick={() => handleEdit(entry)}
-                      className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                      className="p-1 text-muted-foreground hover:text-blue-500 transition-colors"
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => removeEntry(entry.id)}
-                      className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-1 text-muted-foreground hover:text-red-500 transition-colors"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

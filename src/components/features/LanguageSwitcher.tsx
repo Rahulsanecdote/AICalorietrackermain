@@ -63,7 +63,7 @@ export function LanguageSwitcher({
   if (variant === 'full') {
     return (
       <div className="space-y-2">
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span className="text-sm font-medium text-muted-foreground">
           {t('language.select')}
         </span>
         <div className="grid grid-cols-2 gap-2">
@@ -72,16 +72,19 @@ export function LanguageSwitcher({
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
               className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${language === lang.code
-                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20'
-                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                ? 'border-primary bg-primary/10'
+                : 'border-border hover:border-muted-foreground hover:bg-accent'
                 }`}
             >
               <span className="text-xl">{lang.flag}</span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className={`text-sm font-medium ${language === lang.code
+                ? 'text-primary'
+                : 'text-foreground'
+                }`}>
                 {lang.label}
               </span>
               {language === lang.code && (
-                <Check className="ml-auto h-4 w-4 text-emerald-600" />
+                <Check className="ml-auto h-4 w-4 text-primary" />
               )}
             </button>
           ))}
@@ -125,7 +128,7 @@ export function LanguageIndicator() {
   const currentLang = availableLanguages.find((l) => l.code === language);
 
   return (
-    <div className="flex items-center gap-1 text-sm text-gray-500">
+    <div className="flex items-center gap-1 text-sm text-muted-foreground">
       <span>{currentLang?.flag || '🌐'}</span>
       <span className="hidden sm:inline">{currentLang?.label}</span>
     </div>

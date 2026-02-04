@@ -47,12 +47,12 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('mealInput.logMeal')}</h2>
+    <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
+      <h2 className="text-lg font-semibold text-foreground mb-4">{t('mealInput.logMeal')}</h2>
 
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <span className="block text-sm font-medium text-gray-700 mb-2">
+          <span className="block text-sm font-medium text-muted-foreground mb-2">
             {t('mealInput.category')}
           </span>
           <div className="flex gap-2 flex-wrap">
@@ -62,8 +62,8 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
                 type="button"
                 onClick={() => setCategory(cat)}
                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${category === cat
-                  ? 'bg-emerald-500 text-white shadow-sm'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
                   }`}
               >
                 {getCategoryLabel(cat)}
@@ -73,7 +73,7 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
         </div>
 
         <div className="mb-4">
-          <label htmlFor="meal-description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="meal-description" className="block text-sm font-medium text-muted-foreground mb-2">
             {t('mealInput.whatDidYouEat')}
           </label>
           <div className="relative">
@@ -85,7 +85,7 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
               onChange={(e) => setDescription(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={t('mealInput.placeholder')}
-              className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent resize-none transition-all"
+              className="w-full px-4 py-3 pr-12 border border-input rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent resize-none transition-all bg-background text-foreground placeholder:text-muted-foreground"
               rows={3}
               disabled={isLoading}
             />
@@ -93,8 +93,8 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
               type="submit"
               disabled={!description.trim() || isLoading}
               className={`absolute bottom-3 right-3 p-2 rounded-full transition-all ${!description.trim() || isLoading
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90'
                 }`}
               aria-label="Submit meal"
             >
@@ -108,13 +108,13 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-sm text-destructive">
             {error}
           </div>
         )}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-sm text-emerald-600 mb-4">
+          <div className="flex items-center gap-2 text-sm text-primary mb-4">
             <Sparkles className="w-4 h-4 animate-pulse" />
             <span>{t('mealInput.analyzingAI')}</span>
           </div>
@@ -122,7 +122,7 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
       </form>
 
       <div className="mt-4">
-        <p className="text-xs text-gray-500 mb-2">{t('mealInput.quickExamples')}</p>
+        <p className="text-xs text-muted-foreground mb-2">{t('mealInput.quickExamples')}</p>
         <div className="flex gap-2 flex-wrap">
           {exampleDescriptions.map((example) => (
             <button
@@ -130,7 +130,7 @@ export default function MealInput({ onSubmit, isLoading, error }: MealInputProps
               type="button"
               onClick={() => fillExample(example)}
               disabled={isLoading}
-              className="text-xs px-3 py-1.5 bg-gray-50 text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+              className="text-xs px-3 py-1.5 bg-muted text-muted-foreground rounded-full hover:bg-muted/80 transition-colors"
             >
               {example}
             </button>

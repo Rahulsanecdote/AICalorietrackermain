@@ -57,11 +57,11 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
   return (
     <div>
       {/* Compare Selection */}
-      <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-        <p className="text-sm text-gray-600 mb-2">Compare two photos:</p>
+      <div className="mb-4 p-3 bg-muted/50 rounded-xl">
+        <p className="text-sm text-muted-foreground mb-2">Compare two photos:</p>
         <div className="flex items-center gap-2">
           <select
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-sm text-foreground focus:ring-2 focus:ring-ring"
             value={comparePhoto1?.id || ''}
             onChange={(e) => {
               const photo = photos.find((p) => p.id === e.target.value);
@@ -75,9 +75,9 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
               </option>
             ))}
           </select>
-          <span className="text-gray-400">vs</span>
+          <span className="text-muted-foreground">vs</span>
           <select
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
+            className="flex-1 px-3 py-2 bg-background border border-input rounded-lg text-sm text-foreground focus:ring-2 focus:ring-ring"
             value={comparePhoto2?.id || ''}
             onChange={(e) => {
               const photo = photos.find((p) => p.id === e.target.value);
@@ -94,7 +94,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
           <button
             onClick={handleCompare}
             disabled={!comparePhoto1 || !comparePhoto2}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors"
           >
             Compare
           </button>
@@ -104,7 +104,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
       {/* Upload Button */}
       <button
         onClick={() => setShowUploadModal(true)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium mb-4"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium mb-4"
       >
         <Upload className="w-4 h-4" />
         Upload Progress Photo
@@ -116,7 +116,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
           {photos.map((photo) => (
             <div
               key={photo.id}
-              className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 cursor-pointer"
+              className="relative group aspect-square rounded-xl overflow-hidden bg-muted cursor-pointer"
               onClick={() => openPhotoViewer(photo)}
             >
               <img
@@ -151,43 +151,43 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
           ))}
         </div>
       ) : (
-        <div className="bg-gray-50 rounded-xl p-8 text-center">
-          <Camera className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 mb-2">No progress photos yet</p>
-          <p className="text-sm text-gray-400">Upload your first photo to track your progress</p>
+        <div className="bg-muted/30 rounded-xl p-8 text-center border border-border dashed">
+          <Camera className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+          <p className="text-muted-foreground mb-2">No progress photos yet</p>
+          <p className="text-sm text-muted-foreground/70">Upload your first photo to track your progress</p>
         </div>
       )}
 
       {/* Upload Modal */}
       {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-card rounded-2xl w-full max-w-md p-6 border border-border">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Upload Progress Photo</h3>
+              <h3 className="text-lg font-semibold text-foreground">Upload Progress Photo</h3>
               <button
                 onClick={() => {
                   setShowUploadModal(false);
                   setSelectedFile(null);
                   setPreviewUrl(null);
                 }}
-                className="p-1 hover:bg-gray-100 rounded-lg"
+                className="p-1 hover:bg-muted rounded-lg"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
 
             {!previewUrl ? (
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-indigo-400 transition-colors"
+                className="border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all"
               >
-                <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 mb-1">Click to select a photo</p>
-                <p className="text-xs text-gray-400">JPG, PNG up to 5MB</p>
+                <Upload className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-foreground mb-1">Click to select a photo</p>
+                <p className="text-xs text-muted-foreground">JPG, PNG up to 5MB</p>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="relative rounded-xl overflow-hidden bg-gray-100">
+                <div className="relative rounded-xl overflow-hidden bg-muted">
                   <img
                     src={previewUrl}
                     alt="Preview"
@@ -198,13 +198,13 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
                       setSelectedFile(null);
                       setPreviewUrl(null);
                     }}
-                    className="absolute top-2 right-2 p-1.5 bg-gray-900/80 text-white rounded-lg"
+                    className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-lg hover:bg-black/70"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
                 <div>
-                  <label htmlFor="photo-upload-date" className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                  <label htmlFor="photo-upload-date" className="block text-sm font-medium text-foreground mb-1">Date</label>
                   <input
                     id="photo-upload-date"
                     name="photo-upload-date"
@@ -212,7 +212,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
                     autoComplete="off"
                     value={uploadDate}
                     onChange={(e) => setUploadDate(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring text-foreground"
                   />
                 </div>
               </div>
@@ -236,14 +236,14 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
                     setSelectedFile(null);
                     setPreviewUrl(null);
                   }}
-                  className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleUpload}
                   disabled={isLoading}
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
                 >
                   {isLoading ? 'Uploading...' : 'Upload'}
                 </button>
@@ -333,7 +333,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
                       }
                     }}
                     disabled={photos.findIndex((p) => p.id === selectedPhoto.id) === 0}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 text-white rounded-full disabled:opacity-30"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-card/20 text-white rounded-full disabled:opacity-30"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
@@ -345,7 +345,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
                       }
                     }}
                     disabled={photos.findIndex((p) => p.id === selectedPhoto.id) === photos.length - 1}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/20 text-white rounded-full disabled:opacity-30"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-card/20 text-white rounded-full disabled:opacity-30"
                   >
                     <ChevronRight className="w-6 h-6" />
                   </button>

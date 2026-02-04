@@ -69,10 +69,10 @@ const getActionClasses = (actionType: NotificationActionType, variant: Notificat
   }
 
   if (actionType === "manualMode") {
-    return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+    return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground dark:text-gray-300 bg-accent dark:bg-gray-700 rounded-lg hover:bg-accent dark:hover:bg-gray-600 transition-colors"
   }
 
-  return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+  return "inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground dark:text-gray-300 border border-border dark:border-border rounded-lg hover:bg-card dark:hover:bg-gray-700 transition-colors"
 }
 
 export function ErrorBanner(): React.ReactElement | null {
@@ -115,7 +115,7 @@ export function ErrorBanner(): React.ReactElement | null {
       aria-live={state.variant === "error" ? "assertive" : "polite"}
     >
       <div
-        className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg ${styles.container} overflow-hidden`}
+        className={`bg-card dark:bg-gray-800 rounded-xl shadow-lg ${styles.container} overflow-hidden`}
       >
         <div className="flex items-start gap-3 p-4">
           <div
@@ -125,19 +125,19 @@ export function ErrorBanner(): React.ReactElement | null {
           </div>
 
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-white">{state.message}</p>
+            <p className="text-sm font-medium text-foreground dark:text-white">{state.message}</p>
 
             {state.errorId && (
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Error ID: {state.errorId}</p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">Error ID: {state.errorId}</p>
             )}
           </div>
 
           <button
             onClick={handleDismiss}
-            className="flex-shrink-0 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            className="flex-shrink-0 p-1 hover:bg-accent dark:hover:bg-gray-700 rounded-lg transition-colors"
             aria-label="Dismiss"
           >
-            <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <X className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
           </button>
         </div>
 

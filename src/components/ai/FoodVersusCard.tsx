@@ -115,7 +115,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ArrowRightLeft className="h-5 w-5 text-indigo-600" />
+            <ArrowRightLeft className="h-5 w-5 text-primary" />
             {t('compare.title') || 'Food Comparison'}
           </DialogTitle>
           <DialogDescription>
@@ -159,7 +159,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
 
           {/* Input Mode Selector */}
           <div className="flex flex-wrap gap-2 border-b pb-4">
-            <span className="text-sm text-gray-500 py-1">Choose foods:</span>
+            <span className="text-sm text-muted-foreground py-1">Choose foods:</span>
             {Object.keys(PRESET_COMPARISONS).map((key) => (
               <Button
                 key={key}
@@ -194,7 +194,7 @@ export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
             />
 
             <div className="flex flex-col items-center justify-center gap-2 py-4">
-              <div className="bg-indigo-600 text-white px-4 py-2 rounded-full font-bold text-lg">
+              <div className="bg-primary text-white px-4 py-2 rounded-full font-bold text-lg">
                 VS
               </div>
               <Button
@@ -281,10 +281,10 @@ function AllModesGrid({ results, foodA, foodB, translateFood }: AllModesGridProp
 
         const winnerColor = result.winner === 'A' ? 'bg-blue-500'
           : result.winner === 'B' ? 'bg-green-500'
-            : 'bg-gray-500';
+            : 'bg-card0';
 
         return (
-          <div key={mode} className="border border-gray-200 rounded-lg overflow-hidden">
+          <div key={mode} className="border border-border rounded-lg overflow-hidden">
             {/* Header */}
             <div className={`${winnerColor} px-3 py-2 text-white`}>
               <div className="flex items-center justify-between">
@@ -298,12 +298,12 @@ function AllModesGrid({ results, foodA, foodB, translateFood }: AllModesGridProp
             </div>
 
             {/* Body */}
-            <div className="p-3 bg-gray-50">
-              <p className="text-sm text-gray-700 mb-2">{result.summary}</p>
+            <div className="p-3 bg-card">
+              <p className="text-sm text-foreground mb-2">{result.summary}</p>
 
               {/* Key Differences */}
               {result.keyDifferences.length > 0 && (
-                <ul className="text-xs text-gray-600 space-y-0.5 mb-2">
+                <ul className="text-xs text-muted-foreground space-y-0.5 mb-2">
                   {result.keyDifferences.slice(0, 2).map((diff, i) => (
                     <li key={i} className="flex items-start gap-1">
                       <span className="text-indigo-500">•</span>
@@ -315,7 +315,7 @@ function AllModesGrid({ results, foodA, foodB, translateFood }: AllModesGridProp
 
               {/* Recommendation */}
               {result.recommendations.length > 0 && (
-                <p className="text-xs text-gray-500 flex items-start gap-1">
+                <p className="text-xs text-muted-foreground flex items-start gap-1">
                   <Sparkles className="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5" />
                   {result.recommendations[0]}
                 </p>
@@ -434,9 +434,9 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
 
       <div className="space-y-3">
         <div className="relative">
-          <label htmlFor={`${title}-name`} className="text-xs text-gray-500 flex items-center gap-1">
+          <label htmlFor={`${title}-name`} className="text-xs text-muted-foreground flex items-center gap-1">
             <Search className="w-3 h-3" />
-            Food Name {isCustomMode && <span className="text-gray-400">(type to search)</span>}
+            Food Name {isCustomMode && <span className="text-muted-foreground">(type to search)</span>}
           </label>
           <input
             id={`${title}-name`}
@@ -446,13 +446,13 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
             onFocus={() => isCustomMode && setShowSuggestions(true)}
             onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             disabled={!isCustomMode}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm disabled:bg-accent"
             placeholder={isCustomMode ? "e.g., oatmeal, chicken..." : ""}
             autoComplete="off"
           />
 
           {showSuggestions && searchSuggestions.length > 0 && (
-            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+            <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
               {searchSuggestions.map((suggestion) => (
                 <button
                   key={suggestion.id}
@@ -461,7 +461,7 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
                   onMouseDown={() => handleSelectSuggestion(suggestion)}
                 >
                   <span>{suggestion.name}</span>
-                  <span className="text-xs text-gray-400">{suggestion.per100g.calories} cal/100g</span>
+                  <span className="text-xs text-muted-foreground">{suggestion.per100g.calories} cal/100g</span>
                 </button>
               ))}
             </div>
@@ -469,13 +469,13 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
 
           {isLoading && (
             <div className="absolute right-3 top-7">
-              <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
             </div>
           )}
         </div>
 
         <div>
-          <label htmlFor={`${title}-serving`} className="text-xs text-gray-500">Serving Size</label>
+          <label htmlFor={`${title}-serving`} className="text-xs text-muted-foreground">Serving Size</label>
           <input
             id={`${title}-serving`}
             type="text"
@@ -483,39 +483,39 @@ function AutoLookupFoodCard({ title, food, onChange, isCustomMode, color }: Auto
             onChange={(e) => handleServingChange(e.target.value)}
             onBlur={handleServingBlur}
             disabled={!isCustomMode}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm disabled:bg-gray-100"
+            className="w-full px-3 py-2 border border-border rounded-lg text-sm disabled:bg-accent"
             placeholder="1 cup, 100g, 2 slices..."
           />
         </div>
 
         <div className="grid grid-cols-4 gap-2">
           <div>
-            <label className="text-xs text-gray-500">Calories</label>
-            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center font-medium">
+            <label className="text-xs text-muted-foreground">Calories</label>
+            <div className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-center font-medium">
               {formatNutrientDisplay(food.calories)}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-500">Protein</label>
-            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center">
+            <label className="text-xs text-muted-foreground">Protein</label>
+            <div className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-center">
               {formatNutrientDisplay(food.macros.protein_g, 'g')}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-500">Carbs</label>
-            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center">
+            <label className="text-xs text-muted-foreground">Carbs</label>
+            <div className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-center">
               {formatNutrientDisplay(food.macros.carbs_g, 'g')}
             </div>
           </div>
           <div>
-            <label className="text-xs text-gray-500">Fat</label>
-            <div className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50 text-center">
+            <label className="text-xs text-muted-foreground">Fat</label>
+            <div className="px-3 py-2 border border-border rounded-lg text-sm bg-card text-center">
               {formatNutrientDisplay(food.macros.fat_g, 'g')}
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-gray-400 flex items-center gap-1">
+        <div className="text-xs text-muted-foreground flex items-center gap-1">
           {food.calories !== null && <Check className="w-3 h-3 text-green-500" />}
           Source: {sourceLabel}
         </div>
@@ -544,7 +544,7 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
       : verdict.winner === 'B'
         ? 'bg-green-600'
         : verdict.winner === 'insufficient-data'
-          ? 'bg-gray-500'
+          ? 'bg-card0'
           : 'bg-gray-600';
 
   const winnerName =
@@ -553,7 +553,7 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
         verdict.winner === 'insufficient-data' ? 'Insufficient Data' : 'Tie';
 
   return (
-    <div className="border border-gray-200 rounded-xl overflow-hidden">
+    <div className="border border-border rounded-xl overflow-hidden">
       <div className={`${winnerColor} px-4 py-3 text-white`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -585,12 +585,12 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
         </div>
       )}
 
-      <div className="p-4 bg-gray-50">
-        <p className="text-gray-700">{verdict.summary}</p>
+      <div className="p-4 bg-card">
+        <p className="text-foreground">{verdict.summary}</p>
       </div>
 
       <div className="p-4 space-y-3">
-        <h4 className="font-medium text-gray-900">Macro Comparison</h4>
+        <h4 className="font-medium text-foreground">Macro Comparison</h4>
         <MacroBar label="Calories" valueA={foodA.calories} valueB={foodB.calories} unit="" />
         <MacroBar label="Protein" valueA={foodA.macros.protein_g} valueB={foodB.macros.protein_g} unit="g" />
         <MacroBar label="Carbs" valueA={foodA.macros.carbs_g} valueB={foodB.macros.carbs_g} unit="g" />
@@ -599,11 +599,11 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
 
       {verdict.keyDifferences.length > 0 && (
         <div className="px-4 pb-4">
-          <h4 className="font-medium text-gray-900 mb-2">Key Differences</h4>
+          <h4 className="font-medium text-foreground mb-2">Key Differences</h4>
           <ul className="space-y-1">
             {verdict.keyDifferences.map((diff, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
-                <span className="text-indigo-600 mt-0.5">•</span>
+              <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <span className="text-primary mt-0.5">•</span>
                 {diff}
               </li>
             ))}
@@ -613,10 +613,10 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
 
       {verdict.recommendations.length > 0 && (
         <div className="px-4 pb-4">
-          <h4 className="font-medium text-gray-900 mb-2">Recommendations</h4>
+          <h4 className="font-medium text-foreground mb-2">Recommendations</h4>
           <ul className="space-y-1">
             {verdict.recommendations.map((rec, index) => (
-              <li key={index} className="flex items-start gap-2 text-sm text-gray-600">
+              <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
                 <Sparkles className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                 {rec}
               </li>
@@ -626,8 +626,8 @@ function ComparisonResultCard({ verdict, foodA, foodB, translateFood, hasIncompl
       )}
 
       {verdict.disclaimers && verdict.disclaimers.length > 0 && (
-        <div className="px-4 pb-4 pt-2 border-t border-gray-100">
-          <div className="text-xs text-gray-500 space-y-1">
+        <div className="px-4 pb-4 pt-2 border-t border-border">
+          <div className="text-xs text-muted-foreground space-y-1">
             {verdict.disclaimers.map((disclaimer, index) => (
               <p key={index}>ℹ️ {disclaimer}</p>
             ))}
@@ -659,13 +659,13 @@ function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
 
   return (
     <div>
-      <div className="flex justify-between text-xs text-gray-500 mb-1">
+      <div className="flex justify-between text-xs text-muted-foreground mb-1">
         <span>{label}</span>
         <span>
           {formatNutrientDisplay(valueA, unit)} vs {formatNutrientDisplay(valueB, unit)}
         </span>
       </div>
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex gap-0.5">
+      <div className="h-2 bg-accent rounded-full overflow-hidden flex gap-0.5">
         <div
           className={`${hasA ? 'bg-blue-500' : 'bg-gray-400'} h-full transition-all`}
           style={{ width: hasA ? `${percentageA / 2}%` : '50%' }}
@@ -675,7 +675,7 @@ function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
           style={{ width: hasB ? `${percentageB / 2}%` : '50%' }}
         />
       </div>
-      <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+      <div className="flex justify-between text-xs text-muted-foreground mt-0.5">
         <span>{hasA ? 'A' : 'A (--)'}</span>
         <span>{hasB ? 'B' : 'B (--)'}</span>
       </div>

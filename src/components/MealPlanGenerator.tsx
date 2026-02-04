@@ -275,29 +275,29 @@ Requirements:
   if (viewType === "empty") {
     return (
       <>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl mb-4">
-              <ChefHat className="w-8 h-8 text-amber-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl mb-4">
+              <ChefHat className="w-8 h-8 text-amber-600 dark:text-amber-500" />
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("mealPlan.title")}</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">{t("mealPlan.title")}</h2>
 
-            <p className="text-gray-600 mb-6 max-w-md mx-auto">{t("mealPlan.subtitle")}</p>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">{t("mealPlan.subtitle")}</p>
 
             <div className="space-y-4">
               {/* Pantry-Based Planning */}
-              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+              <div className="bg-gradient-to-r from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Package className="w-5 h-5 text-emerald-600" />
-                  <h3 className="font-semibold text-emerald-800">{t("mealPlan.pantryTitle")}</h3>
+                  <Package className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold text-primary">{t("mealPlan.pantryTitle")}</h3>
                 </div>
-                <p className="text-sm text-emerald-700 mb-3">{t("mealPlan.pantryDescription")}</p>
+                <p className="text-sm text-primary/80 mb-3">{t("mealPlan.pantryDescription")}</p>
                 <button
                   id="pantry-button-test"
                   onClick={() => setShowPantryInput(true)}
                   disabled={isGenerating}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white rounded-lg hover:from-emerald-600 hover:to-teal-600 transition-all font-medium disabled:opacity-50"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all font-medium disabled:opacity-50"
                 >
                   <Package className="w-4 h-4" />
                   {t("mealPlan.pantryButton")}
@@ -305,17 +305,17 @@ Requirements:
               </div>
 
               {/* AI Suggestions */}
-              <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
+              <div className="bg-muted/30 border border-border rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Sparkles className="w-5 h-5 text-gray-600" />
-                  <h3 className="font-semibold text-gray-800">{t("mealPlan.aiTitle")}</h3>
+                  <Sparkles className="w-5 h-5 text-muted-foreground" />
+                  <h3 className="font-semibold text-foreground">{t("mealPlan.aiTitle")}</h3>
                 </div>
-                <p className="text-sm text-gray-600 mb-3">{t("mealPlan.aiDescription")}</p>
+                <p className="text-sm text-muted-foreground mb-3">{t("mealPlan.aiDescription")}</p>
                 <button
                   id="ai-suggestions-test"
                   onClick={handleAIPlanGeneration}
                   disabled={isGenerating}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-all font-medium disabled:opacity-50"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-all font-medium disabled:opacity-50"
                 >
                   <Sparkles className="w-4 h-4" />
                   {t("mealPlan.aiButton")}
@@ -325,13 +325,13 @@ Requirements:
 
             {templates.length > 0 && (
               <div className="mt-6">
-                <p className="text-sm text-gray-500 mb-3">{t("mealPlan.templatesTitle")}</p>
+                <p className="text-sm text-muted-foreground mb-3">{t("mealPlan.templatesTitle")}</p>
                 <div className="flex flex-wrap justify-center gap-2">
                   {templates.slice(0, 3).map((template) => (
                     <button
                       key={template.id}
                       onClick={() => onLoadTemplate(template.id)}
-                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                      className="px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors text-sm"
                     >
                       {template.name}
                     </button>
@@ -350,18 +350,18 @@ Requirements:
   if (viewType === "loading") {
     return (
       <>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl mb-4">
-              <Loader2 className="w-8 h-8 text-amber-600 animate-spin" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl mb-4">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("mealPlan.loadingTitle")}</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">{t("mealPlan.loadingTitle")}</h2>
 
-            <p className="text-gray-600 mb-4">{t("mealPlan.loadingSubtitle")}</p>
+            <p className="text-muted-foreground mb-4">{t("mealPlan.loadingSubtitle")}</p>
 
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-              <div className="flex items-center gap-2 text-amber-700">
+            <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-xl p-4">
+              <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
                 <Sparkles className="w-4 h-4 animate-pulse" />
                 <span className="text-sm font-medium">{t("mealPlan.loadingAnalyzing")}</span>
               </div>
@@ -377,15 +377,15 @@ Requirements:
   if (viewType === "error") {
     return (
       <>
-        <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-red-100 rounded-2xl mb-4">
-              <ChefHat className="w-8 h-8 text-red-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-destructive/10 rounded-2xl mb-4">
+              <ChefHat className="w-8 h-8 text-destructive" />
             </div>
 
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">{t("mealPlan.errorTitle")}</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-2">{t("mealPlan.errorTitle")}</h2>
 
-            <p className="text-gray-600 mb-4">{error}</p>
+            <p className="text-muted-foreground mb-4">{error}</p>
 
             <div className="flex justify-center gap-3">
               <button
@@ -406,21 +406,21 @@ Requirements:
   // Plan display state (currentPlan exists)
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+      <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
         {/* Header */}
         <div className="flex items-start justify-between mb-6">
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
               <ChefHat className="w-6 h-6 text-amber-500" />
               {t("mealPlan.planTitle")}
               {currentPlan?.sourceType === "pantry_based" && (
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
                   <Package className="w-3 h-3" />
                   {t("mealPlan.fromPantry")}
                 </span>
               )}
             </h2>
-            {currentPlan?.summary && <p className="text-sm text-gray-600 mt-1">{currentPlan.summary}</p>}
+            {currentPlan?.summary && <p className="text-sm text-muted-foreground mt-1">{currentPlan.summary}</p>}
 
             {/* Accuracy Indicator */}
             {(() => {
@@ -451,7 +451,7 @@ Requirements:
                     )}
                   </div>
                   {currentPlan?.regenerationCount && currentPlan.regenerationCount > 1 && (
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-muted-foreground">
                       {t("mealPlan.attempts", { count: currentPlan.regenerationCount })}
                     </span>
                   )}
@@ -463,14 +463,14 @@ Requirements:
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowTemplateModal(true)}
-              className="p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
               title={t("mealPlan.saveTemplate")}
             >
               <Save className="w-5 h-5" />
             </button>
             <button
               onClick={onRegeneratePlan}
-              className="p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-lg transition-colors"
               title={t("mealPlan.regenerate")}
             >
               <RotateCcw className="w-5 h-5" />
@@ -478,7 +478,7 @@ Requirements:
             {onGenerateShoppingList && (
               <button
                 onClick={onGenerateShoppingList}
-                className="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                className="p-2 text-muted-foreground hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                 title={t("mealPlan.shoppingList")}
               >
                 <ShoppingCart className="w-5 h-5" />
@@ -487,7 +487,7 @@ Requirements:
             {onGenerateMealPrep && (
               <button
                 onClick={onGenerateMealPrep}
-                className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="p-2 text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                 title={t("mealPlan.mealPrep")}
               >
                 <Calendar className="w-5 h-5" />
@@ -495,7 +495,7 @@ Requirements:
             )}
             <button
               onClick={onClearPlan}
-              className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors"
               title={t("mealPlan.clearPlan")}
             >
               <Plus className="w-5 h-5 rotate-45" />
@@ -504,38 +504,38 @@ Requirements:
         </div>
 
         {/* Daily Progress */}
-        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 mb-6">
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-xl p-4 mb-6">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium text-gray-700">{t("mealPlan.dailyProgress")}</span>
-            <span className={`text-sm font-bold ${isOverGoal ? "text-red-600" : "text-amber-600"}`}>
+            <span className="text-sm font-medium text-foreground">{t("mealPlan.dailyProgress")}</span>
+            <span className={`text-sm font-bold ${isOverGoal ? "text-destructive" : "text-amber-600 dark:text-amber-400"}`}>
               {Math.round(calorieProgress)}%
             </span>
           </div>
-          <div className="h-3 bg-gray-200 rounded-full overflow-hidden mb-3">
+          <div className="h-3 bg-muted rounded-full overflow-hidden mb-3">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? "bg-red-500" : "bg-gradient-to-r from-amber-400 to-orange-400"
+              className={`h-full rounded-full transition-all duration-500 ${isOverGoal ? "bg-destructive" : "bg-gradient-to-r from-amber-400 to-orange-400"
                 }`}
               style={{ width: `${calorieProgress}%` }}
             />
           </div>
           <div className="grid grid-cols-4 gap-4 text-center">
             <div>
-              <div className="text-lg font-bold text-gray-900">{dailyTotals.calories}</div>
-              <div className="text-xs text-gray-600">
+              <div className="text-lg font-bold text-foreground">{dailyTotals.calories}</div>
+              <div className="text-xs text-muted-foreground">
                 {t("mealPlan.goal")}: {settings.dailyCalorieGoal}
               </div>
             </div>
             <div>
               <div className="text-lg font-bold text-blue-500">{Math.round(dailyTotals.protein)}g</div>
-              <div className="text-xs text-gray-600">{t("mealPlan.protein")}</div>
+              <div className="text-xs text-muted-foreground">{t("mealPlan.protein")}</div>
             </div>
             <div>
               <div className="text-lg font-bold text-amber-500">{Math.round(dailyTotals.carbs)}g</div>
-              <div className="text-xs text-gray-600">{t("mealPlan.carbs")}</div>
+              <div className="text-xs text-muted-foreground">{t("mealPlan.carbs")}</div>
             </div>
             <div>
               <div className="text-lg font-bold text-red-500">{Math.round(dailyTotals.fat)}g</div>
-              <div className="text-xs text-gray-600">{t("mealPlan.fat")}</div>
+              <div className="text-xs text-muted-foreground">{t("mealPlan.fat")}</div>
             </div>
           </div>
         </div>

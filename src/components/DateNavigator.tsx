@@ -34,19 +34,19 @@ export default function DateNavigator({ currentDate, onDateChange }: DateNavigat
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-4">
+    <div className="bg-card rounded-2xl shadow-sm p-4">
       <div className="flex items-center justify-between">
         <button
           onClick={goToPreviousDay}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 hover:bg-accent rounded-full transition-colors"
           aria-label="Previous day"
         >
-          <ChevronLeft className="w-5 h-5 text-gray-600" />
+          <ChevronLeft className="w-5 h-5 text-muted-foreground" />
         </button>
 
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-emerald-500" />
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-foreground">
             {formatDate(currentDate)}
           </span>
           {!isToday && (
@@ -64,11 +64,11 @@ export default function DateNavigator({ currentDate, onDateChange }: DateNavigat
           disabled={isToday}
           className={`p-2 rounded-full transition-colors ${isToday
             ? 'opacity-30 cursor-not-allowed'
-            : 'hover:bg-gray-100'
+            : 'hover:bg-accent'
             }`}
           aria-label="Next day"
         >
-          <ChevronRight className="w-5 h-5 text-gray-600" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
         </button>
       </div>
     </div>

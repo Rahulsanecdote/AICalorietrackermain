@@ -93,7 +93,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -101,8 +101,8 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
             <Smile className="w-5 h-5 text-green-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Mood</h3>
-            <p className="text-xs text-gray-500">
+            <h3 className="font-semibold text-foreground">Mood</h3>
+            <p className="text-xs text-muted-foreground">
               {averageScore > 0 ? `${averageScore}/5 average` : 'Not logged'}
             </p>
           </div>
@@ -139,19 +139,19 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
 
       {/* Weekly Trend */}
       <div className="mb-4">
-        <p className="text-xs text-gray-500 mb-2">Weekly Trend</p>
+        <p className="text-xs text-muted-foreground mb-2">Weekly Trend</p>
         <div className="flex items-end justify-between h-12 gap-1">
           {weeklyTrend.map((score, index) => (
             <div key={index} className="flex-1 flex flex-col items-center">
               <div
-                className={`w-full rounded-t ${score > 0 ? 'bg-green-400' : 'bg-gray-200'
+                className={`w-full rounded-t ${score > 0 ? 'bg-green-400' : 'bg-accent'
                   }`}
                 style={{
                   height: `${score > 0 ? score * 20 : 4}px`,
                   maxHeight: '48px',
                 }}
               />
-              <span className="text-xs text-gray-500 mt-1">
+              <span className="text-xs text-muted-foreground mt-1">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'][index]}
               </span>
             </div>
@@ -161,13 +161,13 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
 
       {/* Mood Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-xl p-4 mb-4">
+        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-900">How are you feeling?</h4>
+            <h4 className="font-medium text-foreground">How are you feeling?</h4>
             <button
               type="button"
               onClick={resetForm}
-              className="p-1 text-gray-400 hover:text-gray-600"
+              className="p-1 text-muted-foreground hover:text-muted-foreground"
             >
               <X className="w-4 h-4" />
             </button>
@@ -182,7 +182,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
                 onClick={() => setSelectedScore(option.score as 1 | 2 | 3 | 4 | 5)}
                 className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${selectedScore === option.score
                   ? `${option.color} text-white scale-110`
-                  : 'bg-white border border-gray-200 hover:bg-gray-100'
+                  : 'bg-card border border-border hover:bg-accent'
                   }`}
               >
                 <span className="text-2xl">{option.emoji}</span>
@@ -193,7 +193,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
 
           {/* Tags */}
           <div className="mb-3">
-            <span className="block text-sm text-gray-600 mb-1">Tags (optional)</span>
+            <span className="block text-sm text-muted-foreground mb-1">Tags (optional)</span>
             <div className="flex flex-wrap gap-1">
               {moodTags.slice(0, 6).map((tag) => (
                 <button
@@ -202,7 +202,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
                   onClick={() => toggleTag(tag.name)}
                   className={`px-2 py-1 rounded-full text-xs transition-colors ${selectedTags.includes(tag.name)
                     ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                    : 'bg-card border border-border text-muted-foreground hover:bg-card'
                     }`}
                 >
                   {tag.emoji} {tag.name}
@@ -213,7 +213,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
 
           {/* Note */}
           <div className="mb-3">
-            <label htmlFor="mood-note" className="block text-sm text-gray-600 mb-1">Note (optional)</label>
+            <label htmlFor="mood-note" className="block text-sm text-muted-foreground mb-1">Note (optional)</label>
             <textarea
               id="mood-note"
               name="mood-note"
@@ -221,7 +221,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="What's on your mind?"
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-green-500 resize-none"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-green-500 resize-none"
               rows={2}
             />
           </div>
@@ -242,14 +242,14 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
           {entries.slice(0, 3).map((entry) => (
             <div
               key={entry.id}
-              className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg"
+              className="flex items-center gap-3 p-2 bg-card rounded-lg"
             >
               <span className="text-xl">{getMoodEmoji(entry.score)}</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">
+                <p className="text-sm font-medium text-foreground">
                   {getMoodLabel(entry.score)}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground">
                   {new Date(entry.timestamp).toLocaleTimeString('en-US', {
                     hour: 'numeric',
                     minute: '2-digit',
@@ -271,13 +271,13 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
               <div className="flex gap-1">
                 <button
                   onClick={() => handleEdit(entry)}
-                  className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
+                  className="p-1 text-muted-foreground hover:text-blue-500 transition-colors"
                 >
                   <Edit2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => deleteEntry(entry.id)}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  className="p-1 text-muted-foreground hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -288,7 +288,7 @@ export default function MoodTracker({ date, onDataChange }: MoodTrackerProps) {
       )}
 
       {entries.length === 0 && !showForm && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <Smile className="w-12 h-12 mx-auto mb-2 text-gray-300" />
           <p>No mood logged today</p>
           <p className="text-sm mt-1">Tap + to log how you're feeling</p>

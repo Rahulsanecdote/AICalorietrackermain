@@ -44,12 +44,12 @@ export default function MealList({
 
   if (meals.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm p-8 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
-          <UtensilsCrossed className="w-8 h-8 text-gray-400" />
+      <div className="bg-card rounded-2xl shadow-sm p-8 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-full mb-4">
+          <UtensilsCrossed className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('mealList.noMeals')}</h3>
-        <p className="text-gray-500">{t('mealList.startTracking')}</p>
+        <h3 className="text-lg font-semibold text-foreground mb-2">{t('mealList.noMeals')}</h3>
+        <p className="text-muted-foreground">{t('mealList.startTracking')}</p>
       </div>
     );
   }
@@ -62,7 +62,7 @@ export default function MealList({
 
         return (
           <div key={category}>
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-foreground mb-3 uppercase tracking-wider">
               {category}
             </h3>
             <div className="space-y-3">

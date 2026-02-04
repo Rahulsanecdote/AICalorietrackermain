@@ -118,8 +118,8 @@ export default function LifestyleDashboard({ date }: LifestyleDashboardProps) {
     <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center gap-2 mb-2">
-        <Activity className="w-5 h-5 text-gray-600" />
-        <h2 className="text-lg font-semibold text-gray-900">{t('lifestyle.title')}</h2>
+        <Activity className="w-5 h-5 text-muted-foreground" />
+        <h2 className="text-lg font-semibold text-foreground">{t('lifestyle.title')}</h2>
       </div>
 
       {/* Grid Layout - Pass callbacks to receive data */}
@@ -141,9 +141,9 @@ export default function LifestyleDashboard({ date }: LifestyleDashboardProps) {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-2 bg-white/20 rounded-full mb-4 overflow-hidden">
+        <div className="h-2 bg-card/20 rounded-full mb-4 overflow-hidden">
           <div
-            className="h-full bg-white rounded-full transition-all duration-500"
+            className="h-full bg-card rounded-full transition-all duration-500"
             style={{ width: `${overallScore}%` }}
           />
         </div>
@@ -190,44 +190,44 @@ export default function LifestyleDashboard({ date }: LifestyleDashboardProps) {
       {/* Quick Stats Row */}
       <div className="grid grid-cols-3 gap-4">
         {/* Streaks */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4 text-emerald-500" />
-            <span className="text-xs text-gray-500">{t('lifestyle.streaks')}</span>
+            <span className="text-xs text-muted-foreground">{t('lifestyle.streaks')}</span>
           </div>
           <div className="flex gap-4">
             <div>
-              <p className="text-lg font-bold text-gray-900">{waterStreak} {t('lifestyle.days')}</p>
-              <p className="text-xs text-gray-500">{t('lifestyle.water')}</p>
+              <p className="text-lg font-bold text-foreground">{waterStreak} {t('lifestyle.days')}</p>
+              <p className="text-xs text-muted-foreground">{t('lifestyle.water')}</p>
             </div>
             <div>
-              <p className="text-lg font-bold text-gray-900">-</p>
-              <p className="text-xs text-gray-500">{t('lifestyle.exercise')}</p>
+              <p className="text-lg font-bold text-foreground">-</p>
+              <p className="text-xs text-muted-foreground">{t('lifestyle.exercise')}</p>
             </div>
           </div>
         </div>
 
         {/* This Week */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-2">
             <TrendingUp className="w-4 h-4 text-blue-500" />
-            <span className="text-xs text-gray-500">{t('lifestyle.thisWeek')}</span>
+            <span className="text-xs text-muted-foreground">{t('lifestyle.thisWeek')}</span>
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">{exerciseMinutes * 7} {t('lifestyle.min')}</p>
-            <p className="text-xs text-gray-500">{t('lifestyle.totalActivity')}</p>
+            <p className="text-lg font-bold text-foreground">{exerciseMinutes * 7} {t('lifestyle.min')}</p>
+            <p className="text-xs text-muted-foreground">{t('lifestyle.totalActivity')}</p>
           </div>
         </div>
 
         {/* Average Sleep */}
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
           <div className="flex items-center gap-2 mb-2">
             <Clock className="w-4 h-4 text-purple-500" />
-            <span className="text-xs text-gray-500">{t('lifestyle.average')}</span>
+            <span className="text-xs text-muted-foreground">{t('lifestyle.average')}</span>
           </div>
           <div>
-            <p className="text-lg font-bold text-gray-900">-</p>
-            <p className="text-xs text-gray-500">{t('lifestyle.sleepPerNight')}</p>
+            <p className="text-lg font-bold text-foreground">-</p>
+            <p className="text-xs text-muted-foreground">{t('lifestyle.sleepPerNight')}</p>
           </div>
         </div>
       </div>

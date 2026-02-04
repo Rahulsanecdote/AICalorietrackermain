@@ -61,11 +61,11 @@ export function NutriBotWidget() {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-card dark:bg-gray-900 rounded-2xl shadow-2xl border border-border dark:border-border flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-card/20 rounded-full flex items-center justify-center">
                 <Bot className="w-5 h-5" />
               </div>
               <div>
@@ -75,7 +75,7 @@ export function NutriBotWidget() {
             </div>
             <button
               onClick={handleClose}
-              className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+              className="p-1 hover:bg-card/20 rounded-lg transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -86,16 +86,16 @@ export function NutriBotWidget() {
             {!session && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-indigo-600" />
+                  <Sparkles className="w-8 h-8 text-primary" />
                 </div>
-                <h4 className="font-medium text-gray-900 dark:text-white mb-2">
+                <h4 className="font-medium text-foreground dark:text-white mb-2">
                   Welcome to NutriBot!
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
                   Ask me anything about nutrition, healthy eating, or food choices.
                 </p>
                 <div className="text-left">
-                  <p className="text-xs text-gray-400 mb-2">Try asking:</p>
+                  <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
                   <div className="flex flex-wrap gap-2 justify-center">
                     {QUICK_PROMPTS.slice(0, 3).map((prompt) => (
                       <button
@@ -118,7 +118,7 @@ export function NutriBotWidget() {
               ))}
 
             {status === 'processing' && (
-              <div className="flex items-center gap-2 text-gray-500">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <RefreshCw className="w-4 h-4 animate-spin" />
                 <span className="text-sm">Thinking...</span>
               </div>
@@ -135,13 +135,13 @@ export function NutriBotWidget() {
 
           {/* Quick Prompts */}
           {session && (
-            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800">
+            <div className="px-4 py-2 border-t border-border dark:border-border">
               <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                 {quickPrompts.slice(0, 5).map((prompt) => (
                   <button
                     key={prompt.id}
                     onClick={() => handleQuickPrompt(prompt.prompt)}
-                    className="flex-shrink-0 text-xs px-3 py-1.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
+                    className="flex-shrink-0 text-xs px-3 py-1.5 bg-accent dark:bg-gray-800 text-foreground dark:text-gray-300 rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
                   >
                     {prompt.label}
                   </button>
@@ -151,7 +151,7 @@ export function NutriBotWidget() {
           )}
 
           {/* Input */}
-          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+          <div className="p-4 border-t border-border dark:border-border">
             <div className="flex gap-2">
               <input
                 id="nutribot-input"
@@ -163,7 +163,7 @@ export function NutriBotWidget() {
                 onKeyPress={handleKeyPress}
                 placeholder="Ask about nutrition..."
                 disabled={status === 'processing'}
-                className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                className="flex-1 px-4 py-2 border border-border dark:border-border rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-card dark:bg-gray-800 text-foreground dark:text-white"
               />
               <Button
                 onClick={handleSend}
@@ -187,14 +187,14 @@ function MessageBubble({ message }: { message: EduMessage }) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-2 ${isUser
-            ? 'bg-indigo-600 text-white rounded-br-md'
-            : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-bl-md'
+            ? 'bg-primary text-white rounded-br-md'
+            : 'bg-accent dark:bg-gray-800 text-foreground dark:text-white rounded-bl-md'
           }`}
       >
         <div className="flex items-start gap-2">
           {!isUser && (
             <div className="w-6 h-6 bg-indigo-100 dark:bg-indigo-900 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <Bot className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              <Bot className="w-3.5 h-3.5 text-primary dark:text-indigo-400" />
             </div>
           )}
           <div>
@@ -207,7 +207,7 @@ function MessageBubble({ message }: { message: EduMessage }) {
                   <span
                     key={topic}
                     className={`text-xs px-2 py-0.5 rounded-full ${isUser
-                        ? 'bg-white/20 text-white'
+                        ? 'bg-card/20 text-white'
                         : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
                       }`}
                   >
@@ -218,7 +218,7 @@ function MessageBubble({ message }: { message: EduMessage }) {
             )}
           </div>
           {isUser && (
-            <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-6 h-6 bg-card/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
               <User className="w-3.5 h-3.5 text-white" />
             </div>
           )}

@@ -63,23 +63,23 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-indigo-100 rounded-lg">
-            <Moon className="w-5 h-5 text-indigo-600" />
+            <Moon className="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Sleep</h3>
-            <p className="text-xs text-gray-500">
+            <h3 className="font-semibold text-foreground">Sleep</h3>
+            <p className="text-xs text-muted-foreground">
               {entry ? formatDuration(entry.durationMinutes) : 'Not logged'}
             </p>
           </div>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+          className="p-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors"
         >
           {entry ? (
             <Clock className="w-5 h-5" />
@@ -139,12 +139,12 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
 
       {/* Sleep Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-xl p-4 mb-4">
-          <h4 className="font-medium text-gray-900 mb-3">Log Sleep</h4>
+        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-4 mb-4">
+          <h4 className="font-medium text-foreground mb-3">Log Sleep</h4>
 
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label htmlFor="sleep-bedtime" className="block text-sm text-gray-600 mb-1">Bedtime</label>
+              <label htmlFor="sleep-bedtime" className="block text-sm text-muted-foreground mb-1">Bedtime</label>
               <input
                 id="sleep-bedtime"
                 name="sleep-bedtime"
@@ -152,11 +152,11 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                 autoComplete="off"
                 value={bedTime}
                 onChange={(e) => setBedTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-indigo-500"
               />
             </div>
             <div>
-              <label htmlFor="sleep-waketime" className="block text-sm text-gray-600 mb-1">Wake time</label>
+              <label htmlFor="sleep-waketime" className="block text-sm text-muted-foreground mb-1">Wake time</label>
               <input
                 id="sleep-waketime"
                 name="sleep-waketime"
@@ -164,7 +164,7 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                 autoComplete="off"
                 value={wakeTime}
                 onChange={(e) => setWakeTime(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
 
           {/* Quality Rating */}
           <div className="mb-3">
-            <span className="block text-sm text-gray-600 mb-1">Sleep Quality</span>
+            <span className="block text-sm text-muted-foreground mb-1">Sleep Quality</span>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -190,7 +190,7 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                   onClick={() => setQuality(star as 1 | 2 | 3 | 4 | 5)}
                   className={`flex-1 py-2 rounded-lg transition-colors ${quality === star
                       ? `${getQualityColor(star)} text-white`
-                      : 'bg-white border border-gray-200 text-gray-400 hover:bg-gray-100'
+                      : 'bg-card border border-border text-muted-foreground hover:bg-accent'
                     }`}
                 >
                   <Star
@@ -200,7 +200,7 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
                 </button>
               ))}
             </div>
-            <p className="text-center text-sm text-gray-600 mt-1">
+            <p className="text-center text-sm text-muted-foreground mt-1">
               {getQualityLabel(quality)}
             </p>
           </div>
@@ -223,13 +223,13 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className="flex-1 py-2 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+              className="flex-1 py-2 text-muted-foreground hover:bg-accent rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+              className="flex-1 py-2 bg-primary text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors"
             >
               {entry ? 'Update' : 'Save'}
             </button>
@@ -239,29 +239,29 @@ export default function SleepTracker({ date, onDataChange }: SleepTrackerProps) 
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500 mb-1">Avg Duration</p>
-          <p className="font-semibold text-gray-900">
+        <div className="bg-card rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground mb-1">Avg Duration</p>
+          <p className="font-semibold text-foreground">
             {averageDuration > 0 ? formatDuration(averageDuration) : '--'}
           </p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500 mb-1">Avg Quality</p>
+        <div className="bg-card rounded-lg p-3 text-center">
+          <p className="text-xs text-muted-foreground mb-1">Avg Quality</p>
           <div className="flex items-center justify-center gap-1">
             {averageQuality > 0 ? (
               <>
                 <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                <span className="font-semibold text-gray-900">{averageQuality.toFixed(1)}</span>
+                <span className="font-semibold text-foreground">{averageQuality.toFixed(1)}</span>
               </>
             ) : (
-              <span className="text-gray-400">--</span>
+              <span className="text-muted-foreground">--</span>
             )}
           </div>
         </div>
       </div>
 
       {!entry && !showForm && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <Moon className="w-12 h-12 mx-auto mb-2 text-gray-300" />
           <p>No sleep logged for today</p>
           <p className="text-sm mt-1">Tap + to log your sleep</p>

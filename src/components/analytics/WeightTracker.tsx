@@ -137,70 +137,70 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-1">Current</p>
-            <p className="text-xl font-bold text-gray-900">{stats.currentWeight} kg</p>
+          <div className="bg-muted/50 rounded-xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Current</p>
+            <p className="text-xl font-bold text-foreground">{stats.currentWeight} kg</p>
           </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-1">Change</p>
-            <p className={`text-xl font-bold flex items-center gap-1 ${stats.change < 0 ? 'text-green-600' : stats.change > 0 ? 'text-red-600' : 'text-gray-600'}`}>
+          <div className="bg-muted/50 rounded-xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Change</p>
+            <p className={`text-xl font-bold flex items-center gap-1 ${stats.change < 0 ? 'text-green-600' : stats.change > 0 ? 'text-red-600' : 'text-muted-foreground'}`}>
               {stats.change < 0 ? <TrendingDown className="w-4 h-4" /> : stats.change > 0 ? <TrendingUp className="w-4 h-4" /> : null}
               {stats.change > 0 ? '+' : ''}{stats.change.toFixed(1)} kg
             </p>
           </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-1">BMI</p>
+          <div className="bg-muted/50 rounded-xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">BMI</p>
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-gray-400" />
+              <Activity className="w-4 h-4 text-muted-foreground" />
               {getBMIStatus()}
             </div>
           </div>
-          <div className="bg-gray-50 rounded-xl p-4">
-            <p className="text-xs text-gray-500 mb-1">Entries</p>
-            <p className="text-xl font-bold text-gray-900">{stats.totalEntries}</p>
+          <div className="bg-muted/50 rounded-xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Entries</p>
+            <p className="text-xl font-bold text-foreground">{stats.totalEntries}</p>
           </div>
         </div>
       )}
 
       {/* Chart */}
       {entries.length > 0 ? (
-        <div className="bg-gray-50 rounded-xl p-4 mb-6">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('analytics.weightTrend') || 'Weight Trend'}</h3>
+        <div className="bg-muted/50 rounded-xl p-4 mb-6">
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('analytics.weightTrend') || 'Weight Trend'}</h3>
           <div className="h-64">
             <Line data={chartData} options={chartOptions} />
           </div>
         </div>
       ) : (
-        <div className="bg-gray-50 rounded-xl p-8 text-center mb-6">
-          <p className="text-gray-500 mb-4">{t('analytics.noWeightData')}</p>
+        <div className="bg-muted/50 rounded-xl p-8 text-center mb-6">
+          <p className="text-muted-foreground mb-4">{t('analytics.noWeightData')}</p>
         </div>
       )}
 
       {/* History List */}
       {entries.length > 0 && (
         <div className="mb-4">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">{t('analytics.recentEntries') || 'Recent Entries'}</h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('analytics.recentEntries') || 'Recent Entries'}</h3>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {entries.slice(0, 10).map((entry) => (
               <div
                 key={entry.id}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
               >
                 <div>
-                  <p className="font-medium text-gray-900">
+                  <p className="font-medium text-foreground">
                     {new Date(entry.date).toLocaleDateString('en-US', {
                       weekday: 'short',
                       month: 'short',
                       day: 'numeric',
                     })}
                   </p>
-                  {entry.note && <p className="text-xs text-gray-500">{entry.note}</p>}
+                  {entry.note && <p className="text-xs text-muted-foreground">{entry.note}</p>}
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-gray-900">{entry.weight} kg</span>
+                  <span className="font-semibold text-foreground">{entry.weight} kg</span>
                   <button
                     onClick={() => onDeleteEntry(entry.id)}
-                    className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                    className="p-1 text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -214,7 +214,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
       {/* Add Button */}
       <button
         onClick={() => setShowModal(true)}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
       >
         <Plus className="w-4 h-4" />
         {t('analytics.logWeight')}
@@ -222,12 +222,12 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
 
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('analytics.logWeight')}</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-card rounded-2xl w-full max-w-md p-6 border border-border">
+            <h3 className="text-lg font-semibold text-foreground mb-4">{t('analytics.logWeight')}</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="weight-input" className="block text-sm font-medium text-gray-700 mb-1">{t('analytics.weightKg') || 'Weight (kg)'}</label>
+                <label htmlFor="weight-input" className="block text-sm font-medium text-foreground mb-1">{t('analytics.weightKg') || 'Weight (kg)'}</label>
                 <input
                   id="weight-input"
                   name="weight-input"
@@ -239,12 +239,12 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
                   min="0"
                   max="500"
                   required
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground"
                   placeholder="70.5"
                 />
               </div>
               <div>
-                <label htmlFor="weight-date" className="block text-sm font-medium text-gray-700 mb-1">{t('common.date') || 'Date'}</label>
+                <label htmlFor="weight-date" className="block text-sm font-medium text-foreground mb-1">{t('common.date') || 'Date'}</label>
                 <input
                   id="weight-date"
                   name="weight-date"
@@ -253,11 +253,11 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
                   required
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground"
                 />
               </div>
               <div>
-                <label htmlFor="weight-note" className="block text-sm font-medium text-gray-700 mb-1">{t('analytics.noteOptional') || 'Note (optional)'}</label>
+                <label htmlFor="weight-note" className="block text-sm font-medium text-foreground mb-1">{t('analytics.noteOptional') || 'Note (optional)'}</label>
                 <input
                   id="weight-note"
                   name="weight-note"
@@ -265,7 +265,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
                   autoComplete="off"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground"
                   placeholder="Feeling great today!"
                 />
               </div>
@@ -273,13 +273,13 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="flex-1 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                  className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                 >
                   Save
                 </button>

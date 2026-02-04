@@ -51,7 +51,7 @@ export default function RecipeDetailModal({
         />
 
         {/* Modal */}
-        <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="relative bg-card rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-border">
           {/* Header Image */}
           <div className="relative h-48 bg-gradient-to-br from-indigo-400 to-purple-500">
             {recipe.imageUrl && (
@@ -79,8 +79,8 @@ export default function RecipeDetailModal({
                   onToggleFavorite();
                 }}
                 className={`absolute top-3 left-3 p-2 rounded-full transition-colors ${isFavorite
-                    ? 'bg-red-500 text-white'
-                    : 'bg-white/20 hover:bg-white/30 text-white'
+                  ? 'bg-red-500 text-white'
+                  : 'bg-card/20 hover:bg-card/30 text-white'
                   }`}
               >
                 <svg
@@ -99,7 +99,7 @@ export default function RecipeDetailModal({
               <h2 className="text-2xl font-bold mb-2">{recipe.title}</h2>
               <div className="flex flex-wrap gap-2">
                 {recipe.tags.map((tag) => (
-                  <span key={tag} className="px-2 py-0.5 bg-white/20 rounded-full text-xs font-medium">
+                  <span key={tag} className="px-2 py-0.5 bg-card/20 rounded-full text-xs font-medium">
                     {tag}
                   </span>
                 ))}
@@ -108,49 +108,49 @@ export default function RecipeDetailModal({
           </div>
 
           {/* Quick stats */}
-          <div className="grid grid-cols-4 gap-4 p-4 border-b border-gray-100">
+          <div className="grid grid-cols-4 gap-4 p-4 border-b border-border">
             <div className="text-center">
-              <Clock className="w-5 h-5 mx-auto mb-1 text-gray-400" />
-              <p className="text-lg font-bold text-gray-900">{totalTime}</p>
-              <p className="text-xs text-gray-500">min total</p>
+              <Clock className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+              <p className="text-lg font-bold text-foreground">{totalTime}</p>
+              <p className="text-xs text-muted-foreground">min total</p>
             </div>
             <div className="text-center">
-              <ChefHat className="w-5 h-5 mx-auto mb-1 text-gray-400" />
-              <p className="text-lg font-bold text-gray-900">{recipe.prepTimeMinutes}</p>
-              <p className="text-xs text-gray-500">prep</p>
+              <ChefHat className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+              <p className="text-lg font-bold text-foreground">{recipe.prepTimeMinutes}</p>
+              <p className="text-xs text-muted-foreground">prep</p>
             </div>
             <div className="text-center">
-              <Users className="w-5 h-5 mx-auto mb-1 text-gray-400" />
-              <p className="text-lg font-bold text-gray-900">{recipe.servings}</p>
-              <p className="text-xs text-gray-500">servings</p>
+              <Users className="w-5 h-5 mx-auto mb-1 text-muted-foreground" />
+              <p className="text-lg font-bold text-foreground">{recipe.servings}</p>
+              <p className="text-xs text-muted-foreground">servings</p>
             </div>
             <div className="text-center">
               <div className="w-5 h-5 mx-auto mb-1 rounded-full bg-indigo-100 flex items-center justify-center">
-                <span className="text-xs font-bold text-indigo-600">
+                <span className="text-xs font-bold text-primary">
                   {recipe.caloriesPerServing}
                 </span>
               </div>
-              <p className="text-lg font-bold text-gray-900">{recipe.caloriesPerServing}</p>
-              <p className="text-xs text-gray-500">cal/serving</p>
+              <p className="text-lg font-bold text-foreground">{recipe.caloriesPerServing}</p>
+              <p className="text-xs text-muted-foreground">cal/serving</p>
             </div>
           </div>
 
           {/* Description */}
           {recipe.description && (
-            <p className="px-4 py-3 text-gray-600 text-sm border-b border-gray-100">
+            <p className="px-4 py-3 text-muted-foreground text-sm border-b border-border">
               {recipe.description}
             </p>
           )}
 
           {/* Tabs */}
-          <div className="flex border-b border-gray-100">
+          <div className="flex border-b border-border">
             {(['ingredients', 'instructions', 'tips'] as TabType[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab
-                    ? 'text-indigo-600 border-b-2 border-indigo-600'
-                    : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-muted-foreground hover:text-foreground'
                   }`}
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -162,12 +162,12 @@ export default function RecipeDetailModal({
           <div className="p-4 overflow-y-auto max-h-80">
             {activeTab === 'ingredients' && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Ingredients</h3>
+                <h3 className="font-semibold text-foreground mb-3">Ingredients</h3>
                 <ul className="space-y-2">
                   {recipe.ingredients.map((ingredient) => (
                     <li key={ingredient.id} className="flex items-center gap-3 text-sm">
                       <div className="w-2 h-2 rounded-full bg-indigo-400" />
-                      <span className="text-gray-700">
+                      <span className="text-foreground">
                         <strong>{ingredient.amount} {ingredient.unit}</strong> {ingredient.name}
                       </span>
                     </li>
@@ -175,8 +175,8 @@ export default function RecipeDetailModal({
                 </ul>
 
                 {/* Macros summary */}
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Per Serving</h4>
+                <div className="mt-4 pt-4 border-t border-border">
+                  <h4 className="text-sm font-medium text-foreground mb-2">Per Serving</h4>
                   <div className="flex gap-4 text-sm">
                     <span className="text-blue-600">
                       <strong>{recipe.macros.protein}g</strong> Protein
@@ -194,17 +194,17 @@ export default function RecipeDetailModal({
 
             {activeTab === 'instructions' && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3">Instructions</h3>
+                <h3 className="font-semibold text-foreground mb-3">Instructions</h3>
                 <ol className="space-y-4">
                   {recipe.instructions.map((step) => (
                     <li key={step.order} className="flex gap-4">
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 text-primary flex items-center justify-center font-bold text-sm">
                         {step.order}
                       </div>
                       <div className="flex-1">
-                        <p className="text-gray-700 text-sm">{step.instruction}</p>
+                        <p className="text-foreground text-sm">{step.instruction}</p>
                         {step.durationMinutes && (
-                          <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                          <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {step.durationMinutes} min
                           </p>
@@ -218,7 +218,7 @@ export default function RecipeDetailModal({
 
             {activeTab === 'tips' && (
               <div>
-                <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Lightbulb className="w-5 h-5 text-amber-500" />
                   Meal Prep Tips
                 </h3>
@@ -227,29 +227,29 @@ export default function RecipeDetailModal({
                     {recipe.prepTips.map((tip, index) => (
                       <li key={index} className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
                         <Lightbulb className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                        <p className="text-gray-700 text-sm">{tip}</p>
+                        <p className="text-foreground text-sm">{tip}</p>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500 text-sm">No prep tips available for this recipe.</p>
+                  <p className="text-muted-foreground text-sm">No prep tips available for this recipe.</p>
                 )}
               </div>
             )}
           </div>
 
           {/* Footer actions */}
-          <div className="flex gap-2 p-4 border-t border-gray-100 bg-gray-50">
+          <div className="flex gap-2 p-4 border-t border-border bg-muted/30">
             <button
               onClick={handleShare}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-card border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
             >
               <Share2 className="w-4 h-4" />
               Share
             </button>
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors"
             >
               Close
             </button>

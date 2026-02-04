@@ -59,7 +59,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
 
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+    <div className="bg-card rounded-2xl shadow-sm border border-border p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
@@ -67,8 +67,8 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
             <Flame className="w-5 h-5 text-red-600" />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900">Exercise</h3>
-            <p className="text-xs text-gray-500">
+            <h3 className="font-semibold text-foreground">Exercise</h3>
+            <p className="text-xs text-muted-foreground">
               {totalMinutes} min • {totalCaloriesBurned} cal burned
             </p>
           </div>
@@ -101,13 +101,13 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
 
       {/* Workout Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-xl p-4 mb-4">
+        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-medium text-gray-900">Log Workout</h4>
+            <h4 className="font-medium text-foreground">Log Workout</h4>
             <button
               type="button"
               onClick={resetForm}
-              className="p-1 text-gray-400 hover:text-gray-600"
+              className="p-1 text-muted-foreground hover:text-muted-foreground"
             >
               <X className="w-4 h-4" />
             </button>
@@ -115,7 +115,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
 
           {/* Exercise Type */}
           <div className="mb-3">
-            <span className="block text-sm text-gray-600 mb-1">Type</span>
+            <span className="block text-sm text-muted-foreground mb-1">Type</span>
             <div className="grid grid-cols-5 gap-1">
               {exerciseTypes.slice(0, 5).map((type) => (
                 <button
@@ -124,7 +124,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                   onClick={() => setSelectedType(type)}
                   className={`p-2 rounded-lg text-center transition-colors ${selectedType?.id === type.id
                     ? 'bg-red-100 border-2 border-red-500'
-                    : 'bg-white border border-gray-200 hover:bg-gray-100'
+                    : 'bg-card border border-border hover:bg-accent'
                     }`}
                 >
                   <span className="text-lg">{type.icon}</span>
@@ -136,7 +136,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
 
           {/* Duration */}
           <div className="mb-3">
-            <label htmlFor="exercise-duration" className="block text-sm text-gray-600 mb-1">
+            <label htmlFor="exercise-duration" className="block text-sm text-muted-foreground mb-1">
               Duration: {duration} min
             </label>
             <input
@@ -149,25 +149,25 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
               step="5"
               value={duration}
               onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              className="w-full h-2 bg-accent rounded-lg appearance-none cursor-pointer"
             />
-            <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <div className="flex justify-between text-xs text-muted-foreground mt-1">
               <span>5 min</span>
               <span>180 min</span>
             </div>
           </div>
 
           {/* Estimated Calories */}
-          <div className="mb-3 p-3 bg-white rounded-lg border border-gray-200">
+          <div className="mb-3 p-3 bg-card rounded-lg border border-border">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Estimated burn</span>
+              <span className="text-sm text-muted-foreground">Estimated burn</span>
               <span className="font-bold text-red-600">~{estimatedCalories} cal</span>
             </div>
           </div>
 
           {/* Intensity */}
           <div className="mb-3">
-            <span className="block text-sm text-gray-600 mb-1">Intensity</span>
+            <span className="block text-sm text-muted-foreground mb-1">Intensity</span>
             <div className="flex gap-2">
               {(['low', 'medium', 'high'] as const).map((level) => (
                 <button
@@ -180,7 +180,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
                       : level === 'medium'
                         ? 'bg-yellow-100 text-yellow-700 border-2 border-yellow-500'
                         : 'bg-red-100 text-red-700 border-2 border-red-500'
-                    : 'bg-white border border-gray-200 text-gray-600'
+                    : 'bg-card border border-border text-muted-foreground'
                     }`}
                 >
                   {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -191,7 +191,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
 
           {/* Notes */}
           <div className="mb-3">
-            <label htmlFor="exercise-notes" className="block text-sm text-gray-600 mb-1">Notes (optional)</label>
+            <label htmlFor="exercise-notes" className="block text-sm text-muted-foreground mb-1">Notes (optional)</label>
             <input
               id="exercise-notes"
               name="exercise-notes"
@@ -200,7 +200,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="How did it go?"
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-red-500"
             />
           </div>
 
@@ -209,7 +209,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
             <button
               type="button"
               onClick={resetForm}
-              className="flex-1 py-2 text-gray-600 hover:bg-gray-200 rounded-lg transition-colors"
+              className="flex-1 py-2 text-muted-foreground hover:bg-accent rounded-lg transition-colors"
             >
               Cancel
             </button>
@@ -229,14 +229,14 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
           {entries.map((entry) => (
             <div
               key={entry.id}
-              className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+              className="flex items-center gap-3 p-3 bg-card rounded-lg"
             >
               <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
                 <Flame className="w-5 h-5 text-red-600" />
               </div>
               <div className="flex-1">
-                <p className="font-medium text-gray-900">{entry.type}</p>
-                <div className="flex items-center gap-3 text-sm text-gray-500">
+                <p className="font-medium text-foreground">{entry.type}</p>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Timer className="w-3 h-3" />
                     {entry.durationMinutes} min
@@ -251,7 +251,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
               <div className="flex gap-1">
                 <button
                   onClick={() => deleteWorkout(entry.id)}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  className="p-1 text-muted-foreground hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -262,7 +262,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
       )}
 
       {entries.length === 0 && !showForm && (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-muted-foreground">
           <Flame className="w-12 h-12 mx-auto mb-2 text-gray-300" />
           <p>No workouts logged today</p>
           <p className="text-sm mt-1">Tap + to log your first workout</p>

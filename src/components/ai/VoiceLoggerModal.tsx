@@ -126,7 +126,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5 text-indigo-600" />
+            <Volume2 className="h-5 w-5 text-primary" />
             Voice Food Logger
           </DialogTitle>
           <DialogDescription>

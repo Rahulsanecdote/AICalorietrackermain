@@ -41,33 +41,33 @@ export function MonitoringDebugPanel() {
 
       {/* Debug Panel */}
       {isOpen && (
-        <div className="fixed bottom-20 right-4 z-50 w-96 max-h-[600px] bg-white dark:bg-gray-800 rounded-lg shadow-2xl border border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="fixed bottom-20 right-4 z-50 w-96 max-h-[600px] bg-card dark:bg-gray-800 rounded-lg shadow-2xl border border-border dark:border-border flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center justify-between p-4 border-b border-border dark:border-border">
             <div className="flex items-center gap-2">
               <Activity className="w-5 h-5 text-purple-600" />
-              <h3 className="font-semibold text-gray-900 dark:text-white">Monitoring Debug</h3>
+              <h3 className="font-semibold text-foreground dark:text-white">Monitoring Debug</h3>
             </div>
-            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" aria-label="Close debug panel">
+            <button onClick={() => setIsOpen(false)} className="p-1 hover:bg-accent dark:hover:bg-gray-700 rounded" aria-label="Close debug panel">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Stats */}
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-4 border-b border-border dark:border-border">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600" />
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Environment</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{import.meta.env.MODE}</div>
+                  <div className="text-xs text-muted-foreground dark:text-muted-foreground">Environment</div>
+                  <div className="text-sm font-medium text-foreground dark:text-white">{import.meta.env.MODE}</div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-orange-600" />
                 <div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Recent Errors</div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-white">{recentErrors.length}</div>
+                  <div className="text-xs text-muted-foreground dark:text-muted-foreground">Recent Errors</div>
+                  <div className="text-sm font-medium text-foreground dark:text-white">{recentErrors.length}</div>
                 </div>
               </div>
             </div>
@@ -76,7 +76,7 @@ export function MonitoringDebugPanel() {
           {/* Recent Errors */}
           <div className="flex-1 overflow-y-auto p-4">
             <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-medium text-gray-900 dark:text-white">Recent Errors</h4>
+              <h4 className="text-sm font-medium text-foreground dark:text-white">Recent Errors</h4>
               {recentErrors.length > 0 && (
                 <button
                   onClick={() => {
@@ -91,7 +91,7 @@ export function MonitoringDebugPanel() {
             </div>
 
             {recentErrors.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400 text-sm">
+              <div className="text-center py-8 text-muted-foreground dark:text-muted-foreground text-sm">
                 <CheckCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 No errors logged
               </div>
@@ -107,18 +107,18 @@ export function MonitoringDebugPanel() {
                         <div className="text-xs font-mono text-red-600 dark:text-red-400 truncate">
                           {entry.error.code}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-muted-foreground dark:text-muted-foreground">
                           {new Date(entry.timestamp).toLocaleTimeString()}
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">{entry.error.userMessage}</p>
+                    <p className="text-sm text-foreground dark:text-gray-300 mb-2">{entry.error.userMessage}</p>
                     {entry.error.context && (
                       <details className="text-xs">
-                        <summary className="cursor-pointer text-gray-600 dark:text-gray-400 hover:text-gray-800">
+                        <summary className="cursor-pointer text-muted-foreground dark:text-muted-foreground hover:text-foreground">
                           Context
                         </summary>
-                        <pre className="mt-2 p-2 bg-gray-100 dark:bg-gray-900 rounded text-xs overflow-auto max-h-32">
+                        <pre className="mt-2 p-2 bg-accent dark:bg-gray-900 rounded text-xs overflow-auto max-h-32">
                           {JSON.stringify(entry.error.context, null, 2)}
                         </pre>
                       </details>
@@ -130,7 +130,7 @@ export function MonitoringDebugPanel() {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-gray-200 dark:border-gray-700 text-xs text-center text-gray-500 dark:text-gray-400">
+          <div className="p-3 border-t border-border dark:border-border text-xs text-center text-muted-foreground dark:text-muted-foreground">
             Development Mode Only
           </div>
         </div>

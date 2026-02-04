@@ -27,13 +27,13 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
   // Show empty state if no meals
   if (!hasMeals) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-gray-800 dark:border-border">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-foreground dark:text-white">
               {t('insights.title')}
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               {t('insights.subtitle')}
             </p>
           </div>
@@ -43,10 +43,10 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
           <div className="w-16 h-16 mx-auto mb-4 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center">
             <Sparkles className="w-8 h-8 text-indigo-500" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+          <h3 className="text-lg font-medium text-foreground dark:text-white mb-2">
             {t('insights.startLogging')}
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-4 max-w-sm mx-auto">
+          <p className="text-muted-foreground dark:text-muted-foreground mb-4 max-w-sm mx-auto">
             {t('insights.logFirstMeal')}
           </p>
         </div>
@@ -57,20 +57,20 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-gray-800 dark:border-border">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-foreground dark:text-white">
               Your Insights
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               Personalized tips based on your eating patterns
             </p>
           </div>
           <button
             onClick={generateInsights}
             disabled={isLoading}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <>
@@ -91,54 +91,54 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
 
         {/* Quick Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.avgCaloriesPerDay}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Avg Calories/Day</p>
+          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.avgCaloriesPerDay}</p>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">Avg Calories/Day</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.avgProteinPerDay}g</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Avg Protein/Day</p>
+          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.avgProteinPerDay}g</p>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">Avg Protein/Day</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.dayStreak}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Day Streak</p>
+          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.dayStreak}</p>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">Day Streak</p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
-            <p className="text-2xl font-bold text-gray-900 dark:text-white">{weeklyStats.mealCount}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total Meals</p>
+          <div className="bg-card dark:bg-gray-700/50 rounded-lg p-3 text-center">
+            <p className="text-2xl font-bold text-foreground dark:text-white">{weeklyStats.mealCount}</p>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">Total Meals</p>
           </div>
         </div>
       </div>
 
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 dark:bg-gray-800 dark:border-gray-700">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8 dark:bg-gray-800 dark:border-border">
           <div className="flex flex-col items-center justify-center py-8">
             <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mb-4">
-              <Sparkles className="w-6 h-6 text-indigo-600 animate-pulse" />
+              <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Analyzing your nutrition data...</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">This may take a few seconds</p>
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">Analyzing your nutrition data...</p>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground mt-1">This may take a few seconds</p>
           </div>
         </div>
       )}
 
       {/* No Insights State */}
       {!isLoading && !hasInsights && (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 dark:bg-gray-800 dark:border-gray-700">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-gray-800 dark:border-border">
           <div className="text-center py-6">
             <div className="w-16 h-16 mx-auto mb-4 bg-amber-100 dark:bg-amber-900/30 rounded-full flex items-center justify-center">
               <Lightbulb className="w-8 h-8 text-amber-500" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <h3 className="text-lg font-medium text-foreground dark:text-white mb-2">
               No Insights Yet
             </h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
+            <p className="text-muted-foreground dark:text-muted-foreground mb-4">
               Keep logging meals to unlock personalized insights about your nutrition.
             </p>
             <button
               onClick={generateInsights}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
             >
               Generate Insights
             </button>
@@ -149,7 +149,7 @@ export function InsightsDashboard({ meals }: InsightsDashboardProps) {
       {/* Insights Cards */}
       {!isLoading && hasInsights && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 px-1">
+          <h3 className="text-sm font-medium text-foreground dark:text-gray-300 px-1">
             Your Personalized Insights
           </h3>
           {insights.map((insight) => (
@@ -208,11 +208,11 @@ function InsightCard({ insight, onDismiss }: InsightCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             {severityIcons[insight.severity]}
-            <h4 className="font-medium text-gray-900 dark:text-white truncate">
+            <h4 className="font-medium text-foreground dark:text-white truncate">
               {insight.title}
             </h4>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-muted-foreground dark:text-gray-300">
             {insight.description}
           </p>
           {insight.actionItem && (
@@ -224,9 +224,9 @@ function InsightCard({ insight, onDismiss }: InsightCardProps) {
         </div>
         <button
           onClick={onDismiss}
-          className="p-1 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+          className="p-1 hover:bg-accent dark:hover:bg-gray-700 rounded transition-colors"
         >
-          <X className="w-4 h-4 text-gray-400" />
+          <X className="w-4 h-4 text-muted-foreground" />
         </button>
       </div>
     </div>
@@ -247,13 +247,13 @@ export function InsightsSummary({ meals }: { meals: any[] }) {
       className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl hover:from-indigo-100 hover:to-purple-100 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 transition-colors"
     >
       <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-        <Sparkles className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+        <Sparkles className="w-5 h-5 text-primary dark:text-indigo-400" />
       </div>
       <div className="flex-1 text-left">
-        <p className="text-sm font-medium text-gray-900 dark:text-white">
+        <p className="text-sm font-medium text-foreground dark:text-white">
           {t('insights.title')}
         </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">
+        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
           {isLoading ? t('insights.generatingInsights') : hasInsights ? t('insights.viewInsights') : t('insights.getTips')}
         </p>
       </div>

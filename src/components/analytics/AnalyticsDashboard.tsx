@@ -32,30 +32,30 @@ export default function AnalyticsDashboard({ settings }: AnalyticsDashboardProps
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-card rounded-2xl shadow-sm border border-border overflow-hidden">
       {/* Header with Stats Overview */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-500 p-6 text-white">
-        <h2 className="text-xl font-semibold mb-4">{t('analytics.title')}</h2>
+      <div className="bg-gradient-to-r from-primary/80 to-primary/40 p-6 text-primary-foreground">
+        <h2 className="text-xl font-semibold mb-4 text-foreground">{t('analytics.title')}</h2>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white/10 rounded-xl p-3">
+          <div className="bg-card/10 rounded-xl p-3">
             <p className="text-xs text-white/70 mb-1">{t('analytics.currentWeight')}</p>
             <p className="text-xl font-bold">
               {weightStats ? `${weightStats.currentWeight} kg` : '--'}
             </p>
           </div>
-          <div className="bg-white/10 rounded-xl p-3">
+          <div className="bg-card/10 rounded-xl p-3">
             <p className="text-xs text-white/70 mb-1">{t('analytics.change')}</p>
             <p className={`text-xl font-bold ${weightStats && weightStats.change < 0 ? 'text-green-300' : weightStats && weightStats.change > 0 ? 'text-red-300' : ''}`}>
               {weightStats ? (weightStats.change > 0 ? '+' : '') + `${weightStats.change.toFixed(1)} kg` : '--'}
             </p>
           </div>
-          <div className="bg-white/10 rounded-xl p-3">
+          <div className="bg-card/10 rounded-xl p-3">
             <p className="text-xs text-white/70 mb-1">{t('analytics.logStreak')}</p>
             <p className="text-xl font-bold">{streakDays} {t('lifestyle.days')}</p>
           </div>
-          <div className="bg-white/10 rounded-xl p-3">
+          <div className="bg-card/10 rounded-xl p-3">
             <p className="text-xs text-white/70 mb-1">{t('analytics.weeklyAdherence')}</p>
             <p className={`text-xl font-bold ${weeklyAdherence >= 70 ? 'text-green-300' : weeklyAdherence >= 40 ? 'text-yellow-300' : 'text-red-300'}`}>
               {weeklyAdherence}%
@@ -65,7 +65,7 @@ export default function AnalyticsDashboard({ settings }: AnalyticsDashboardProps
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-gray-100">
+      <div className="flex border-b border-border">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
@@ -73,8 +73,8 @@ export default function AnalyticsDashboard({ settings }: AnalyticsDashboardProps
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
-                  ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                ? 'text-primary border-b-2 border-primary bg-primary/5'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
             >
               <Icon className="w-4 h-4" />

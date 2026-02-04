@@ -29,7 +29,7 @@ export default function FavoriteToggle({
       }}
       className={`inline-flex items-center gap-1.5 transition-all duration-200 ${isFavorite
         ? 'text-red-500 hover:text-red-600'
-        : 'text-gray-400 hover:text-red-400'
+        : 'text-muted-foreground hover:text-red-400'
         }`}
       title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
     >
