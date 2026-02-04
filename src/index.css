@@ -6,101 +6,78 @@
   :root {
     --radius: 0.75rem;
 
-    /* Core surface colors */
-    --background: 0 0% 98%;
-    --foreground: 240 10% 3.9%;
+    /* Forest Night Theme (Default) */
+    --background: 160 29% 6%;    /* Forest Night */
+    --foreground: 142 20% 92%;   /* Fog Text */
 
-    /* Card surfaces */
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: 165 33% 12%;         /* Pine Ink */
+    --card-foreground: 142 20% 92%; /* Fog Text */
 
-    /* Popover/Dropdown surfaces - SOLID backgrounds for readability */
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover: 159 32% 9%;       /* Spruce Shadow */
+    --popover-foreground: 142 20% 92%;
 
-    /* Primary accent */
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 45% 34%;      /* Fern */
+    --primary-foreground: 142 20% 92%;
 
-    /* Secondary */
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 159 32% 9%;     /* Spruce Shadow */
+    --secondary-foreground: 147 13% 70%; /* Moss Muted */
 
-    /* Muted */
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 159 32% 9%;         /* Spruce Shadow */
+    --muted-foreground: 147 13% 70%; /* Moss Muted */
 
-    /* Accent (for hover states) */
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 154 25% 22%;       /* Needle Border (used for hover/accents) */
+    --accent-foreground: 142 20% 92%;
 
-    /* Destructive */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 9 59% 40%;    /* Rowan Red */
+    --destructive-foreground: 142 20% 92%;
 
-    /* Borders */
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 142 76% 36%;
-
-    /* Sidebar */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 154 25% 22%;       /* Needle Border */
+    --input: 154 25% 22%;        /* Needle Border */
+    --ring: 38 63% 47%;          /* Ochre */
+    
+    /* Chart Colors (Forest Themed) */
+    --chart-1: 142 45% 34%;      /* Fern */
+    --chart-2: 130 28% 56%;      /* Sage */
+    --chart-3: 148 50% 24%;      /* Evergreen */
+    --chart-4: 38 63% 47%;       /* Ochre */
+    --chart-5: 18 62% 44%;       /* Rust */
   }
 
   .dark {
-    /* Core surface colors - Dark mode */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Ensure Dark Mode uses the same palette if class is present */
+    --background: 160 29% 6%;
+    --foreground: 142 20% 92%;
 
-    /* Card surfaces - Dark mode (solid, opaque) */
-    --card: 240 6% 10%;
-    --card-foreground: 0 0% 98%;
+    --card: 165 33% 12%;
+    --card-foreground: 142 20% 92%;
 
-    /* Popover/Dropdown surfaces - SOLID dark backgrounds for readability */
-    --popover: 240 6% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 159 32% 9%;
+    --popover-foreground: 142 20% 92%;
 
-    /* Primary accent */
-    --primary: 142 76% 36%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 142 45% 34%;
+    --primary-foreground: 142 20% 92%;
 
-    /* Secondary */
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 159 32% 9%;
+    --secondary-foreground: 147 13% 70%;
 
-    /* Muted */
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 159 32% 9%;
+    --muted-foreground: 147 13% 70%;
 
-    /* Accent */
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 154 25% 22%;
+    --accent-foreground: 142 20% 92%;
 
-    /* Destructive */
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 9 59% 40%;
+    --destructive-foreground: 142 20% 92%;
 
-    /* Borders */
-    --border: 240 3.7% 20%;
-    --input: 240 3.7% 20%;
-    --ring: 142 76% 36%;
-
-    /* Sidebar - Dark mode */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 154 25% 22%;
+    --input: 154 25% 22%;
+    --ring: 38 63% 47%;
+    
+    --chart-1: 142 45% 34%;
+    --chart-2: 130 28% 56%;
+    --chart-3: 148 50% 24%;
+    --chart-4: 38 63% 47%;
+    --chart-5: 18 62% 44%;
   }
 }
 
@@ -121,32 +98,26 @@
 
 @layer components {
   .card {
-    @apply bg-white rounded-2xl shadow-sm border border-gray-100;
+    @apply bg-card text-card-foreground rounded-2xl shadow-sm border border-border;
   }
 
-  .dark .card {
-    @apply bg-gray-800 border-gray-700;
-  }
+  /* Dark mode override removed as semantic tokens handle it */
 
   .input {
-    @apply w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all;
+    @apply w-full px-4 py-2 bg-background border border-input rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all;
   }
 
-  .dark .input {
-    @apply bg-gray-800 border-gray-700 text-white;
-  }
+  /* Dark mode override removed as semantic tokens handle it */
 
   .btn-primary {
-    @apply px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors font-medium;
+    @apply px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors font-medium;
+    @apply px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/80 transition-colors font-medium;
   }
 
-  .dark .btn-secondary {
-    @apply bg-gray-700 text-gray-300 hover:bg-gray-600;
-  }
+  /* Dark mode override removed as semantic tokens handle it */
 }
 
 @layer utilities {
@@ -300,114 +271,41 @@ select {
   }
 }
 
-/* ============================================================================
-   WCAG 2 AA Accessibility - Color Contrast Overrides
-   These ensure 4.5:1 minimum contrast ratio for normal text
-   ============================================================================ */
+/* Contrast adjustments moved to theme variables */
 
-@layer utilities {
-
-  /* Gray text - improve contrast on white backgrounds */
-  .text-gray-400 {
-    color: #6b7280 !important;
-    /* gray-500: 4.6:1 on white */
+/* Print styles */
+@media print {
+  body {
+    background: white;
   }
 
-  .text-gray-500 {
-    color: #4b5563 !important;
-    /* gray-600: 7.0:1 on white */
-  }
-
-  /* Dark mode gray text stays lighter for contrast on dark backgrounds */
-  .dark .text-gray-400 {
-    color: #9ca3af !important;
-    /* gray-400: good on dark */
-  }
-
-  .dark .text-gray-500 {
-    color: #d1d5db !important;
-    /* gray-300: good on dark */
-  }
-
-  /* Amber/Yellow - improve contrast on white/light backgrounds */
-  .text-amber-500 {
-    color: #b45309 !important;
-    /* amber-700: 4.8:1 on white */
-  }
-
-  .text-amber-600 {
-    color: #92400e !important;
-    /* amber-800: 7.5:1 on white */
-  }
-
-  /* Blue - improve contrast on white backgrounds */
-  .text-blue-500 {
-    color: #1d4ed8 !important;
-    /* blue-700: 5.6:1 on white */
-  }
-
-  /* Red - improve contrast on white backgrounds */
-  .text-red-500 {
-    color: #b91c1c !important;
-    /* red-700: 5.6:1 on white */
-  }
-
-  /* Green - already good, but ensure consistency */
-  .text-green-600 {
-    color: #15803d !important;
-    /* green-700: 5.2:1 on white */
-  }
-
-  /* Pink - improve contrast */
-  .text-pink-600 {
-    color: #be185d !important;
-    /* pink-700: 5.4:1 on white */
-  }
-
-  /* Emerald button text - ensure readability */
-  .bg-emerald-500.text-white {
-    background-color: #059669 !important;
-    /* emerald-600: better contrast */
-  }
-
-  /* Preserve hover states for interactive elements */
-  .text-gray-400.hover\:text-red-400:hover,
-  .text-gray-400.hover\:text-red-500:hover {
-    color: #dc2626 !important;
-  }
-
-  .text-gray-400.hover\:text-blue-500:hover {
-    color: #2563eb !important;
-  }
-
-  .text-gray-400.hover\:text-gray-600:hover {
-    color: #4b5563 !important;
-  }
-
-  .text-gray-400.hover\:text-purple-500:hover,
-  .text-gray-400.hover\:text-purple-600:hover {
-    color: #7c3aed !important;
+  header,
+  footer,
+  .no-print {
+    display: none !important;
   }
 }
 
-/* Specific component overrides for meal plan cards */
-.bg-amber-50 .text-amber-600,
-.bg-green-50 .text-amber-600,
-.bg-indigo-50 .text-amber-600,
-.bg-pink-50 .text-amber-600 {
-  color: #92400e !important;
-  /* Darker amber for visibility on tinted backgrounds */
+/* Dark mode specific overrides */
+.dark {
+  color-scheme: dark;
 }
 
-/* xs text needs even more contrast */
-.text-xs.text-gray-400,
-.text-xs.text-gray-500 {
-  color: #4b5563 !important;
-  /* gray-600 for small text */
+.dark input,
+.dark textarea,
+.dark select {
+  color-scheme: dark;
 }
 
-.dark .text-xs.text-gray-400,
-.dark .text-xs.text-gray-500 {
-  color: #d1d5db !important;
-  /* gray-300 for dark mode small text */
+/* Smooth theme transition */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 150ms;
+  transition-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+  }
 }
