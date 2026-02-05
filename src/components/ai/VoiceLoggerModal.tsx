@@ -227,9 +227,9 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                 onClick={stage === 'recording' ? handleStopListening : handleStartListening}
                 disabled={stage === 'processing' || stage === 'transcribing' || stage === 'analyzing'}
                 className={`
-                  relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group
+                  relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-[hsl(var(--vm-focus))] focus:ring-offset-2 focus:ring-offset-[hsl(var(--vm-surface))]
                   ${stage === 'recording'
-                    ? 'bg-[hsl(var(--vm-surface))] border-2 border-[hsl(var(--vm-danger))] shadow-[0_0_15px_hsla(var(--vm-danger),0.3)]'
+                    ? 'bg-[hsl(var(--vm-surface))] border-2 border-[hsl(var(--vm-primary-soft))] shadow-[0_0_15px_hsla(var(--vm-primary-soft),0.3)]'
                     : (stage === 'processing' || stage === 'transcribing' || stage === 'analyzing')
                       ? 'bg-[hsl(var(--vm-surface))] border-2 border-[hsl(var(--vm-focus))]'
                       : 'bg-[hsl(var(--vm-raised))] border border-[hsl(var(--vm-border))] hover:border-[hsl(var(--vm-primary))] hover:shadow-[0_0_10px_hsla(var(--vm-primary),0.2)]'
@@ -241,7 +241,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   <RefreshCw className="w-8 h-8 text-[hsl(var(--vm-focus))] animate-spin" />
                 ) : (
                   <Mic className={`w-8 h-8 transition-colors duration-300 ${stage === 'recording'
-                    ? 'text-[hsl(var(--vm-danger))] animate-pulse'
+                    ? 'text-[hsl(var(--vm-primary-soft))] animate-pulse'
                     : 'text-[hsl(var(--vm-text))] group-hover:text-[hsl(var(--vm-primary))]'
                     }`} />
                 )}
@@ -301,15 +301,16 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                 onClick={stage === 'recording' ? handleStopListening : handleStartListening}
                 disabled={stage === 'processing' || stage === 'transcribing' || stage === 'analyzing' || (!!error && error.includes('denied'))}
                 className={`
-                  w-full h-12 text-base font-medium transition-all border-0
+                  w-full h-12 text-base font-medium transition-all border-0 focus-visible:ring-2 focus-visible:ring-[hsl(var(--vm-focus))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--vm-surface))]
                   ${stage === 'recording'
-                    ? 'bg-[hsl(var(--vm-danger))] hover:bg-[hsl(var(--vm-danger))]/90 text-white shadow-[0_4px_14px_hsla(var(--vm-danger),0.4)]'
-                    : 'bg-[hsl(var(--vm-primary))] hover:bg-[hsl(var(--vm-primary-hover))] text-[hsl(var(--vm-bg))] shadow-[0_4px_14px_hsla(var(--vm-primary),0.3)]'
+                    ? 'bg-[hsl(var(--vm-danger))] hover:bg-[hsl(var(--vm-danger))]/90 text-white shadow-[0_4px_14px_hsla(var(--vm-danger),0.4)] relative overflow-hidden'
+                    : 'bg-[hsl(var(--vm-primary))] hover:bg-[hsl(var(--vm-primary-hover))] text-white shadow-[0_4px_14px_hsla(var(--vm-primary),0.3)]'
                   }
                 `}
               >
                 {stage === 'recording' ? (
                   <>
+                    <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-[hsl(var(--vm-focus))] animate-pulse shadow-[0_0_8px_hsl(var(--vm-focus))]"></span>
                     <MicOff className="mr-2 h-5 w-5" />
                     Stop Recording
                   </>
@@ -324,7 +325,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
               {/* Text Link Fallback */}
               <button
                 onClick={() => setShowTextFallback(true)}
-                className="w-full text-center text-sm text-[hsl(var(--vm-focus))] font-medium hover:text-[hsl(var(--vm-focus))]/80 hover:underline decoration-[hsl(var(--vm-focus))]/50 underline-offset-4 transition-all focus-visible:outline-[hsl(var(--vm-focus))]"
+                className="w-full text-center text-sm text-[hsl(var(--vm-focus))] font-medium hover:text-[hsl(var(--vm-focus))]/80 hover:underline decoration-[hsl(var(--vm-focus))]/50 underline-offset-4 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--vm-focus))]"
               >
                 Prefer to type?
               </button>
@@ -364,7 +365,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
 
 function DetectedFoodCard({ food }: { food: VoiceDetectedFood }) {
   return (
-    <div className="p-3 bg-[hsl(var(--vm-card))] rounded-lg border border-[hsl(var(--vm-border))] shadow-sm flex justify-between items-start group hover:border-[hsl(var(--vm-primary))]/50 transition-colors">
+    <div className="p-3 bg-[hsl(var(--vm-raised))] rounded-lg border border-[hsl(var(--vm-border))] shadow-sm flex justify-between items-start group hover:border-[hsl(var(--vm-primary))]/50 transition-colors">
       <div>
         <p className="font-medium text-[hsl(var(--vm-text))] group-hover:text-[hsl(var(--vm-primary))] transition-colors">{food.name}</p>
         <p className="text-xs text-[hsl(var(--vm-text-muted))]">{food.quantity} {food.unit}</p>
