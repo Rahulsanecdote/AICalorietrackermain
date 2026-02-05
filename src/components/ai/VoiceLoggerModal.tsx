@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3 } from 'lucide-react';
+import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3, X } from 'lucide-react';
 import { useVoiceScanner, VoiceRecordingStage } from '../../hooks/useVoiceScanner';
 import { Button } from '../ui/button';
 import {
@@ -9,7 +9,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '../ui/dialog';
 import { VoiceDetectedFood } from '../../types/ai';
 import { useNutritionAI } from '../../hooks/useNutritionAI';
@@ -23,7 +22,6 @@ interface VoiceLoggerModalProps {
 export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModalProps) {
   const {
     isListening,
-    isProcessing,
     transcript,
     result,
     error,
@@ -108,264 +106,200 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getStageLabel = (stage: VoiceRecordingStage): string => {
+  // State-specific helper text
+  const getHelperText = (stage: VoiceRecordingStage): string => {
     switch (stage) {
-      case 'requesting_permission': return 'Requesting microphone access...';
-      case 'recording': return 'Recording...';
+      case 'idle': return 'Describe what you ate — I’ll detect foods and estimate nutrition.';
+      case 'requesting_permission': return 'Allow microphone access...';
+      case 'recording': return 'Listening...';
       case 'processing': return 'Processing audio...';
-      case 'transcribing': return 'Transcribing speech...';
-      case 'analyzing': return 'Analyzing food...';
-      case 'success': return 'Done!';
-      case 'error': return 'Error';
+      case 'transcribing': return 'Transcribing...';
+      case 'analyzing': return 'Analyzing food details...';
+      case 'success': return 'Food identified!';
+      case 'error': return 'Transcription failed.';
       default: return '';
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5 text-primary" />
-            Voice Food Logger
-          </DialogTitle>
-          <DialogDescription>
-            Describe what you ate, and I'll identify the foods and their nutrition.
-          </DialogDescription>
+      <DialogContent className="sm:max-w-md bg-card border-border shadow-soft-black backdrop-blur-sm p-0 gap-0 overflow-hidden">
+        {/* Permission Banner */}
+        {error && error.includes('denied') && (
+          <div className="bg-warning/10 border-b border-warning/20 px-4 py-3 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-warning">Microphone permission is blocked.</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="text-xs text-warning hover:text-warning/80 underline mt-1"
+              >
+                Enable in settings and reload
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Error Banner */}
+        {stage === 'error' && !error?.includes('denied') && (
+          <div className="bg-warning/10 border-b border-warning/20 px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-warning">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">Transcription failed. Try again — or type it instead.</span>
+            </div>
+          </div>
+        )}
+
+        {/* Header */}
+        <DialogHeader className="px-6 py-4 flex flex-row items-center justify-between border-b border-border bg-card/50">
+          <div className="flex items-center gap-2">
+            <Volume2 className="h-5 w-5 text-foreground" />
+            <div>
+              <DialogTitle className="text-lg font-semibold text-foreground">Voice Food Logger</DialogTitle>
+              {/* Hide subtitle on mobile if space is tight, or keep it short */}
+            </div>
+          </div>
+          <button
+            onClick={handleClose}
+            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-muted"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Stage Indicator */}
-          {stage !== 'idle' && stage !== 'success' && stage !== 'error' && (
-            <div className="text-center text-sm text-muted-foreground">
-              {getStageLabel(stage)}
+        <div className="p-6 space-y-6">
+          {/* Main Status Area */}
+          <div className="flex flex-col items-center justify-center py-2">
+
+            {/* Mic Interaction Area */}
+            <div className="relative mb-4">
+              {stage === 'recording' && (
+                <div className="absolute inset-0 rounded-full border-2 border-destructive animate-ping opacity-20"></div>
+              )}
+
+              <button
+                onClick={stage === 'recording' ? handleStopListening : handleStartListening}
+                disabled={stage === 'processing' || stage === 'transcribing' || stage === 'analyzing'}
+                className={`
+                  relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300
+                  ${stage === 'recording'
+                    ? 'bg-card border-2 border-destructive shadow-[0_0_15px_rgba(161,59,42,0.3)]'
+                    : 'bg-card border border-border hover:border-evergreen hover:shadow-md'
+                  }
+                  ${(stage === 'processing' || stage === 'transcribing' || stage === 'analyzing') ? 'opacity-50 cursor-not-allowed' : ''}
+                `}
+              >
+                {stage === 'processing' || stage === 'transcribing' || stage === 'analyzing' ? (
+                  <RefreshCw className="w-8 h-8 text-primary animate-spin" />
+                ) : (
+                  <Mic className={`w-8 h-8 ${stage === 'recording' ? 'text-destructive animate-pulse' : 'text-foreground'}`} />
+                )}
+              </button>
             </div>
-          )}
 
-          {/* Status Indicator */}
-          <div className="flex items-center justify-center py-4">
-            {stage === 'recording' && (
-              <div className="flex flex-col items-center">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-destructive/20 dark:bg-red-900/30 flex items-center justify-center animate-pulse">
-                    <Mic className="w-10 h-10 text-destructive" />
-                  </div>
-                  <div className="absolute inset-0 rounded-full border-2 border-red-400 animate-ping opacity-75"></div>
-                </div>
-                <div className="mt-3 flex items-center gap-2 text-destructive">
+            {/* Timer or Helper Text */}
+            <div className="min-h-[2rem] text-center">
+              {stage === 'recording' ? (
+                <div className="flex items-center gap-2 text-destructive font-mono text-lg font-medium animate-pulse">
                   <Clock className="w-4 h-4" />
-                  <span className="text-lg font-mono font-bold">{formatDuration(recordingDuration)}</span>
+                  <span>{formatDuration(recordingDuration)}</span>
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">Speak now...</p>
-              </div>
-            )}
-
-            {stage === 'requesting_permission' && (
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
-                  <Mic className="w-10 h-10 text-yellow-600 animate-pulse" />
-                </div>
-                <p className="mt-3 text-sm font-medium text-yellow-600">
-                  Allow microphone access...
+              ) : (
+                <p className="text-sm text-muted-foreground font-medium">
+                  {getHelperText(stage)}
                 </p>
-              </div>
-            )}
-
-            {(stage === 'processing' || stage === 'transcribing' || stage === 'analyzing') && (
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                  <RefreshCw className="w-10 h-10 text-blue-600 animate-spin" />
-                </div>
-                <p className="mt-3 text-sm font-medium text-blue-600">
-                  {getStageLabel(stage)}
-                </p>
-              </div>
-            )}
-
-            {stage === 'idle' && !showTextFallback && (
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
-                  <Mic className="w-10 h-10 text-muted-foreground" />
-                </div>
-                <p className="mt-3 text-sm text-muted-foreground text-center">
-                  Tap the microphone and describe your meal
-                </p>
-              </div>
-            )}
-
-            {stage === 'success' && result && (
-              <div className="flex flex-col items-center">
-                <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                  <Check className="w-10 h-10 text-green-600" />
-                </div>
-                <p className="mt-3 text-sm font-medium text-green-600">
-                  Food identified!
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                <AlertCircle className="h-5 w-5 text-destructive mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-red-800 text-destructive-foreground">{error}</p>
-                  {error.includes('denied') && (
-                    <div className="mt-3 text-xs text-destructive text-destructive-foreground">
-                      <p className="font-medium mb-1">To enable microphone access:</p>
-                      <ul className="list-disc list-inside space-y-0.5">
-                        <li>Click the lock/camera icon in your address bar</li>
-                        <li>Find "Microphone" and set it to "Allow"</li>
-                        <li>Refresh the page and try again</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={handleRetry} className="flex-1">
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Try Again
-                </Button>
-                <Button variant="outline" onClick={() => setShowTextFallback(true)} className="flex-1">
-                  <Edit3 className="mr-2 h-4 w-4" />
-                  Type Instead
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Text Fallback Input */}
-          {showTextFallback && (
-            <div className="space-y-3">
-              <div className="p-3 bg-muted/50 rounded-lg border">
-                <label className="text-sm font-medium text-foreground mb-2 block">
-                  Type what you ate:
-                </label>
-                <textarea
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  placeholder='e.g., "I had a chicken breast with rice and vegetables"'
-                  className="w-full h-24 p-2 text-sm bg-background border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowTextFallback(false)}
-                  className="flex-1"
-                >
-                  Back to Voice
-                </Button>
-                <Button
-                  onClick={handleTextSubmit}
-                  disabled={!textInput.trim() || isSubmittingText}
-                  className="flex-1"
-                >
-                  {isSubmittingText ? (
-                    <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Check className="mr-2 h-4 w-4" />
-                  )}
-                  Analyze
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Transcript Display */}
+          {/* Transcript Preview */}
           {transcript && (
-            <div className="p-3 bg-muted/50 rounded-lg border">
-              <p className="text-sm font-medium text-foreground mb-1">Heard:</p>
-              <p className="text-foreground">{transcript}</p>
+            <div className="text-center px-4 py-2 bg-muted/30 rounded-lg border border-border/50">
+              <p className="text-sm italic text-muted-foreground">"{transcript}"</p>
             </div>
           )}
 
-          {/* Detected Foods */}
+          {/* Detected Foods Result */}
           {result?.detectedFoods && result.detectedFoods.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Detected Foods:</p>
-              <div className="space-y-2">
+            <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-medium text-foreground">Detected Foods</h3>
+                <span className="text-xs text-evergreen font-medium">High Confidence</span>
+              </div>
+              <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-thin">
                 {result.detectedFoods.map((food, index) => (
                   <DetectedFoodCard key={index} food={food} />
                 ))}
               </div>
+
+              <Button onClick={handleConfirm} className="w-full bg-evergreen hover:bg-fern text-white mt-2">
+                <Check className="mr-2 h-4 w-4" />
+                Add to Log
+              </Button>
             </div>
           )}
 
-          {/* Confidence Indicator */}
-          {result && (
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Confidence:</span>
-              <span
-                className={`font-medium ${result.confidence > 0.8
-                  ? 'text-green-600'
-                  : result.confidence > 0.5
-                    ? 'text-yellow-600'
-                    : 'text-destructive'
-                  }`}
+          {/* Primary CTA Button (Toggle based on state) */}
+          {!result && !showTextFallback && (
+            <div className="space-y-3">
+              <Button
+                onClick={stage === 'recording' ? handleStopListening : handleStartListening}
+                disabled={stage === 'processing' || stage === 'transcribing' || stage === 'analyzing' || (!!error && error.includes('denied'))}
+                className={`
+                  w-full h-12 text-base font-medium transition-all
+                  ${stage === 'recording'
+                    ? 'bg-destructive hover:bg-destructive/90 text-white'
+                    : 'bg-evergreen hover:bg-fern text-white'
+                  }
+                `}
               >
-                {Math.round(result.confidence * 100)}%
-              </span>
+                {stage === 'recording' ? (
+                  <>
+                    <MicOff className="mr-2 h-5 w-5" />
+                    Stop Recording
+                  </>
+                ) : (
+                  <>
+                    <Mic className="mr-2 h-5 w-5" />
+                    Start Recording
+                  </>
+                )}
+              </Button>
+
+              {/* Text Link Fallback */}
+              <button
+                onClick={() => setShowTextFallback(true)}
+                className="w-full text-center text-sm text-ring hover:text-ring/80 hover:underline transition-colors"
+              >
+                Prefer to type?
+              </button>
             </div>
           )}
 
-          {/* Action Buttons */}
-          {!showTextFallback && (
-            <div className="flex gap-2 pt-2">
-              {stage === 'idle' && !result && (
-                <Button
-                  onClick={handleStartListening}
-                  className="flex-1 bg-red-600 hover:bg-red-700"
-                >
-                  <Mic className="mr-2 h-4 w-4" />
-                  Start Recording
+          {/* Text Input Mode */}
+          {showTextFallback && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2">
+              <textarea
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                placeholder="e.g., I had a grilled salmon with quinoa"
+                className="w-full h-32 p-3 bg-muted/30 border border-border rounded-lg text-foreground focus:ring-2 focus:ring-ring focus:border-ring resize-none placeholder:text-muted-foreground/70"
+                autoFocus
+              />
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setShowTextFallback(false)} className="flex-1 border-border hover:bg-muted text-muted-foreground">
+                  Cancel
                 </Button>
-              )}
-
-              {stage === 'recording' && (
                 <Button
-                  onClick={handleStopListening}
-                  variant="destructive"
-                  className="flex-1"
+                  onClick={handleTextSubmit}
+                  disabled={!textInput.trim() || isSubmittingText}
+                  className="flex-1 bg-evergreen hover:bg-fern text-white"
                 >
-                  <MicOff className="mr-2 h-4 w-4" />
-                  Stop Recording
+                  {isSubmittingText ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
+                  Analyze
                 </Button>
-              )}
-
-              {stage === 'success' && result && (
-                <>
-                  <Button variant="outline" onClick={handleRetry} className="flex-1">
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Retry
-                  </Button>
-                  <Button onClick={handleConfirm} className="flex-1">
-                    <Check className="mr-2 h-4 w-4" />
-                    Add to Log
-                  </Button>
-                </>
-              )}
+              </div>
             </div>
-          )}
-
-          {/* Tips */}
-          {stage === 'idle' && !result && !showTextFallback && !error && (
-            <p className="text-xs text-muted-foreground text-center">
-              Try saying: "I had a chicken breast with rice and vegetables"
-            </p>
-          )}
-
-          {/* Text fallback link */}
-          {stage === 'idle' && !showTextFallback && !error && (
-            <button
-              onClick={() => setShowTextFallback(true)}
-              className="text-xs text-primary hover:underline block w-full text-center"
-            >
-              Prefer to type? Click here
-            </button>
           )}
         </div>
       </DialogContent>
@@ -375,77 +309,19 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
 
 function DetectedFoodCard({ food }: { food: VoiceDetectedFood }) {
   return (
-    <div className="p-3 bg-card rounded-lg border shadow-sm">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="font-medium text-foreground">{food.name}</p>
-          <p className="text-sm text-muted-foreground">
-            {food.quantity} {food.unit}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="font-semibold text-primary">
-            {food.estimatedCalories} cal
-          </p>
-          <p className="text-xs text-muted-foreground">per serving</p>
+    <div className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start group hover:border-evergreen/50 transition-colors">
+      <div>
+        <p className="font-medium text-foreground">{food.name}</p>
+        <p className="text-xs text-muted-foreground">{food.quantity} {food.unit}</p>
+      </div>
+      <div className="text-right">
+        <p className="text-sm font-semibold text-evergreen">{food.estimatedCalories} cal</p>
+        <div className="text-[10px] text-muted-foreground flex gap-1 mt-1">
+          <span className="bg-muted px-1 rounded">P:{food.macros.protein_g}</span>
+          <span className="bg-muted px-1 rounded">C:{food.macros.carbs_g}</span>
+          <span className="bg-muted px-1 rounded">F:{food.macros.fat_g}</span>
         </div>
       </div>
-      <div className="mt-2 flex gap-3 text-xs text-muted-foreground">
-        <span>P: {food.macros.protein_g}g</span>
-        <span>C: {food.macros.carbs_g}g</span>
-        <span>F: {food.macros.fat_g}g</span>
-      </div>
     </div>
-  );
-}
-
-// Voice Waveform Visualizer Component
-export function VoiceWaveform({ isListening }: { isListening: boolean }) {
-  const [bars, setBars] = useState<number[]>(Array(20).fill(10));
-
-  useEffect(() => {
-    if (!isListening) {
-      setBars(Array(20).fill(10));
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setBars(Array(20).fill(0).map(() => Math.random() * 40 + 10));
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [isListening]);
-
-  return (
-    <div className="flex items-center justify-center gap-1 h-12">
-      {bars.map((height, index) => (
-        <div
-          key={index}
-          className="w-1 bg-red-500 rounded-full transition-all duration-75"
-          style={{
-            height: `${Math.max(height, 8)}px`,
-            opacity: isListening ? 1 : 0.3,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
-
-// Microphone Button Component for easy access
-interface MicrophoneButtonProps {
-  onClick: () => void;
-  className?: string;
-}
-
-export function MicrophoneButton({ onClick, className = '' }: MicrophoneButtonProps) {
-  return (
-    <Button
-      onClick={onClick}
-      className={`rounded-full w-12 h-12 bg-red-600 hover:bg-red-700 ${className}`}
-      size="icon"
-    >
-      <Mic className="h-5 w-5" />
-    </Button>
   );
 }

@@ -54,6 +54,9 @@ export default {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
         },
+        evergreen: "hsl(var(--evergreen))",
+        fern: "hsl(var(--fern))",
+        sage: "hsl(var(--sage))",
       },
       borderRadius: {
         lg: "var(--radius)",
