@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3, X } from 'lucide-react';
+import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3 } from 'lucide-react';
 import { useVoiceScanner, VoiceRecordingStage } from '../../hooks/useVoiceScanner';
 import { Button } from '../ui/button';
 import {
@@ -159,12 +159,6 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
               {/* Hide subtitle on mobile if space is tight, or keep it short */}
             </div>
           </div>
-          <button
-            onClick={handleClose}
-            className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-muted"
-          >
-            <X className="w-5 h-5" />
-          </button>
         </DialogHeader>
 
         <div className="p-6 space-y-6">
