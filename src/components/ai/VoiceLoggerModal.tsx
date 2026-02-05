@@ -151,11 +151,11 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
         )}
 
         {/* Header */}
-        <DialogHeader className="px-6 py-4 flex flex-row items-center justify-between border-b border-white/5 bg-bark/30">
+        <DialogHeader className="px-6 py-4 flex flex-row items-center justify-between border-b border-white/5 bg-bark/30 text-white">
           <div className="flex items-center gap-2">
-            <Volume2 className="h-5 w-5 text-foreground" />
+            <Volume2 className="h-5 w-5 text-[#E6EEE8]" />
             <div>
-              <DialogTitle className="text-lg font-semibold text-foreground">Voice Food Logger</DialogTitle>
+              <DialogTitle className="text-lg font-semibold text-[#E6EEE8]">Voice Food Logger</DialogTitle>
               {/* Hide subtitle on mobile if space is tight, or keep it short */}
             </div>
           </div>
@@ -199,7 +199,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   <span>{formatDuration(recordingDuration)}</span>
                 </div>
               ) : (
-                <p className="text-sm text-foreground/90 font-medium px-4 leading-relaxed">
+                <p className="text-sm text-[#E6EEE8]/90 font-medium px-4 leading-relaxed">
                   {getHelperText(stage)}
                 </p>
               )}
@@ -217,7 +217,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
           {result?.detectedFoods && result.detectedFoods.length > 0 && (
             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-foreground">Detected Foods</h3>
+                <h3 className="text-sm font-medium text-[#E6EEE8]">Detected Foods</h3>
                 <span className="text-xs text-evergreen font-medium">High Confidence</span>
               </div>
               <div className="space-y-2 max-h-40 overflow-y-auto pr-1 scrollbar-thin">
@@ -305,8 +305,8 @@ function DetectedFoodCard({ food }: { food: VoiceDetectedFood }) {
   return (
     <div className="p-3 bg-card rounded-lg border border-border shadow-sm flex justify-between items-start group hover:border-evergreen/50 transition-colors">
       <div>
-        <p className="font-medium text-foreground">{food.name}</p>
-        <p className="text-xs text-muted-foreground">{food.quantity} {food.unit}</p>
+        <p className="font-medium text-[#E6EEE8] group-hover:text-white transition-colors">{food.name}</p>
+        <p className="text-xs text-[#94A3B8]">{food.quantity} {food.unit}</p>
       </div>
       <div className="text-right">
         <p className="text-sm font-semibold text-evergreen">{food.estimatedCalories} cal</p>
