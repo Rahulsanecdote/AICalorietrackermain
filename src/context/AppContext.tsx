@@ -185,6 +185,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [offlineQueue, storageState.isReadOnly])
 
   const initializeLocalState = useCallback(() => {
+    console.log("[AppContext] Initializing Local State...");
     let settingsLoaded = false
     let mealsLoaded = false
 
@@ -257,6 +258,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
 
       const storedMeals = localStorage.getItem(STORAGE_KEYS.MEALS)
+      console.log("[AppContext] Reading local meals from key:", STORAGE_KEYS.MEALS, "Found:", !!storedMeals);
       if (storedMeals) {
         try {
           const parsedMeals = JSON.parse(storedMeals)
@@ -306,6 +308,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [safePersistData, storageState.isReadOnly])
 
   const initializeRemoteState = useCallback(async () => {
+    console.log("[AppContext] Initializing Remote State for user:", userId);
     if (!userId) return
 
     try {
@@ -391,10 +394,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setSettings(normalizeSettings(DEFAULT_SETTINGS))
 
     if (userId) {
+      console.log("[AppContext] UserId present, starting remote init");
       void initializeRemoteState()
       return
     }
 
+    console.log("[AppContext] No UserId, starting local init");
     initializeLocalState()
   }, [authLoading, userId, initializeLocalState, initializeRemoteState])
 

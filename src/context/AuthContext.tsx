@@ -61,7 +61,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Add a timeout fallback to ensure loading eventually completes
     const timeout = setTimeout(() => {
       if (mounted && loading) {
-        console.warn("[auth] Session check timed out after 10s")
+        console.warn("[auth] Session check timed out after 10s. Force-clearing loading state.")
+        // FORCE NULL to ensure AppContext knows we are "logged out/offline"
+        setUserId(null)
         setLoading(false)
       }
     }, 10000)
