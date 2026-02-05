@@ -173,6 +173,40 @@
   }
 
   /* Dark mode override removed as semantic tokens handle it */
+  
+  /* Voice Modal Scoped Theme */
+  .voice-modal-theme {
+    /* Light Theme Tokens */
+    --vm-bg: 135 20% 96%;        /* #F2F6F3 */
+    --vm-surface: 143 23% 93%;   /* #EAF2ED */
+    --vm-raised: 143 23% 89%;    /* #DDEAE2 */
+    --vm-text: 165 33% 12%;      /* #142823 */
+    --vm-text-muted: 154 13% 28%;/* #3E5149 */
+    --vm-border: 147 16% 81%;    /* #C6D8CE */
+    --vm-primary: 148 50% 24%;   /* #1E5B3A */
+    --vm-primary-hover: 142 45% 34%; /* #2F7D4C */
+    --vm-focus: 32 72% 42%;      /* #B8791E */
+    --vm-warning: 18 62% 44%;    /* #B4532A */
+    --vm-danger: 9 59% 40%;      /* #A13B2A */
+    --vm-overlay: 148 29% 6%;    /* rgba(11,20,17) roughly */
+    --vm-overlay-opacity: 0.22;
+  }
+
+  .dark .voice-modal-theme {
+    /* Dark Theme Tokens */
+    --vm-bg: 163 29% 6%;         /* #0B1411 */
+    --vm-surface: 156 32% 9%;    /* #0F1D18 */
+    --vm-raised: 165 33% 12%;    /* #142823 */
+    --vm-text: 144 23% 92%;      /* #E7EFEA */
+    --vm-text-muted: 147 13% 70%;/* #A9BDB2 */
+    --vm-border: 154 25% 22%;    /* #2A463A */
+    --vm-primary: 142 45% 34%;   /* #2F7D4C */
+    --vm-primary-hover: 148 50% 24%; /* #1E5B3A */
+    --vm-focus: 38 63% 47%;      /* #C28A2C */
+    --vm-warning: 18 62% 44%;    /* #B4532A */
+    --vm-danger: 9 59% 40%;      /* #A13B2A */
+    --vm-overlay-opacity: 0.72;
+  }
 }
 
 @layer utilities {
