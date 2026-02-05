@@ -123,7 +123,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-card border-border shadow-soft-black backdrop-blur-sm p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-md bg-[#0F1D18] border-border shadow-soft-black backdrop-blur-sm p-0 gap-0 overflow-hidden ring-1 ring-white/5">
         {/* Permission Banner */}
         {error && error.includes('denied') && (
           <div className="bg-warning/10 border-b border-warning/20 px-4 py-3 flex items-start gap-3">
@@ -151,7 +151,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
         )}
 
         {/* Header */}
-        <DialogHeader className="px-6 py-4 flex flex-row items-center justify-between border-b border-border bg-card/50">
+        <DialogHeader className="px-6 py-4 flex flex-row items-center justify-between border-b border-white/5 bg-bark/30">
           <div className="flex items-center gap-2">
             <Volume2 className="h-5 w-5 text-foreground" />
             <div>
@@ -175,10 +175,10 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                 onClick={stage === 'recording' ? handleStopListening : handleStartListening}
                 disabled={stage === 'processing' || stage === 'transcribing' || stage === 'analyzing'}
                 className={`
-                  relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300
+                  relative z-10 w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 group
                   ${stage === 'recording'
                     ? 'bg-card border-2 border-destructive shadow-[0_0_15px_rgba(161,59,42,0.3)]'
-                    : 'bg-card border border-border hover:border-evergreen hover:shadow-md'
+                    : 'bg-[#142823] border border-walnut/40 hover:border-ochre/60 hover:shadow-[0_0_10px_rgba(194,138,44,0.2)]'
                   }
                   ${(stage === 'processing' || stage === 'transcribing' || stage === 'analyzing') ? 'opacity-50 cursor-not-allowed' : ''}
                 `}
@@ -186,7 +186,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                 {stage === 'processing' || stage === 'transcribing' || stage === 'analyzing' ? (
                   <RefreshCw className="w-8 h-8 text-primary animate-spin" />
                 ) : (
-                  <Mic className={`w-8 h-8 ${stage === 'recording' ? 'text-destructive animate-pulse' : 'text-foreground'}`} />
+                  <Mic className={`w-8 h-8 transition-colors duration-300 ${stage === 'recording' ? 'text-destructive animate-pulse' : 'text-foreground/80 group-hover:text-foreground'}`} />
                 )}
               </button>
             </div>
@@ -199,7 +199,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   <span>{formatDuration(recordingDuration)}</span>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground font-medium">
+                <p className="text-sm text-foreground/90 font-medium px-4 leading-relaxed">
                   {getHelperText(stage)}
                 </p>
               )}
@@ -243,7 +243,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   w-full h-12 text-base font-medium transition-all
                   ${stage === 'recording'
                     ? 'bg-destructive hover:bg-destructive/90 text-white'
-                    : 'bg-evergreen hover:bg-fern text-white'
+                    : 'bg-evergreen hover:bg-fern text-white shadow-md'
                   }
                 `}
               >
@@ -263,7 +263,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
               {/* Text Link Fallback */}
               <button
                 onClick={() => setShowTextFallback(true)}
-                className="w-full text-center text-sm text-ring hover:text-ring/80 hover:underline transition-colors"
+                className="w-full text-center text-sm text-ring font-medium hover:text-ring/90 hover:underline decoration-ring/50 underline-offset-4 transition-all focus-visible:ring-ring"
               >
                 Prefer to type?
               </button>
