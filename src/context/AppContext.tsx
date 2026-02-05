@@ -323,9 +323,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSettings(remoteSettings)
         safePersistData(STORAGE_KEYS.SETTINGS, remoteSettings)
       } else {
-        const normalized = normalizeSettings(DEFAULT_SETTINGS)
-        setSettings(normalized)
-        await upsertUserSettings(userId, normalized)
+        // If remote settings are missing, chances are we have local settings we should preserve/upload
+        // instead of overwriting with defaults.
+        const storedSettings = localStorage.getItem(STORAGE_KEYS.SETTINGS)
+        let settingsToUse = normalizeSettings(DEFAULT_SETTINGS);
+        if (storedSettings) {
+          try {
+            settingsToUse = normalizeSettings(JSON.parse(storedSettings))
+            console.log("[Reconciliation] Using local settings as baseline for new remote profile");
+          } catch (e) {
+            console.warn("Failed to parse local settings for sync", e)
+          }
+        }
+        setSettings(settingsToUse)
+        await upsertUserSettings(userId, settingsToUse)
       }
 
       // 3. Meal Reconciliation (Remote + Unique Local)
@@ -394,19 +405,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (authLoading) return
 
+    // Don't wipe state immediately - this causes "flash of zero content"
+    // setMeals([])  <-- REMOVED
+    // setSettings(...) <-- REMOVED
+
+    // reset status but keep data visible
     setIsInitialized(false)
     setInitializationError(null)
-    setMeals([])
-    setSettings(normalizeSettings(DEFAULT_SETTINGS))
+
+    // 1. ALWAYS load local state first to ensure instant UI (Optimistic/Offline-First)
+    // This allows the user to see their data immediately while we try to sync
+    initializeLocalState()
 
     if (userId) {
-      console.log("[AppContext] UserId present, starting remote init");
+      console.log("[AppContext] UserId present, starting remote sync");
+      // 2. If logged in, assume we want to sync/hydrate from server on top of local
       void initializeRemoteState()
-      return
+    } else {
+      console.log("[AppContext] No UserId, running in local-only mode");
+      // We already called initializeLocalState above, so we're done.
+      // But initializeLocalState sets isInitialized(true) synchronously/quickly.
     }
-
-    console.log("[AppContext] No UserId, starting local init");
-    initializeLocalState()
   }, [authLoading, userId, initializeLocalState, initializeRemoteState])
 
   const dailyTotals = useMemo((): DailyTotals => {
