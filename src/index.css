@@ -57,51 +57,56 @@
   }
 
   .light {
-    /* FORCE Forest Night Theme even in Light Mode - NUCLEAR OPTION */
-    --background: 160 29% 6% !important;
-    --foreground: 142 20% 92% !important;
-    --card: 165 33% 12% !important;
-    --card-foreground: 142 20% 92% !important;
-    --popover: 159 32% 9% !important;
-    --popover-foreground: 142 20% 92% !important;
-    --primary: 142 45% 34% !important;
-    --primary-foreground: 142 20% 92% !important;
-    --secondary: 159 32% 9% !important;
-    --secondary-foreground: 147 13% 70% !important;
-    --muted: 159 32% 9% !important;
-    --muted-foreground: 147 13% 70% !important;
-    --accent: 154 25% 22% !important;
-    --accent-foreground: 142 20% 92% !important;
-    --destructive: 9 59% 40% !important;
-    --destructive-foreground: 142 20% 92% !important;
-    --border: 154 25% 22% !important;
-    --input: 154 25% 22% !important;
-    --input: 154 25% 22% !important;
-    --ring: 38 63% 47% !important;
+    /* Forest Day Theme (Light Mode) */
+    --background: 0 0% 100%;     /* White */
+    --foreground: 160 29% 6%;    /* Forest Night Text */
 
-    /* Browns + Fall Accents (Force Dark) */
-    --bark: 29 31% 10% !important;
-    --walnut: 29 36% 17% !important;
-    --cedar: 30 41% 25% !important;
-    --warning: 18 62% 44% !important;
-    --warning-foreground: 142 20% 92% !important;
+    --card: 0 0% 100%;           /* White */
+    --card-foreground: 160 29% 6%;
 
-    /* Green Accents (Force Dark) */
-    --evergreen: 148 50% 24% !important;
-    --fern: 142 45% 34% !important;
-    --sage: 130 28% 56% !important;
-    --chart-1: 142 45% 34% !important;
-    --chart-2: 130 28% 56% !important;
-    --chart-3: 148 50% 24% !important;
-    --chart-4: 38 63% 47% !important;
-    --chart-5: 18 62% 44% !important;
+    --popover: 0 0% 100%;        /* White */
+    --popover-foreground: 160 29% 6%;
+
+    --primary: 148 50% 24%;      /* Evergreen */
+    --primary-foreground: 142 20% 92%;
+
+    --secondary: 140 20% 96%;    /* Light Mist */
+    --secondary-foreground: 148 50% 24%;
+
+    --muted: 140 20% 96%;        /* Light Mist */
+    --muted-foreground: 160 20% 45%;
+
+    --accent: 140 20% 96%;       /* Light Mist */
+    --accent-foreground: 148 50% 24%;
+
+    --destructive: 9 59% 45%;    /* Rowan Red (slightly brighter) */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 160 10% 90%;       /* Light Border */
+    --input: 160 10% 90%;        /* Light Border */
+    --ring: 148 50% 24%;         /* Evergreen Ring */
+
+    /* Browns + Fall Accents (Adjusted for Light) */
+    --bark: 29 31% 20%;          /* Lighter Bark */
+    --walnut: 29 36% 30%;        /* Lighter Walnut */
+    --cedar: 30 41% 40%;         /* Lighter Cedar */
+    --warning: 18 62% 44%;       /* Rust */
+    --warning-foreground: 0 0% 100%;
+
+    /* Green Accents */
+    --evergreen: 148 50% 24%;
+    --fern: 142 45% 34%;
+    --sage: 130 28% 56%;
+    
+    --chart-1: 148 50% 24%;      /* Evergreen */
+    --chart-2: 142 45% 34%;      /* Fern */
+    --chart-3: 130 28% 56%;      /* Sage */
+    --chart-4: 38 63% 47%;       /* Ochre */
+    --chart-5: 18 62% 44%;       /* Rust */
   }
 
   /* Extra specificity override to ensure body is dark */
-  html.light body {
-     background-color: hsl(160 29% 6%) !important;
-     color: hsl(142 20% 92%) !important;
-  }
+
 
   .dark {
     /* Ensure Dark Mode uses the same palette if class is present */
