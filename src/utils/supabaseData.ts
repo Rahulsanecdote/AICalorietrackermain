@@ -73,14 +73,20 @@ export async function fetchMeals(userId: string): Promise<Meal[]> {
     },
     timestamp: row.logged_at,
     category: row.category,
+    // Add any other properties if needed from new schema
   }))
 }
 
 export async function insertMeal(userId: string, meal: Meal): Promise<void> {
+  // Extract date part from timestamp or use current date if needed
+  // Ensuring we store the local date context if possible, or UTC date
+  const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
+
   const { error } = await supabase.from("meals").insert({
     id: meal.id,
     user_id: userId,
     logged_at: meal.timestamp,
+    meal_date: mealDate, // Explicitly set meal_date
     category: meal.category,
     description: meal.description,
     food_name: meal.foodName,
@@ -97,10 +103,13 @@ export async function insertMeal(userId: string, meal: Meal): Promise<void> {
 }
 
 export async function updateMeal(userId: string, meal: Meal): Promise<void> {
+  const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
+
   const { error } = await supabase
     .from("meals")
     .update({
       logged_at: meal.timestamp,
+      meal_date: mealDate, // Update meal_date as well
       category: meal.category,
       description: meal.description,
       food_name: meal.foodName,

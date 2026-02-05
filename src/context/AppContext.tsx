@@ -304,27 +304,78 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (!userId) return
 
     try {
+      // 1. Fetch remote data
       const [remoteSettings, remoteMeals] = await Promise.all([
         fetchUserSettings(userId),
         fetchMeals(userId),
       ])
 
+      // 2. Settings Reconciliation
       if (remoteSettings) {
         setSettings(remoteSettings)
+        safePersistData(STORAGE_KEYS.SETTINGS, remoteSettings)
       } else {
         const normalized = normalizeSettings(DEFAULT_SETTINGS)
         setSettings(normalized)
         await upsertUserSettings(userId, normalized)
       }
 
-      setMeals(remoteMeals)
+      // 3. Meal Reconciliation (Remote + Unique Local)
+      let mergedMeals = [...remoteMeals];
+      const storedMeals = localStorage.getItem(STORAGE_KEYS.MEALS);
+      if (storedMeals) {
+        try {
+          const parsedMeals = JSON.parse(storedMeals);
+          const localMeals = Array.isArray(parsedMeals) ? parsedMeals : [];
+
+          // Identify meals that are in local but not in remote (by ID)
+          // This handles cases where we created a meal offline
+          const remoteIds = new Set(remoteMeals.map(m => m.id));
+          const unsyncedMeals = localMeals.filter(m => !remoteIds.has(m.id));
+
+          if (unsyncedMeals.length > 0) {
+            console.log(`Found ${unsyncedMeals.length} unsynced local meals, syncing...`);
+            // Optimistically add them to state
+            mergedMeals = [...mergedMeals, ...unsyncedMeals];
+
+            // Try to push them to server in background
+            // We don't await this to keep UI fast
+            Promise.allSettled(unsyncedMeals.map(meal => insertMeal(userId, meal)))
+              .then((results) => {
+                const failed = results.filter(r => r.status === 'rejected');
+                if (failed.length > 0) {
+                  console.error(`Failed to sync ${failed.length} meals`);
+                } else {
+                  console.log("All unsynced meals pushed to server");
+                }
+              });
+          }
+        } catch (e) {
+          console.error("Error parsing local meals during reconciliation", e);
+        }
+      }
+
+      // Sort by date descending
+      mergedMeals.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+      setMeals(mergedMeals)
+      // Always persist the merged state locally as a cache/backup
+      safePersistData(STORAGE_KEYS.MEALS, mergedMeals);
+
     } catch (error) {
       console.error("Error loading account data:", error)
-      setInitializationError("Failed to load account data.")
+      setInitializationError("Failed to load account data. Using local backup if available.")
+      // Fallback: try to load what we have locally if remote fetch fails completely
+      const storedMeals = localStorage.getItem(STORAGE_KEYS.MEALS);
+      if (storedMeals) {
+        try {
+          setMeals(JSON.parse(storedMeals));
+        } catch (e) { /* ignore */ }
+      }
     } finally {
       setIsInitialized(true)
     }
-  }, [userId])
+  }, [userId, safePersistData])
 
   useEffect(() => {
     if (authLoading) return
@@ -400,9 +451,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setMeals((prev) => {
         const updated = [...prev, newMeal]
-        if (!isRemote) {
-          safePersistData(STORAGE_KEYS.MEALS, updated)
-        }
+        // ALWAYS persist directly to storage as backup, even if remote
+        // This ensures if the app closes before network returns, we have it
+        safePersistData(STORAGE_KEYS.MEALS, updated)
         return updated
       })
 
@@ -436,9 +487,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setMeals((prev) => {
         const updated = [...prev, validatedMeal]
-        if (!isRemote) {
-          safePersistData(STORAGE_KEYS.MEALS, updated)
-        }
+        // Always persist to local storage as backup
+        safePersistData(STORAGE_KEYS.MEALS, updated)
         return updated
       })
 
@@ -464,9 +514,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setMeals((prev) => {
         const updated = prev.map((m) => (m.id === meal.id ? meal : m))
-        if (!isRemote) {
-          safePersistData(STORAGE_KEYS.MEALS, updated)
-        }
+        // Always persist to local storage as backup
+        safePersistData(STORAGE_KEYS.MEALS, updated)
         return updated
       })
 
@@ -515,10 +564,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const getMealsForDate = useCallback(
     (date: string) => {
+      // Input date is YYYY-MM-DD
       return meals
         .filter((meal) => {
-          const mealDate = new Date(meal.timestamp).toISOString().split("T")[0]
-          return mealDate === date
+          // We must parse the timestamp and get the local date string "YYYY-MM-DD"
+          // The date input string from internal app usage is usually local time-based
+          const d = new Date(meal.timestamp);
+          // Manually construct local YYYY-MM-DD to avoid mismatch
+          const localY = d.getFullYear();
+          const localM = String(d.getMonth() + 1).padStart(2, '0');
+          const localD = String(d.getDate()).padStart(2, '0');
+          const mealDateLocal = `${localY}-${localM}-${localD}`;
+          return mealDateLocal === date;
         })
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     },
