@@ -61,83 +61,35 @@
     --chart-5: 18 62% 44%;       /* Warning */
   }
 
-  .light {
-    /* Forest Day Theme (Light Mode) - User Specified */
-    --background: 50 15% 94%;    /* #F3F2EC (Warm Birch) */
-    --foreground: 140 10% 12%;   /* #1B211D (Text) */
-
-    --card: 48 25% 97%;          /* #FBFAF6 (Surface 1) */
-    --card-foreground: 140 10% 12%;
-
-    --popover: 48 25% 97%;       /* #FBFAF6 (Surface 1) */
-    --popover-foreground: 140 10% 12%;
-
-    --primary: 152 39% 30%;      /* #2F6B4F (Forest) */
-    --primary-foreground: 135 20% 98%; /* #F7FBF8 */
-
-    --secondary: 42 23% 92%;     /* #F1EFE7 (Surface 2) */
-    --secondary-foreground: 152 39% 30%;
-
-    --muted: 42 23% 92%;         /* #F1EFE7 (Surface 2) */
-    --muted-foreground: 140 9% 32%; /* #4B5A50 (Text Muted) */
-
-    --accent: 42 23% 92%;        /* #F1EFE7 (Surface 2) */
-    --accent-foreground: 140 10% 12%;
-
-    --destructive: 9 59% 45%;    /* Keep Red for errors */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 42 16% 81%;        /* #D7D2C6 */
-    --input: 42 16% 81%;
-    --ring: 26 58% 42%;          /* #A8622D (Warm/Bark/Rust) */
-    
-    --warm: 26 58% 42%;          /* #A8622D */
-    --warm-foreground: 30 100% 97%; /* #FFF7EF */
-
-    /* Browns compatible with Light Mode */
-    --bark: 26 58% 42%;          /* Mapped to Warm */
-    --walnut: 29 36% 30%;
-    --cedar: 30 41% 40%;
-    
-    --chart-1: 152 39% 30%;      /* Primary */
-    --chart-2: 26 58% 42%;       /* Warm */
-    --chart-3: 148 50% 24%;
-    --chart-4: 142 45% 34%;
-    --chart-5: 18 62% 44%;
-  }
-
-  /* Extra specificity override to ensure body is dark */
-
-
   .dark {
-    /* Explicit Dark Theme Re-definition (matches default :root) */
-    --background: 153 44% 5%;
-    --foreground: 140 23% 92%;
+    /* Forest Night Theme (Dark Mode) */
+    --background: 153 44% 5%;    /* #07120D */
+    --foreground: 140 23% 92%;   /* #E7F0EA */
 
-    --card: 153 43% 8%;
+    --card: 153 43% 8%;          /* #0C1E16 */
     --card-foreground: 140 23% 92%;
 
-    --popover: 153 43% 8%;
+    --popover: 153 43% 8%;       /* #0C1E16 */
     --popover-foreground: 140 23% 92%;
 
-    --primary: 153 43% 43%;
+    --primary: 153 43% 43%;      /* #3E9B72 */
     --primary-foreground: 153 44% 5%;
 
-    --secondary: 153 47% 11%;
+    --secondary: 153 47% 11%;    /* #0F2A1E (Surface 2) */
     --secondary-foreground: 140 23% 92%;
 
-    --muted: 153 47% 11%;
-    --muted-foreground: 142 12% 75%;
+    --muted: 153 47% 11%;        /* #0F2A1E (Surface 2) */
+    --muted-foreground: 142 12% 75%; /* #B7C8BE */
 
-    --accent: 153 47% 11%;
+    --accent: 153 47% 11%;       /* #0F2A1E (Surface 2) */
     --accent-foreground: 140 23% 92%;
 
     --destructive: 9 59% 40%;
     --destructive-foreground: 142 20% 92%;
 
-    --border: 151 33% 21%;
+    --border: 151 33% 21%;       /* #234635 */
     --input: 151 33% 21%;
-    --ring: 32 63% 52%;
+    --ring: 32 63% 52%;          /* #D08A3B */
 
     --warm: 32 63% 52%;
     --warm-foreground: 30 39% 7%;
@@ -146,9 +98,24 @@
     --walnut: 29 36% 17%;
     --cedar: 30 41% 25%;
     
+    --warning: 18 62% 44%;
+    --warning-foreground: 142 20% 92%;
+
+    --evergreen: 148 50% 24%;
+    --fern: 142 45% 34%;
+    --sage: 130 28% 56%;
+    
     --chart-1: 153 43% 43%;
     --chart-2: 32 63% 52%;
+    --chart-3: 148 50% 24%;
+    --chart-4: 142 45% 34%;
+    --chart-5: 18 62% 44%;
   }
+
+  /* Extra specificity override to ensure body is dark */
+
+
+  /* .dark class already defined above to contain Dark Theme */
 }
 
 @layer base {
