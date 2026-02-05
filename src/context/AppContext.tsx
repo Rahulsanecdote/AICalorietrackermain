@@ -126,9 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const safePersistData = useCallback(
     <T,>(key: string, data: T): boolean => {
-      if (authLoading || isRemote) {
-        return false
-      }
+      // Allow persistence even if loading or remote - we want a local backup ALWAYS
 
       if (storageState.isReadOnly) {
         console.warn(`Cannot persist ${key}: storage is in read-only mode`)
