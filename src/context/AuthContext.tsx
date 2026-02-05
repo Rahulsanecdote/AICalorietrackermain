@@ -29,10 +29,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true
-    let timeoutId: NodeJS.Timeout
+    let timeoutId: NodeJS.Timeout | undefined // Initialize as undefined
 
     const getSession = async () => {
       try {
+        // Set timeout to force loading false if supabase hangs
+        // Reduced to 2.5s to prevent long "Checking your session..." screens
+        timeoutId = setTimeout(() => {
+          if (mounted) {
+            console.warn("[auth] Session check timed out - Supabase might be unreachable")
+            setLoading(false)
+            // Do NOT force setUserId(null) blindly here, as it destroys optimistic state
+          }
+        }, 2500)
+
         const {
           data: { session },
           error,
@@ -59,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } finally {
         if (mounted) {
           setLoading(false)
-          clearTimeout(timeoutId) // Clear timeout on success or failure
+          if (timeoutId) clearTimeout(timeoutId) // Clear timeout on success or failure
         }
       }
     }
