@@ -472,8 +472,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           await insertMeal(userId, newMeal)
         } catch (error) {
           console.error("Error saving meal:", error)
-          notifyError("Unable to save this meal to your account.")
-          setMeals((prev) => prev.filter((meal) => meal.id !== newMeal.id))
+          notifyError("Saved to local backup (Sync failed).")
+          // DO NOT delete from state! Keep it for retry.
         }
       }
     },
@@ -505,8 +505,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (isRemote && userId) {
         void insertMeal(userId, validatedMeal).catch((error) => {
           console.error("Error saving meal:", error)
-          notifyError("Unable to save this meal to your account.")
-          setMeals((prev) => prev.filter((existing) => existing.id !== validatedMeal.id))
+          notifyError("Saved to local backup (Sync failed).")
+          // DO NOT delete from state! Keep it for retry.
         })
       }
     },
