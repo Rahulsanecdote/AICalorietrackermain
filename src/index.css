@@ -6,153 +6,148 @@
   :root {
     --radius: 0.75rem;
 
-    /* Forest Night Theme (Default) */
-    --background: 160 29% 6%;    /* Forest Night */
-    --foreground: 142 20% 92%;   /* Fog Text */
+    /* Forest Night Theme (Default/Dark) - Matches User's Dark Theme */
+    --background: 153 44% 5%;    /* #07120D */
+    --foreground: 140 23% 92%;   /* #E7F0EA */
 
-    --card: 165 33% 12%;         /* Pine Ink */
-    --card-foreground: 142 20% 92%; /* Fog Text */
+    --card: 153 43% 8%;          /* #0C1E16 */
+    --card-foreground: 140 23% 92%;
 
-    --popover: 159 32% 9%;       /* Spruce Shadow */
-    --popover-foreground: 142 20% 92%;
+    --popover: 153 43% 8%;       /* #0C1E16 */
+    --popover-foreground: 140 23% 92%;
 
-    --primary: 142 45% 34%;      /* Fern */
-    --primary-foreground: 142 20% 92%;
+    --primary: 153 43% 43%;      /* #3E9B72 */
+    --primary-foreground: 153 44% 5%;
 
-    --secondary: 159 32% 9%;     /* Spruce Shadow */
-    --secondary-foreground: 147 13% 70%; /* Moss Muted */
+    --secondary: 153 47% 11%;    /* #0F2A1E (Surface 2) */
+    --secondary-foreground: 140 23% 92%;
 
-    --muted: 159 32% 9%;         /* Spruce Shadow */
-    --muted-foreground: 147 13% 70%; /* Moss Muted */
+    --muted: 153 47% 11%;        /* #0F2A1E (Surface 2) */
+    --muted-foreground: 142 12% 75%; /* #B7C8BE */
 
-    --accent: 154 25% 22%;       /* Needle Border (used for hover/accents) */
-    --accent-foreground: 142 20% 92%;
+    --accent: 153 47% 11%;       /* #0F2A1E (Surface 2) */
+    --accent-foreground: 140 23% 92%;
 
-    --destructive: 9 59% 40%;    /* Rowan Red */
+    --destructive: 32 63% 52%;   /* #D08A3B (Warm/Amber Leaf - replacing standard red destructive with warm accent for now, or keeping separation? User mapped --warm separately. Let's keep destructive as red-ish but user didn't specify. Actually user listed --warm: #D08A3B. Let's use that for ring/warm) */
+    /* Reverting destructive to standard red for safety, will map --warm separately */
+    --destructive: 9 59% 40%;
     --destructive-foreground: 142 20% 92%;
 
-    --border: 154 25% 22%;       /* Needle Border */
-    --input: 154 25% 22%;        /* Needle Border */
-    --ring: 38 63% 47%;          /* Ochre */
+    --border: 151 33% 21%;       /* #234635 */
+    --input: 151 33% 21%;
+    --ring: 32 63% 52%;          /* #D08A3B (Warm/Amber Leaf) */
+    
+    --warm: 32 63% 52%;          /* #D08A3B */
+    --warm-foreground: 30 39% 7%; /* #1A140C */
 
     /* Browns + Fall Accents */
-    --bark: 29 31% 10%;          /* Bark */
-    --walnut: 29 36% 17%;        /* Walnut */
-    --cedar: 30 41% 25%;         /* Cedar */
+    --bark: 29 31% 10%;
+    --walnut: 29 36% 17%;
+    --cedar: 30 41% 25%;
 
-    --warning: 18 62% 44%;       /* Rust */
-    --warning-foreground: 142 20% 92%; /* Fog Text */
+    --warning: 18 62% 44%;
+    --warning-foreground: 142 20% 92%;
     
-    /* Green Accents */
-    --evergreen: 148 50% 24%;    /* Evergreen */
-    --fern: 142 45% 34%;         /* Fern */
-    --sage: 130 28% 56%;         /* Sage */
-    
-    /* Chart Colors (Forest Themed) */
-    --chart-1: 142 45% 34%;      /* Fern */
-    --chart-2: 130 28% 56%;      /* Sage */
-    --chart-3: 148 50% 24%;      /* Evergreen */
-    --chart-4: 38 63% 47%;       /* Ochre */
-    --chart-5: 18 62% 44%;       /* Rust */
-  }
-
-  .light {
-    /* Forest Day Theme (Light Mode) */
-    --background: 160 20% 97%;   /* Off-White Mint */
-    --foreground: 160 29% 6%;    /* Forest Night Text */
-
-    --card: 0 0% 100%;           /* Pure White */
-    --card-foreground: 160 29% 6%;
-
-    --popover: 0 0% 100%;        /* White */
-    --popover-foreground: 160 29% 6%;
-
-    --primary: 148 50% 24%;      /* Evergreen */
-    --primary-foreground: 142 20% 92%;
-
-    --secondary: 140 20% 96%;    /* Light Mist */
-    --secondary-foreground: 148 50% 24%;
-
-    --muted: 140 20% 96%;        /* Light Mist */
-    --muted-foreground: 160 20% 45%;
-
-    --accent: 140 20% 96%;       /* Light Mist */
-    --accent-foreground: 148 50% 24%;
-
-    --destructive: 9 59% 45%;    /* Rowan Red (slightly brighter) */
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 160 10% 90%;       /* Light Border */
-    --input: 160 10% 90%;        /* Light Border */
-    --ring: 148 50% 24%;         /* Evergreen Ring */
-
-    /* Browns + Fall Accents (Adjusted for Light) */
-    --bark: 29 31% 20%;          /* Lighter Bark */
-    --walnut: 29 36% 30%;        /* Lighter Walnut */
-    --cedar: 30 41% 40%;         /* Lighter Cedar */
-    --warning: 18 62% 44%;       /* Rust */
-    --warning-foreground: 0 0% 100%;
-
     /* Green Accents */
     --evergreen: 148 50% 24%;
     --fern: 142 45% 34%;
     --sage: 130 28% 56%;
     
-    --chart-1: 148 50% 24%;      /* Evergreen */
-    --chart-2: 142 45% 34%;      /* Fern */
-    --chart-3: 130 28% 56%;      /* Sage */
-    --chart-4: 38 63% 47%;       /* Ochre */
-    --chart-5: 18 62% 44%;       /* Rust */
+    /* Chart Colors */
+    --chart-1: 153 43% 43%;      /* Primary */
+    --chart-2: 32 63% 52%;       /* Warm */
+    --chart-3: 148 50% 24%;      /* Evergreen */
+    --chart-4: 142 45% 34%;      /* Fern */
+    --chart-5: 18 62% 44%;       /* Warning */
+  }
+
+  .light {
+    /* Forest Day Theme (Light Mode) - User Specified */
+    --background: 50 15% 94%;    /* #F3F2EC (Warm Birch) */
+    --foreground: 140 10% 12%;   /* #1B211D (Text) */
+
+    --card: 48 25% 97%;          /* #FBFAF6 (Surface 1) */
+    --card-foreground: 140 10% 12%;
+
+    --popover: 48 25% 97%;       /* #FBFAF6 (Surface 1) */
+    --popover-foreground: 140 10% 12%;
+
+    --primary: 152 39% 30%;      /* #2F6B4F (Forest) */
+    --primary-foreground: 135 20% 98%; /* #F7FBF8 */
+
+    --secondary: 42 23% 92%;     /* #F1EFE7 (Surface 2) */
+    --secondary-foreground: 152 39% 30%;
+
+    --muted: 42 23% 92%;         /* #F1EFE7 (Surface 2) */
+    --muted-foreground: 140 9% 32%; /* #4B5A50 (Text Muted) */
+
+    --accent: 42 23% 92%;        /* #F1EFE7 (Surface 2) */
+    --accent-foreground: 140 10% 12%;
+
+    --destructive: 9 59% 45%;    /* Keep Red for errors */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 42 16% 81%;        /* #D7D2C6 */
+    --input: 42 16% 81%;
+    --ring: 26 58% 42%;          /* #A8622D (Warm/Bark/Rust) */
+    
+    --warm: 26 58% 42%;          /* #A8622D */
+    --warm-foreground: 30 100% 97%; /* #FFF7EF */
+
+    /* Browns compatible with Light Mode */
+    --bark: 26 58% 42%;          /* Mapped to Warm */
+    --walnut: 29 36% 30%;
+    --cedar: 30 41% 40%;
+    
+    --chart-1: 152 39% 30%;      /* Primary */
+    --chart-2: 26 58% 42%;       /* Warm */
+    --chart-3: 148 50% 24%;
+    --chart-4: 142 45% 34%;
+    --chart-5: 18 62% 44%;
   }
 
   /* Extra specificity override to ensure body is dark */
 
 
   .dark {
-    /* Ensure Dark Mode uses the same palette if class is present */
-    --background: 160 29% 6%;
-    --foreground: 142 20% 92%;
+    /* Explicit Dark Theme Re-definition (matches default :root) */
+    --background: 153 44% 5%;
+    --foreground: 140 23% 92%;
 
-    --card: 165 33% 12%;
-    --card-foreground: 142 20% 92%;
+    --card: 153 43% 8%;
+    --card-foreground: 140 23% 92%;
 
-    --popover: 159 32% 9%;
-    --popover-foreground: 142 20% 92%;
+    --popover: 153 43% 8%;
+    --popover-foreground: 140 23% 92%;
 
-    --primary: 142 45% 34%;
-    --primary-foreground: 142 20% 92%;
+    --primary: 153 43% 43%;
+    --primary-foreground: 153 44% 5%;
 
-    --secondary: 159 32% 9%;
-    --secondary-foreground: 147 13% 70%;
+    --secondary: 153 47% 11%;
+    --secondary-foreground: 140 23% 92%;
 
-    --muted: 159 32% 9%;
-    --muted-foreground: 147 13% 70%;
+    --muted: 153 47% 11%;
+    --muted-foreground: 142 12% 75%;
 
-    --accent: 154 25% 22%;
-    --accent-foreground: 142 20% 92%;
+    --accent: 153 47% 11%;
+    --accent-foreground: 140 23% 92%;
 
     --destructive: 9 59% 40%;
     --destructive-foreground: 142 20% 92%;
 
-    --border: 154 25% 22%;
-    --input: 154 25% 22%;
-    --ring: 38 63% 47%;
+    --border: 151 33% 21%;
+    --input: 151 33% 21%;
+    --ring: 32 63% 52%;
+
+    --warm: 32 63% 52%;
+    --warm-foreground: 30 39% 7%;
 
     --bark: 29 31% 10%;
     --walnut: 29 36% 17%;
     --cedar: 30 41% 25%;
-    --warning: 18 62% 44%;
-    --warning-foreground: 142 20% 92%;
-
-    --evergreen: 148 50% 24%;
-    --fern: 142 45% 34%;
-    --sage: 130 28% 56%;
     
-    --chart-1: 142 45% 34%;
-    --chart-2: 130 28% 56%;
-    --chart-3: 148 50% 24%;
-    --chart-4: 38 63% 47%;
-    --chart-5: 18 62% 44%;
+    --chart-1: 153 43% 43%;
+    --chart-2: 32 63% 52%;
   }
 }
 
