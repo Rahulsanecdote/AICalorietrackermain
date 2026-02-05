@@ -331,15 +331,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
       // 3. Meal Reconciliation (Remote + Unique Local)
       let mergedMeals = [...remoteMeals];
       const storedMeals = localStorage.getItem(STORAGE_KEYS.MEALS);
+
+      console.log(`[Reconciliation] Remote meals: ${remoteMeals.length}, Local Backup exists: ${!!storedMeals}`);
+
       if (storedMeals) {
         try {
           const parsedMeals = JSON.parse(storedMeals);
           const localMeals = Array.isArray(parsedMeals) ? parsedMeals : [];
+          console.log(`[Reconciliation] Parsed local meals: ${localMeals.length}`);
 
           // Identify meals that are in local but not in remote (by ID)
           // This handles cases where we created a meal offline
           const remoteIds = new Set(remoteMeals.map(m => m.id));
           const unsyncedMeals = localMeals.filter(m => !remoteIds.has(m.id));
+
+          console.log(`[Reconciliation] Unsynced (local-only) meals found: ${unsyncedMeals.length}`);
 
           if (unsyncedMeals.length > 0) {
             console.log(`Found ${unsyncedMeals.length} unsynced local meals, syncing...`);
