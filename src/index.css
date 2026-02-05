@@ -58,10 +58,10 @@
 
   .light {
     /* Forest Day Theme (Light Mode) */
-    --background: 0 0% 100%;     /* White */
+    --background: 160 20% 97%;   /* Off-White Mint */
     --foreground: 160 29% 6%;    /* Forest Night Text */
 
-    --card: 0 0% 100%;           /* White */
+    --card: 0 0% 100%;           /* Pure White */
     --card-foreground: 160 29% 6%;
 
     --popover: 0 0% 100%;        /* White */
