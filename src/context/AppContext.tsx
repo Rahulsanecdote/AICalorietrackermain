@@ -168,6 +168,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
+    // VISIBLE DEBUG: confirm version
+    console.log("App Version: Persistence-Fix-v2");
+    // Optional: show a toast on boot to confirm code update
+    // notifyInfo("System Updated: Persistence-Fix-v2");
+  }, [])
+
+  useEffect(() => {
     try {
       if (storageState.isReadOnly) {
         localStorage.removeItem(OFFLINE_QUEUE_KEY)
