@@ -1,17 +1,57 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3 } from 'lucide-react';
+import { useEffect, useState, forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react';
+import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3, X } from 'lucide-react';
 import { useVoiceScanner, VoiceRecordingStage } from '../../hooks/useVoiceScanner';
 import { Button } from '../ui/button';
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { cn } from '../../lib/utils';
 import { VoiceDetectedFood } from '../../types/ai';
 import { useNutritionAI } from '../../hooks/useNutritionAI';
+
+const VoiceDialogOverlay = forwardRef<
+  ElementRef<typeof DialogPrimitive.Overlay>,
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <DialogPrimitive.Overlay
+    ref={ref}
+    className={cn(
+      'fixed inset-0 z-50 transition-all duration-300 backdrop-blur-[2px]',
+      'bg-[hsl(var(--vm-overlay)/var(--vm-overlay-opacity))]',
+      'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      className
+    )}
+    {...props}
+  />
+));
+VoiceDialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
+
+const VoiceDialogContent = forwardRef<
+  ElementRef<typeof DialogPrimitive.Content>,
+  ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
+>(({ className, children, ...props }, ref) => (
+  <DialogPrimitive.Portal>
+    <VoiceDialogOverlay />
+    <DialogPrimitive.Content
+      ref={ref}
+      className={cn(
+        'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 p-0 shadow-lg duration-200',
+        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-2xl',
+        'voice-modal-theme', // Scoped theme root
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </DialogPrimitive.Content>
+  </DialogPrimitive.Portal>
+));
+VoiceDialogContent.displayName = DialogPrimitive.Content.displayName;
 
 interface VoiceLoggerModalProps {
   isOpen: boolean;
@@ -123,7 +163,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="voice-modal-theme sm:max-w-md bg-[hsl(var(--vm-surface))] border-[hsl(var(--vm-border))] shadow-2xl backdrop-blur-[2px] p-0 gap-0 overflow-hidden ring-1 ring-[hsl(var(--vm-border))] transition-colors duration-200">
+      <VoiceDialogContent className="sm:max-w-md bg-[hsl(var(--vm-surface))] border-[hsl(var(--vm-border))] shadow-2xl p-0 gap-0 overflow-hidden ring-1 ring-[hsl(var(--vm-border))] group/modal">
 
         {/* Permission Banner */}
         {error && error.includes('denied') && (
@@ -159,6 +199,14 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
               <DialogTitle className="text-lg font-semibold text-[hsl(var(--vm-text))]">Voice Food Logger</DialogTitle>
             </div>
           </div>
+
+          {/* Custom Close Button */}
+          <DialogPrimitive.Close
+            className="rounded-full p-2 opacity-70 ring-offset-background transition-all hover:opacity-100 hover:bg-[hsl(var(--vm-raised))] text-[hsl(var(--vm-text-muted))] hover:text-[hsl(var(--vm-text))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--vm-focus))] focus:ring-offset-2 disabled:pointer-events-none"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" />
+          </DialogPrimitive.Close>
         </DialogHeader>
 
         <div className="p-6 space-y-6 bg-[hsl(var(--vm-surface))]">
@@ -193,8 +241,8 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   <RefreshCw className="w-8 h-8 text-[hsl(var(--vm-focus))] animate-spin" />
                 ) : (
                   <Mic className={`w-8 h-8 transition-colors duration-300 ${stage === 'recording'
-                      ? 'text-[hsl(var(--vm-danger))] animate-pulse'
-                      : 'text-[hsl(var(--vm-text))] group-hover:text-[hsl(var(--vm-primary))]'
+                    ? 'text-[hsl(var(--vm-danger))] animate-pulse'
+                    : 'text-[hsl(var(--vm-text))] group-hover:text-[hsl(var(--vm-primary))]'
                     }`} />
                 )}
               </button>
@@ -309,7 +357,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
             </div>
           )}
         </div>
-      </DialogContent>
+      </VoiceDialogContent>
     </Dialog>
   );
 }
