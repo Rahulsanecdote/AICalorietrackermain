@@ -6,57 +6,77 @@
   :root {
     --radius: 0.75rem;
 
-    /* Forest Day Theme (Light Mode) */
-    --background: 140 30% 98%;    /* #F3F9F6 (Mint White) */
-    --foreground: 153 47% 10%;    /* #0D261B (Deep Forest Green) */
+    /* Forest Mist Theme (Light Mode) */
+    /* bg Forest Mist #F2F6F3 */
+    --background: 135 20% 96%;
+    /* text Pine Ink #142823 */
+    --foreground: 165 33% 12%;
 
-    --card: 0 0% 100%;            /* #FFFFFF */
-    --card-foreground: 153 47% 10%;
+    /* surface Spruce Tint #EAF2ED */
+    --card: 143 23% 93%;
+    --card-foreground: 165 33% 12%;
 
-    --popover: 0 0% 100%;         /* #FFFFFF */
-    --popover-foreground: 153 47% 10%;
+    --popover: 143 23% 93%;
+    --popover-foreground: 165 33% 12%;
 
-    --primary: 153 43% 43%;       /* #3E9B72 (Same Green - good contrast) */
-    --primary-foreground: 153 44% 5%;
+    /* primary Evergreen #1E5B3A */
+    --primary: 148 50% 24%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 140 20% 94%;     /* #EBF5F0 (Light Mint Surface) */
-    --secondary-foreground: 153 47% 10%;
+    /* primarySoft #D7E9DE - used for secondary/badges */
+    --secondary: 143 29% 88%;
+    /* text Pine Ink #142823 */
+    --secondary-foreground: 165 33% 12%;
 
-    --muted: 140 20% 94%;         /* #EBF5F0 */
-    --muted-foreground: 153 20% 40%; /* #52665C */
+    /* surfaceRaised Pine Tint #DDEAE2 */
+    --muted: 141 23% 89%;
+    /* textMuted Muted Pine #3E5149 */
+    --muted-foreground: 155 13% 28%;
 
-    --accent: 140 20% 94%;        /* #EBF5F0 */
-    --accent-foreground: 153 47% 10%;
+    /* surfaceRaised Pine Tint #DDEAE2 */
+    --accent: 141 23% 89%;
+    --accent-foreground: 165 33% 12%;
 
+    /* danger Rowan Red #A13B2A */
     --destructive: 9 59% 40%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 151 20% 88%;        /* #DDEBE3 */
-    --input: 151 20% 88%;
-    --ring: 153 43% 43%;          /* Focus Ring matches primary */
+    /* border Needle Pale #C6D8CE */
+    --border: 147 16% 81%;
+    --input: 147 16% 81%;
     
-    --warm: 32 63% 52%;           /* #D08A3B */
-    --warm-foreground: 30 39% 7%; /* #1A140C */
+    /* focusRing Ochre Deep #B8791E */
+    --ring: 35 72% 42%;
+    
+    /* warning Rust #B4532A */
+    --warning: 14 62% 43%;
+    --warning-foreground: 0 0% 100%;
+
+    /* brown1 Walnut Ink #3A2A1B */
+    --warm: 35 72% 42%; /* Mapping Ochre to 'warm' token */
+    --warm-foreground: 29 36% 17%; /* Walnut Ink */
 
     /* Browns + Fall Accents */
-    --bark: 29 31% 20%;
-    --walnut: 29 36% 30%;
-    --cedar: 30 41% 40%;
-
-    --warning: 32 80% 45%;        /* Brighter for light mode */
-    --warning-foreground: 0 0% 100%;
+    /* Walnut Ink #3A2A1B */
+    --bark: 29 36% 17%;
+    --walnut: 29 36% 17%;
+    /* brownSoft #EFE4D6 */
+    --cedar: 34 40% 89%;
     
     /* Green Accents */
-    --evergreen: 148 50% 30%;
-    --fern: 142 45% 40%;
-    --sage: 130 28% 60%;
+    /* Evergreen #1E5B3A */
+    --evergreen: 148 50% 24%;
+    /* Fern #2F7D4C */
+    --fern: 142 45% 34%;
+    /* Muted Pine #3E5149 */
+    --sage: 155 13% 28%;
     
     /* Chart Colors */
-    --chart-1: 153 43% 43%;       /* Primary */
-    --chart-2: 32 63% 52%;        /* Warm */
-    --chart-3: 148 50% 30%;       /* Evergreen */
-    --chart-4: 142 45% 40%;       /* Fern */
-    --chart-5: 18 62% 44%;        /* Warning */
+    --chart-1: 148 50% 24%;       /* Evergreen */
+    --chart-2: 35 72% 42%;        /* Ochre */
+    --chart-3: 142 45% 34%;       /* Fern */
+    --chart-4: 9 59% 40%;         /* Rowan Red */
+    --chart-5: 14 62% 43%;        /* Rust */
   }
 
   .dark {
