@@ -29,54 +29,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true
+    let timeoutId: NodeJS.Timeout
 
-    const loadSession = async () => {
+    const getSession = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession()
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession()
+
         if (!mounted) return
 
-        if (error || !data.session?.user) {
+        if (error || !session?.user) {
           setUserId(null)
           setEmail(null)
           setRoles([])
-          setLoading(false)
-          return
+        } else {
+          setUserId(session.user.id)
+          setEmail(session.user.email ?? null)
+          await fetchRoles(session.user.id)
         }
-
-        setUserId(data.session.user.id)
-        setEmail(data.session.user.email ?? null)
-        await fetchRoles(data.session.user.id)
-        if (mounted) setLoading(false)
       } catch (err) {
         console.error("[auth] Error loading session:", err)
         if (mounted) {
           setUserId(null)
           setEmail(null)
           setRoles([])
+        }
+      } finally {
+        if (mounted) {
           setLoading(false)
+          clearTimeout(timeoutId) // Clear timeout on success or failure
         }
       }
     }
 
-    // Add a timeout fallback to ensure loading eventually completes
-    const timeout = setTimeout(() => {
-      if (mounted && loading) {
-        console.warn("[auth] Session check timed out after 10s. Force-clearing loading state.")
-        // FORCE NULL to ensure AppContext knows we are "logged out/offline"
-        setUserId(null)
-        setLoading(false)
-      }
-    }, 10000)
+    getSession()
 
-    loadSession()
-
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return
       if (!session?.user) {
         setUserId(null)
         setEmail(null)
         setRoles([])
-        setLoading(false)
         return
       }
 
