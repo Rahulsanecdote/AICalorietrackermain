@@ -28,8 +28,12 @@ import {
   ThemeToggle,
 } from "./components"
 
-import LifestyleDashboard from "./components/lifestyle/LifestyleDashboard"
-import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard"
+const LifestyleDashboard = React.lazy(() => import("./components/lifestyle/LifestyleDashboard"))
+const AnalyticsDashboard = React.lazy(() => import("./components/analytics/AnalyticsDashboard"))
+const CalorieDashboard = React.lazy(() => import("./components/CalorieDashboard"))
+const MealPlanGenerator = React.lazy(() => import("./components/MealPlanGenerator"))
+const ShoppingListView = React.lazy(() => import("./components/shopping/ShoppingListView"))
+const InsightsDashboard = React.lazy(() => import("./components/features/InsightsDashboard"))
 import { ErrorBanner } from "./components/ui/ErrorBanner"
 import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
 import { RootErrorBoundary } from "./components/ErrorBoundary"
