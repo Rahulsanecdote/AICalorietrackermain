@@ -214,8 +214,63 @@
     --vm-danger: 9 59% 40%;      /* #A13B2A Rowan Red */
     
     --vm-overlay-opacity: 0.72;  /* Deep forest tint */
+    }
   }
-}
+
+  /* Food Comparison Modal Scoped Theme */
+  .food-comparison-theme {
+    /* Forest Dawn (Light Mode) - Green-tinted paper */
+    --fc-bg: 135 20% 95%;         /* #F2F6F3 Forest Mist */
+    --fc-surface: 147 18% 92%;    /* #E7EFEA Fog Surface */
+    --fc-surface-raised: 153 17% 87%; /* #D7E3DC Pine Tint */
+    
+    --fc-text: 163 29% 6%;        /* #0B1411 Forest Night */
+    --fc-text-muted: 157 15% 27%; /* #3B4F44 Deep Moss */
+    
+    --fc-border: 143 14% 75%;     /* #B7C9BE Needle Pale */
+    
+    --fc-primary: 148 50% 24%;    /* #1E5B3A Evergreen */
+    --fc-primary-hover: 142 45% 34%; /* #2F7D4C Fern */
+    --fc-primary-soft: 148 50% 24%; /* Using Evergreen with opacity via utility */
+    
+    --fc-focus: 38 63% 47%;       /* #C28A2C Ochre */
+    --fc-warning: 18 62% 44%;     /* #B4532A Rust */
+    --fc-danger: 9 59% 40%;       /* #A13B2A Rowan Red */
+    
+    --fc-overlay: 148 29% 6%;     /* rgba(11,20,17) */
+    --fc-overlay-opacity: 0.28;   /* Light tint */
+
+    /* Chart Specifics */
+    --fc-chart-a: 142 45% 34%;    /* Fern */
+    --fc-chart-b: 38 63% 47%;     /* Ochre */
+  }
+
+  .dark .food-comparison-theme {
+    /* Forest Night (Dark Mode) */
+    --fc-bg: 163 29% 6%;          /* #0B1411 Forest Night */
+    --fc-surface: 156 32% 9%;     /* #0F1D18 Spruce Shadow */
+    --fc-surface-raised: 165 33% 12%; /* #142823 Pine Ink */
+    
+    --fc-text: 144 23% 92%;       /* #E7EFEA Fog Text */
+    --fc-text-muted: 147 13% 70%; /* #A9BDB2 Moss Muted */
+    
+    --fc-border: 154 25% 22%;     /* #2A463A Needle Border */
+    
+    --fc-primary: 148 50% 24%;    /* #1E5B3A Evergreen */
+    --fc-primary-hover: 142 45% 34%; /* #2F7D4C Fern */
+    --fc-primary-soft: 131 31% 56%; /* #6FAE7A Sage */
+    
+    --fc-focus: 38 63% 47%;       /* #C28A2C Ochre */
+    --fc-warning: 18 62% 44%;     /* #B4532A Rust */
+    --fc-danger: 9 59% 40%;       /* #A13B2A Rowan Red */
+    
+    --fc-overlay-opacity: 0.72;   /* Deep forest tint */
+
+    /* Chart Specifics */
+    --fc-chart-a: 142 45% 34%;    /* Fern */
+    --fc-chart-b: 38 63% 47%;     /* Ochre */
+  }
+
 
 @layer utilities {
   .scrollbar-hide {
