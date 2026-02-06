@@ -93,8 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false
-      clearTimeout(timeout)
-      listener.subscription.unsubscribe()
+      if (timeoutId) clearTimeout(timeoutId)
+      subscription.unsubscribe()
     }
   }, [])
 
