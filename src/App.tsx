@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState, Suspense, useEffect, useCallback } from "react"
+import React, { useState, Suspense, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 as uuidv4 } from "uuid"
-import { createTimestampFromLocal, formatDate } from "./utils/dateHelpers"
+import { createTimestampFromLocal } from "./utils/dateHelpers"
 import { useApp } from "./context/AppContext"
 import { useDate } from "./context/DateContext"
 import { useAuth } from "./context/AuthContext"
@@ -52,16 +52,12 @@ function AuthenticatedApp() {
   const {
     meals,
     addMealDirectly,
-    updateMeal,
-    deleteMeal,
     getMealsForDate,
     dailyTotals,
     settings,
-    updateSettings,
-    exportUserData,
   } = useApp()
   const { currentDate, goToPreviousDay, goToNextDay, goToToday } = useDate()
-  const { aiAnalysis, analyzeFood, isLoading: isAiLoading, error: aiError, setAiError } = useNutritionAI()
+  const { analyzeFood, setAiError } = useNutritionAI()
   const [activeView, setActiveView] = useState<"tracker" | "lifestyle" | "analytics">("tracker")
 
   const { addMealToShoppingList, isItemInList } = useShoppingList()
@@ -1037,7 +1033,7 @@ function App() {
     return <AuthScreen />
   }
 
-  return <AppShell />
+  return <AuthenticatedApp />
 }
 
 export default App
