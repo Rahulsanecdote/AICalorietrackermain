@@ -29,11 +29,11 @@ export function ProminentVoiceButton({ onClick, className = '' }: ProminentVoice
     <button
       onClick={onClick}
       className={`
-        group relative flex items-center justify-center
+        voice-modal-theme group relative flex items-center justify-center
         w-16 h-16 rounded-full
-        bg-gradient-to-br from-red-500 to-red-600
-        hover:from-red-600 hover:to-red-700
-        text-white shadow-lg
+        bg-[hsl(var(--vm-primary))] border-2 border-[hsl(var(--vm-surface))]
+        hover:bg-[hsl(var(--vm-primary-hover))]
+        text-[#E7EFEA] shadow-lg
         transition-all duration-300
         hover:scale-105 hover:shadow-xl
         active:scale-95
@@ -43,14 +43,14 @@ export function ProminentVoiceButton({ onClick, className = '' }: ProminentVoice
       aria-label="Open voice meal logger"
     >
       {/* Pulse animation ring */}
-      <span className="absolute inset-0 rounded-full animate-ping bg-red-400 opacity-25" />
+      <span className="absolute inset-0 rounded-full animate-ping bg-[hsl(var(--vm-primary))] opacity-25" />
 
       {/* Main icon */}
       <Mic className="w-7 h-7 transition-transform group-hover:scale-110" />
 
       {/* Tooltip on hover */}
       <span className="absolute -bottom-12 left-1/2 -translate-x-1/2 
-        px-3 py-1 bg-gray-900 text-white text-xs rounded-lg
+        px-3 py-1 bg-[hsl(var(--vm-text))] text-[hsl(var(--vm-surface))] text-xs rounded-lg
         opacity-0 group-hover:opacity-100 transition-opacity
         whitespace-nowrap pointer-events-none">
         Voice Log Meal

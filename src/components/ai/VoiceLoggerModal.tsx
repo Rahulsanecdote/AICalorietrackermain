@@ -263,6 +263,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                 <p className="text-sm text-[hsl(var(--vm-text-muted))] font-medium px-4 leading-relaxed">
                   {getHelperText(stage)}
                 </p>
+
               )}
             </div>
           </div>
@@ -287,7 +288,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                 ))}
               </div>
 
-              <Button onClick={handleConfirm} className="w-full bg-[hsl(var(--vm-primary))] hover:bg-[hsl(var(--vm-primary-hover))] text-white mt-2 border-0">
+              <Button onClick={handleConfirm} className="w-full bg-[hsl(var(--vm-primary))] hover:bg-[hsl(var(--vm-primary-hover))] text-[#E7EFEA] mt-2 border-0">
                 <Check className="mr-2 h-4 w-4" />
                 Add to Log
               </Button>
@@ -304,7 +305,7 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
                   w-full h-12 text-base font-medium transition-all border-0 focus-visible:ring-2 focus-visible:ring-[hsl(var(--vm-focus))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--vm-surface))]
                   ${stage === 'recording'
                     ? 'bg-[hsl(var(--vm-danger))] hover:bg-[hsl(var(--vm-danger))]/90 text-white shadow-[0_4px_14px_hsla(var(--vm-danger),0.4)] relative overflow-hidden'
-                    : 'bg-[hsl(var(--vm-primary))] hover:bg-[hsl(var(--vm-primary-hover))] text-white shadow-[0_4px_14px_hsla(var(--vm-primary),0.3)]'
+                    : 'bg-[hsl(var(--vm-primary))] hover:bg-[hsl(var(--vm-primary-hover))] text-[#E7EFEA] shadow-[0_4px_14px_hsla(var(--vm-primary),0.3)]'
                   }
                 `}
               >
