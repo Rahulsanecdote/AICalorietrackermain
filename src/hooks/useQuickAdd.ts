@@ -1,133 +1,56 @@
-import { useState, useCallback } from 'react';
+import { createTimestampFromLocal, getTodayStr } from '../utils/dateHelpers';
 
-import { v4 as uuidv4 } from 'uuid';
-import { Meal, MealCategory } from '../types';
-import { useNutritionAI } from './useNutritionAI';
+// ... (existing imports)
 
+// ...
 
-interface QuickAddResult {
-  id: string;
-  foodName: string;
-  description: string;
-  servingSize: string;
-  nutrition: {
-    calories: number;
-    protein_g: number;
-    carbs_g: number;
-    fat_g: number;
-  };
-  category: MealCategory;
-}
+const createMealFromResult = useCallback(
+  (result: QuickAddResult, dateStr?: string): Meal => {
+    // Use provided date or today's date if not provided
+    const targetDate = dateStr || getTodayStr();
 
-interface UseQuickAddOptions {
-  onSuccess?: (meal: Meal) => void;
-  onError?: (error: string) => void;
-}
+    return {
+      id: result.id,
+      description: result.description,
+      foodName: result.foodName,
+      servingSize: result.servingSize,
+      nutrition: result.nutrition,
+      timestamp: createTimestampFromLocal(targetDate),
+      category: result.category,
+    };
+  },
+  []
+);
 
-export function useQuickAdd(options: UseQuickAddOptions = {}) {
+const openWidget = useCallback(() => {
+  setIsOpen(true);
+  setError(null);
+  setLastResult(null);
+}, []);
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastResult, setLastResult] = useState<QuickAddResult | null>(null);
+const closeWidget = useCallback(() => {
+  setIsOpen(false);
+  setError(null);
+  setLastResult(null);
+}, []);
 
-  const { analyzeFood, isLoading } = useNutritionAI();
+const reset = useCallback(() => {
+  setError(null);
+  setLastResult(null);
+  setIsProcessing(false);
+}, []);
 
-  const processInput = useCallback(
-    async (rawInput: string, category: MealCategory = 'snack') => {
-      if (!rawInput.trim()) {
-        const errorMsg = 'Please enter a description';
-        setError(errorMsg);
-        options.onError?.(errorMsg);
-        return null;
-      }
-
-      setIsProcessing(true);
-      setError(null);
-
-      try {
-        const result = await analyzeFood(rawInput);
-
-        if (result) {
-          const mealResult: QuickAddResult = {
-            id: uuidv4(),
-            foodName: result.foodName,
-            description: rawInput,
-            servingSize: result.servingSize,
-            nutrition: {
-              calories: Math.round(result.calories),
-              protein_g: Math.round(result.protein_g),
-              carbs_g: Math.round(result.carbs_g),
-              fat_g: Math.round(result.fat_g),
-            },
-            category,
-          };
-
-          setLastResult(mealResult);
-          setIsProcessing(false);
-          return mealResult;
-        } else {
-          const errorMsg = 'Could not analyze food. Please try again.';
-          setError(errorMsg);
-          options.onError?.(errorMsg);
-          setIsProcessing(false);
-          return null;
-        }
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'An error occurred';
-        setError(errorMsg);
-        options.onError?.(errorMsg);
-        setIsProcessing(false);
-        return null;
-      }
-    },
-    [analyzeFood, options]
-  );
-
-  const createMealFromResult = useCallback(
-    (result: QuickAddResult): Meal => {
-      return {
-        id: result.id,
-        description: result.description,
-        foodName: result.foodName,
-        servingSize: result.servingSize,
-        nutrition: result.nutrition,
-        timestamp: new Date().toISOString(),
-        category: result.category,
-      };
-    },
-    []
-  );
-
-  const openWidget = useCallback(() => {
-    setIsOpen(true);
-    setError(null);
-    setLastResult(null);
-  }, []);
-
-  const closeWidget = useCallback(() => {
-    setIsOpen(false);
-    setError(null);
-    setLastResult(null);
-  }, []);
-
-  const reset = useCallback(() => {
-    setError(null);
-    setLastResult(null);
-    setIsProcessing(false);
-  }, []);
-
-  return {
-    isOpen,
-    isProcessing: isProcessing || isLoading,
-    error,
-    lastResult,
-    openWidget,
-    closeWidget,
-    reset,
-    processInput,
-    createMealFromResult,
-  };
+return {
+  isOpen,
+  isProcessing: isProcessing || isLoading,
+  error,
+  lastResult,
+  openWidget,
+  closeWidget,
+  reset,
+  processInput,
+  createMealFromResult,
+};
 }
 
 // Quick add presets for common foods

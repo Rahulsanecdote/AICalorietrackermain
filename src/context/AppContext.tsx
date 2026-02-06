@@ -18,6 +18,7 @@ import {
   updateMeal as updateMealRemote,
   deleteMeal as deleteMealRemote,
 } from "../utils/supabaseData"
+import { createTimestampFromLocal, getTodayStr } from "../utils/dateHelpers"
 
 // Context type definitions with error handling extensions
 interface QueuedRequest {
@@ -42,7 +43,7 @@ interface AppContextType {
 
   // Meals
   meals: Meal[]
-  addMeal: (description: string, category: MealCategory) => Promise<void>
+  addMeal: (description: string, category: MealCategory, dateStr?: string) => Promise<void>
   addMealDirectly: (meal: Meal) => void
   updateMeal: (meal: Meal) => void
   deleteMeal: (id: string) => void
@@ -473,14 +474,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   )
 
   const addMeal = useCallback(
-    async (_description: string, _category: MealCategory) => {
+    async (_description: string, _category: MealCategory, dateStr?: string) => {
+      const targetDate = dateStr || getTodayStr();
       const newMeal: Meal = {
         id: uuidv4(),
         description: _description,
         foodName: _description,
         servingSize: "1 serving",
         nutrition: { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
-        timestamp: new Date().toISOString(),
+        timestamp: createTimestampFromLocal(targetDate),
         category: _category,
       }
 

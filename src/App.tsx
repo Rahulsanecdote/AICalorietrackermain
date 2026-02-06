@@ -1,267 +1,74 @@
 "use client"
 
-import { useState, useEffect, useCallback, lazy, Suspense, useTransition } from "react"
-import "./i18n/config"
-
-import {
-  Header,
-  MealInput,
-  MealList,
-  SettingsModal,
-  EditMealModal,
-  RecipeDetailModal,
-  MealPrepCard,
-  UtilityPanel,
-  VoiceLoggerModal,
-  FoodVersusCard,
-  NutriBotWidget,
-  QuickAddWidget,
-  AuthScreen,
-} from "./components"
-import { OnlineStatusBar } from "./components/ui/OnlineStatusBar"
-import { DebugTools } from "./components/ui/DebugTools"
-import { ErrorBanner } from "./components/ui/ErrorBanner"
-import { RootErrorBoundary, FeatureErrorBoundary } from "./components/ErrorBoundary"
-import {
-  MealPlannerBoundary,
-  AnalyticsBoundary,
-  LifestyleBoundary,
-  InsightsBoundary,
-  MealPrepBoundary,
-  ShoppingListBoundary,
-} from "./components/features/FeatureBoundaries"
-import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
-import { setupGlobalErrorHandlers, triggerHardReload } from "@/utils/globalErrorHandlers"
-import { configureNotificationActions, notifyError, notifySuccess } from "@/utils/notifications"
-import { useNutritionAI } from "./hooks/useNutritionAI"
-import { useMealPlanner } from "./hooks/useMealPlanner"
-import { useFavorites } from "./hooks/useFavorites"
-import { useShoppingList } from "./hooks/useShoppingList"
-import { useMealPrep } from "./hooks/useMealPrep"
-import type { Meal, UserSettings, DailyTotals, MealCategory } from "./types"
-import type { Recipe } from "./types/recipes"
-import { v4 as uuidv4 } from "uuid"
-import { Heart, Clock, AlertTriangle } from "lucide-react"
+import React, { useState, Suspense, useEffect, useCallback } from "react"
 import { useTranslation } from "react-i18next"
+import { v4 as uuidv4 } from "uuid"
+import { createTimestampFromLocal, formatDate } from "./utils/dateHelpers"
+import { useApp } from "./context/AppContext"
+import { useDate } from "./context/DateContext"
+import { useAuth } from "./context/AuthContext"
+import { useNutritionAI } from "./hooks/useNutritionAI"
+import { useShoppingList } from "./hooks/useShoppingList"
+import { useFavorites } from "./hooks/useFavorites"
+import { Meal, MealCategory } from "./types"
 import { API_CONFIG } from "./constants"
 import { postAIChat } from "./utils/aiClient"
 
-// Import contexts
-import { useApp } from "./context/AppContext"
-import { useAuth } from "./context/AuthContext"
-import { useDate } from "./context/DateContext"
+import {
+  DateNavigator,
+  EditMealModal,
+  Header,
+  MealCard,
+  MealInput,
+  MealList,
+  SettingsModal,
+  AuthScreen,
+  UtilityPanel,
+  QuickAddWidget,
+  ThemeToggle,
+} from "./components"
 
-const CalorieDashboard = lazy(() => import("./components/CalorieDashboard"))
-const MealPlanGenerator = lazy(() => import("./components/MealPlanGenerator"))
-const AnalyticsDashboard = lazy(() => import("./components/analytics/AnalyticsDashboard"))
-const LifestyleDashboard = lazy(() => import("./components/lifestyle/LifestyleDashboard"))
-const ShoppingListView = lazy(() => import("./components/shopping/ShoppingListView"))
-const InsightsDashboard = lazy(() =>
-  import("./components/features/InsightsDashboard").then((module) => ({ default: module.InsightsDashboard })),
-)
+import LifestyleDashboard from "./components/lifestyle/LifestyleDashboard"
+import AnalyticsDashboard from "./components/analytics/AnalyticsDashboard"
+import { ErrorBanner } from "./components/ui/ErrorBanner"
+import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
+import { RootErrorBoundary } from "./components/ErrorBoundary"
 
-const DashboardLoadingCard = ({ title, description }: { title: string; description?: string }) => (
-  <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
-    <div className="animate-pulse space-y-3">
-      <div className="h-4 w-40 bg-accent rounded dark:bg-card" />
-      {description ? <div className="h-3 w-56 bg-accent rounded dark:bg-card" /> : null}
-      <div className="h-32 w-full bg-accent rounded-xl dark:bg-card" />
-    </div>
-    <div className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">{title}</div>
-  </div>
-)
-
-const DashboardErrorCard = ({
-  title,
-  message,
-  onRetry,
-  errorDetails,
-}: {
-  title: string
-  message: string
-  onRetry?: () => void
-  errorDetails?: string
-}) => (
-  <div className="bg-card rounded-2xl shadow-sm border border-red-200 p-6 dark:bg-card border-destructive/50">
-    <div className="flex items-start gap-3">
-      <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center dark:bg-red-900/40">
-        <AlertTriangle className="w-5 h-5 text-destructive text-destructive-foreground" />
-      </div>
-      <div className="flex-1">
-        <h3 className="text-sm font-semibold text-destructive text-destructive-foreground">{title}</h3>
-        <p className="text-sm text-destructive text-destructive-foreground mt-1">{message}</p>
-        {errorDetails ? (
-          <details className="mt-2 text-xs text-destructive text-destructive-foreground">
-            <summary className="cursor-pointer">Show details</summary>
-            <pre className="mt-1 whitespace-pre-wrap">{errorDetails}</pre>
-          </details>
-        ) : null}
-        {onRetry ? (
-          <button
-            onClick={onRetry}
-            className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-destructive-foreground bg-destructive rounded-lg hover:bg-destructive/90 transition-colors"
-          >
-            Retry
-          </button>
-        ) : null}
+// Simple loading component
+function DashboardLoadingCard({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="p-6 rounded-xl bg-card border border-border animate-pulse">
+      <div className="h-6 w-1/3 bg-muted rounded mb-2"></div>
+      <div className="h-4 w-2/3 bg-muted rounded"></div>
+      <div className="sr-only">
+        {title} - {description}
       </div>
     </div>
-  </div>
-)
+  )
+}
 
-// ============================================================================
-// Main App Component
-// ============================================================================
-
-function AppShell() {
+function AuthenticatedApp() {
   const { t } = useTranslation()
-  const { email, signOut } = useAuth()
-  const handleSignOut = useCallback(() => {
-    void signOut()
-  }, [signOut])
-
-  // Use App Context for global state
   const {
+    meals,
+    addMealDirectly,
+    updateMeal,
+    deleteMeal,
+    getMealsForDate,
+    dailyTotals,
     settings,
     updateSettings,
-    meals,
-
-    addMealDirectly,
-    updateMeal: updateMealInContext,
-    deleteMeal: deleteMealFromContext,
-    getMealsForDate,
-    getWeeklyMeals,
-    offlineQueue,
-    processOfflineQueue,
+    exportUserData,
   } = useApp()
+  const { currentDate, goToPreviousDay, goToNextDay, goToToday } = useDate()
+  const { aiAnalysis, analyzeFood, isLoading: isAiLoading, error: aiError, setAiError } = useNutritionAI()
+  const [activeView, setActiveView] = useState<"tracker" | "lifestyle" | "analytics">("tracker")
 
-  const { currentDate, goToPreviousDay, goToNextDay, goToToday, formatDate } = useDate()
-
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [editingMeal, setEditingMeal] = useState<Meal | null>(null)
-  const [aiError, setAiError] = useState<string | null>(null)
-  const [isUtilityOpen, setIsUtilityOpen] = useState(false)
-  const [isVoiceOpen, setIsVoiceOpen] = useState(false)
-  const [isCompareOpen, setIsCompareOpen] = useState(false)
-
-  // View state for enhanced features
-  const [activeView, setActiveView] = useState<
-    "tracker" | "analytics" | "shopping" | "mealprep" | "favorites" | "lifestyle" | "insights"
-  >("tracker")
-  const [isPending, startTransition] = useTransition() // Add useTransition
-
-  const handleViewChange = useCallback((view: typeof activeView) => {
-    startTransition(() => {
-      setActiveView(view)
-    })
-  }, [])
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
-  const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false)
-  const handleManualMode = useCallback(() => {
-    setActiveView("tracker")
-  }, [setActiveView])
-
-  // Favorites hook
-  const {
-    favorites,
-    isFavorite: checkIsFavorite,
-    isFoodItemFavorite,
-    toggleFavorite,
-    toggleFoodItemFavorite,
-    removeFoodItemFavorite,
-    removeRecipeFavorite,
-  } = useFavorites()
-
-  // Shopping list hook
-  const {
-    shoppingList,
-    generateListFromMeals,
-    addMealToShoppingList,
-    toggleItemCheck,
-    removeItem,
-    addCustomItem,
-    clearList,
-    isItemInList,
-  } = useShoppingList()
-
-  // Meal prep hook
-  const {
-    suggestions: mealPrepSuggestions,
-    isGenerating: isMealPrepGenerating,
-    error: mealPrepError,
-    generateSuggestions,
-  } = useMealPrep()
-
-  // Fresh handler for meal prep that always uses current meals state
-  const handleGenerateMealPrep = useCallback(() => {
-    const weekMeals = getWeeklyMeals(currentDate) // FIXED: NoRedeclare issue for getWeeklyMeals
-    generateSuggestions(weekMeals)
-    setActiveView("mealprep")
-  }, [getWeeklyMeals, currentDate, generateSuggestions])
-
-  const { analyzeFood, isLoading, error: hookError } = useNutritionAI()
-
-  // Online/Offline detection
-  const [isOnline, setIsOnline] = useState(() => (typeof navigator !== "undefined" ? navigator.onLine : true))
-
-  // Calculate daily totals using context helper
-  const dailyTotals: DailyTotals = useCallback(() => {
-    const dayMeals = getMealsForDate(currentDate) // FIXED: NoRedeclare issue for getMealsForDate
-    return dayMeals.reduce(
-      (totals, meal) => ({
-        calories: totals.calories + meal.nutrition.calories,
-        protein_g: totals.protein_g + meal.nutrition.protein_g,
-        carbs_g: totals.carbs_g + meal.nutrition.carbs_g,
-        fat_g: totals.fat_g + meal.nutrition.fat_g,
-      }),
-      { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
-    )
-  }, [getMealsForDate, currentDate])() // FIXED: NoRedeclare issues for these variables if they were used here
-
-  // Sync hook error to state
-  // const [aiError, setAiError] = useState<string | null>(null) // FIXED: NoRedeclare issue for aiError and setAiError - REMOVED
-
-  useEffect(() => {
-    setAiError(hookError ? hookError.userMessage : null)
-  }, [hookError])
-
-  // Keep online status in sync and flush queued work when connection returns
-  useEffect(() => {
-    const updateOnlineStatus = () => {
-      const online = typeof navigator !== "undefined" ? navigator.onLine : true
-      setIsOnline(online)
-      if (online && offlineQueue.length > 0) {
-        processOfflineQueue()
-      }
-    }
-
-    updateOnlineStatus()
-
-    if (typeof window !== "undefined") {
-      window.addEventListener("online", updateOnlineStatus)
-      window.addEventListener("offline", updateOnlineStatus)
-
-      return () => {
-        window.removeEventListener("online", updateOnlineStatus)
-        window.removeEventListener("offline", updateOnlineStatus)
-      }
-    }
-    return undefined;
-  }, [offlineQueue.length, processOfflineQueue])
-
-  // Setup global error handlers
-  useEffect(() => {
-    configureNotificationActions({
-      manualMode: handleManualMode,
-      reload: triggerHardReload,
-    })
-    setupGlobalErrorHandlers()
-
-    console.log("[App] Global error handlers initialized")
-  }, [handleManualMode, triggerHardReload])
+  const { addMealToShoppingList, isItemInList } = useShoppingList()
+  const { isFavorite: checkIsFavorite, toggleFavorite: handleToggleFavorite } = useFavorites()
 
   // Add meal with AI analysis
-  async function handleAddMeal(description: string, category: MealCategory) {
+  const handleAddMeal = async (description: string, category: MealCategory) => {
     setAiError(null)
 
     if (!navigator.onLine) {
@@ -282,69 +89,16 @@ function AppShell() {
           carbs_g: Math.round(result.carbs_g),
           fat_g: Math.round(result.fat_g),
         },
-        timestamp: new Date().toISOString(),
+        // FIXED: Use selected date instead of "now" to support logging for past/future dates
+        timestamp: createTimestampFromLocal(currentDate),
         category,
       }
 
-      addMealDirectly(newMeal) // FIXED: NoRedeclare issue for addMealDirectly
+      addMealDirectly(newMeal)
     }
   }
 
-  // Meal planner hook - pass the handleAddMeal function
-  const {
-    currentPlan,
-    templates,
-    userPantry,
-    isGenerating,
-    error: mealPlanError,
-    generateMealPlan,
-    generateMealPlanFromPantry,
-    swapFoodItem,
-    regenerateMealPlan,
-    saveTemplate,
-    loadTemplate,
-    clearPlan,
-    savePantry,
-  } = useMealPlanner(settings, handleAddMeal) // FIXED: NoRedeclare issues for these variables
-
-  const handleDeleteMeal = useCallback(
-    (id: string) => {
-      deleteMealFromContext(id) // FIXED: NoRedeclare issue for deleteMealFromContext
-    },
-    [deleteMealFromContext],
-  )
-
-  const handleEditMeal = useCallback((meal: Meal) => {
-    setEditingMeal(meal)
-  }, [])
-
-  const handleSaveEditedMeal = useCallback(
-    (updatedMeal: Meal) => {
-      updateMealInContext(updatedMeal) // FIXED: NoRedeclare issue for updateMealInContext
-    },
-    [updateMealInContext],
-  )
-
-  const handleSettingsSave = (newSettings: UserSettings) => {
-    updateSettings(newSettings) // FIXED: NoRedeclare issue for updateSettings
-  }
-
-  // Recipe handlers
-  const handleViewRecipe = (recipe: Recipe) => {
-    setSelectedRecipe(recipe)
-    setIsRecipeModalOpen(true)
-  }
-
-  const handleToggleFavorite = (recipeId: string) => {
-    toggleFavorite(recipeId)
-  }
-
-  // Shopping list handlers
-  const handleGenerateShoppingList = () => {
-    const weekMeals = getWeeklyMeals(currentDate) // FIXED: NoRedeclare issue for getWeeklyMeals and currentDate
-    generateListFromMeals(weekMeals, currentDate)
-    setActiveView("shopping")
-  }
+  // ...
 
   // Import handler for utility panel
   const handleImportMeals = (importedMeals: Partial<Meal>[]) => {
@@ -355,10 +109,11 @@ function AppShell() {
       servingSize: meal.servingSize || "1 serving",
       category: meal.category || "snack",
       nutrition: meal.nutrition || { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
-      timestamp: new Date().toISOString(),
+      // FIXED: Use selected date
+      timestamp: createTimestampFromLocal(currentDate),
     }))
 
-    newMeals.forEach((meal) => addMealDirectly(meal)) // FIXED: NoRedeclare issue for addMealDirectly
+    newMeals.forEach((meal) => addMealDirectly(meal))
   }
 
   // Voice input handler
@@ -382,11 +137,12 @@ function AppShell() {
         carbs_g: food.macros.carbs_g,
         fat_g: food.macros.fat_g,
       },
-      timestamp: new Date().toISOString(),
+      // FIXED: Use selected date
+      timestamp: createTimestampFromLocal(currentDate),
       category: "snack",
     }))
 
-    newMeals.forEach((meal) => addMealDirectly(meal)) // FIXED: NoRedeclare issue for addMealDirectly
+    newMeals.forEach((meal) => addMealDirectly(meal))
   }
 
   // Test API connectivity

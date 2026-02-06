@@ -1,43 +1,16 @@
-'use client';
+import { useDate } from '../../context/DateContext';
 
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Plus, X, Send, Mic, Loader2, Sparkles } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useQuickAdd, QUICK_ADD_PRESETS } from '../../hooks/useQuickAdd';
-import { useNutritionAI } from '../../hooks/useNutritionAI';
-import { useFoodTranslation } from '../../hooks/useFoodTranslation';
-import { MealCategory } from '../../types';
-
-interface QuickAddWidgetProps {
-  onMealAdded: (meal: any) => void;
-}
+// ... (existing imports)
 
 export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
   const { t } = useTranslation();
   const { translateFood } = useFoodTranslation();
+  const { currentDate } = useDate(); // Use date context
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
   const [category, setCategory] = useState<MealCategory>('snack');
 
-  const {
-    isProcessing,
-    error,
-    lastResult,
-    processInput,
-    createMealFromResult,
-
-    reset,
-  } = useQuickAdd({
-    onSuccess: (meal) => {
-      onMealAdded(meal);
-      setInput('');
-      reset();
-      setTimeout(() => setIsExpanded(false), 1500);
-    },
-  });
-
-  useNutritionAI();
+  // ...
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +18,8 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
     const result = await processInput(input, category);
     if (result) {
-      const meal = createMealFromResult(result);
+      // Pass currentDate to createMealFromResult
+      const meal = createMealFromResult(result, currentDate);
       onMealAdded(meal);
       setInput('');
       reset();
