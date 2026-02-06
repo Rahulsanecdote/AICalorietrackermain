@@ -23,17 +23,17 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  breakfast: 'bg-amber-50 text-amber-600 border-amber-200',
-  lunch: 'bg-sky-50 text-sky-600 border-sky-200',
-  dinner: 'bg-indigo-50 text-primary border-indigo-200',
-  snack: 'bg-pink-50 text-pink-600 border-pink-200',
+  breakfast: 'bg-bark/80 text-amber-100 border-bark',
+  lunch: 'bg-cedar/80 text-orange-50 border-cedar',
+  dinner: 'bg-walnut/80 text-primary border-walnut',
+  snack: 'bg-sage/20 text-sage border-sage/30',
 };
 
 const categoryBgColors = {
-  breakfast: 'bg-amber-500',
-  lunch: 'bg-sky-500',
-  dinner: 'bg-indigo-500',
-  snack: 'bg-pink-500',
+  breakfast: 'bg-bark',
+  lunch: 'bg-cedar',
+  dinner: 'bg-walnut',
+  snack: 'bg-sage',
 };
 
 export default function MealCard({
