@@ -3,7 +3,7 @@
 import React, { useState, Suspense, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 as uuidv4 } from "uuid"
-import { createTimestampFromLocal } from "./utils/dateHelpers"
+import { createTimestampFromLocal, formatDate } from "./utils/dateHelpers"
 import { useApp } from "./context/AppContext"
 import { useDate } from "./context/DateContext"
 import { useAuth } from "./context/AuthContext"
