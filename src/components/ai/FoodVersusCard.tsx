@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ArrowRightLeft, Grid3X3, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
