@@ -15,7 +15,7 @@ on:
 permissions:
   contents: read
   deployments: write
-  actions: read
+  actions: write
   issues: write
 
 env:
@@ -267,14 +267,22 @@ jobs:
           echo "✅ Health check passed"
       
       - name: Smoke tests
+        env:
+          VERCEL_BYPASS_TOKEN: ${{ secrets.VERCEL_BYPASS_TOKEN }}
         run: |
           URL=$(cat deployment-url.txt)
           
           # Test critical endpoints
           echo "Testing critical paths..."
           
+          # Define curl opts based on bypass token presence
+          CURL_OPTS="-s -o /dev/null -w %{http_code}"
+          if [ -n "$VERCEL_BYPASS_TOKEN" ]; then
+            CURL_OPTS="$CURL_OPTS -H \"x-vercel-protection-bypass: $VERCEL_BYPASS_TOKEN\""
+          fi
+          
           # Test main app loads
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$URL")
+          STATUS=$(eval curl $CURL_OPTS "$URL")
           if [ "$STATUS" != "200" ]; then
             echo "❌ Main app failed: $STATUS"
             exit 1
