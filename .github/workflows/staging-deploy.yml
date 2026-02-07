@@ -69,8 +69,10 @@ jobs:
     name: Deploy to Staging
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
     environment:
-      name: staging
+      name: ${{ 'staging' }}
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
