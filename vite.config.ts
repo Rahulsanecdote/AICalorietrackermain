@@ -24,6 +24,9 @@ const reportPlugins = isBundleReport
 
 export default defineConfig({
   plugins: [react(), ...reportPlugins],
+  esbuild: {
+    jsxInject: `import React from 'react'`,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
