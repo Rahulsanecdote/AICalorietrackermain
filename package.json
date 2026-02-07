@@ -10,7 +10,8 @@
   "scripts": {
     "dev": "vite",
     "server": "node server/index.mjs",
-    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run typecheck && npm run lint && vite build",
     "build:report": "BUNDLE_REPORT=1 pnpm build",
     "bundle:budget": "node scripts/bundle-budget.mjs",
     "preview": "vite preview",

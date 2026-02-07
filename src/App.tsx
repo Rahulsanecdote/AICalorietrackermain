@@ -37,6 +37,7 @@ const InsightsDashboard = React.lazy(() => import("./components/features/Insight
 import { ErrorBanner } from "./components/ui/ErrorBanner"
 import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
 import { RootErrorBoundary } from "./components/ErrorBoundary"
+import { FeatureErrorBoundary } from "./components/error/FeatureErrorBoundary"
 
 // Simple loading component
 function DashboardLoadingCard({ title, description }: { title: string; description: string }) {
@@ -1043,7 +1044,11 @@ function App() {
     return <AuthScreen />
   }
 
-  return <AuthenticatedApp />
+  return (
+    <FeatureErrorBoundary feature="app-root">
+      <AuthenticatedApp />
+    </FeatureErrorBoundary>
+  )
 }
 
 export default App

@@ -7,7 +7,7 @@
 
 import type { ReactNode } from "react"
 import { AlertTriangle, RefreshCw, Utensils, FileText, BarChart3, Brain, Plus, Activity, Sparkles } from "lucide-react"
-import { FeatureErrorBoundary } from "../ErrorBoundary"
+import { FeatureErrorBoundary } from "../error/FeatureErrorBoundary"
 
 // ============================================================================
 // Types
