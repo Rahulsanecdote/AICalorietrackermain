@@ -3,7 +3,7 @@
  * Reusable React hooks for common functionality
  */
 
-import { useState, useEffect, useRef, useCallback, DependencyList } from 'react';
+import React, { useState, useEffect, useRef, useCallback, DependencyList } from 'react';
 
 /**
  * Debounce hook - delays execution until after a specified wait time
