@@ -1,8 +1,9 @@
-import { supabase } from "./supabaseClient"
+import { supabase, isSupabaseConfigured } from "./supabaseClient"
 import type { Meal, UserSettings } from "../types"
 import { normalizeSettings } from "./settingsNormalization"
 
 export async function fetchUserSettings(userId: string): Promise<UserSettings | null> {
+  if (!isSupabaseConfigured) return null
   const { data, error } = await supabase
     .from("user_settings")
     .select("*")
@@ -30,6 +31,7 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
 }
 
 export async function upsertUserSettings(userId: string, settings: UserSettings): Promise<void> {
+  if (!isSupabaseConfigured) return
   const { error } = await supabase.from("user_settings").upsert({
     user_id: userId,
     daily_calorie_goal: settings.dailyCalorieGoal,
@@ -50,6 +52,7 @@ export async function upsertUserSettings(userId: string, settings: UserSettings)
 }
 
 export async function fetchMeals(userId: string): Promise<Meal[]> {
+  if (!isSupabaseConfigured) return []
   const { data, error } = await supabase
     .from("meals")
     .select("*")
@@ -78,6 +81,7 @@ export async function fetchMeals(userId: string): Promise<Meal[]> {
 }
 
 export async function insertMeal(userId: string, meal: Meal): Promise<void> {
+  if (!isSupabaseConfigured) return
   // Extract date part from timestamp or use current date if needed
   // Ensuring we store the local date context if possible, or UTC date
   const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];

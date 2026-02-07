@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, useCallback, type ReactNode } from "react"
-import { supabase } from "../utils/supabaseClient"
+import { supabase, isSupabaseConfigured } from "../utils/supabaseClient"
 
 export type AppRole = "user" | "admin"
 
@@ -43,6 +43,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => {
+    // If Supabase is not configured, skip auth entirely and run in local-only mode
+    if (!isSupabaseConfigured) {
+      console.info("[auth] Supabase not configured - running in local-only mode")
+      setUserId(null)
+      setEmail(null)
+      setRoles([])
+      setLoading(false)
+      return
+    }
+
     let mounted = true
     let timeoutId: NodeJS.Timeout | undefined // Initialize as undefined
 
