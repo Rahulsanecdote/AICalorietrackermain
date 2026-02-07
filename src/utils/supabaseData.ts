@@ -108,27 +108,35 @@ export async function fetchMeals(userId: string): Promise<Meal[]> {
 }
 
 export async function insertMeal(userId: string, meal: Meal): Promise<void> {
-  // Extract date part from timestamp or use current date if needed
-  // Ensuring we store the local date context if possible, or UTC date
-  const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
+  if (!isSupabaseConfigured) {
+    console.warn("[supabaseData] Supabase not configured, skipping meal insert")
+    return
+  }
+  
+  try {
+    // Extract date part from timestamp or use current date if needed
+    const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
 
-  const { error } = await supabase.from("meals").insert({
-    id: meal.id,
-    user_id: userId,
-    logged_at: meal.timestamp,
-    meal_date: mealDate, // Explicitly set meal_date
-    category: meal.category,
-    description: meal.description,
-    food_name: meal.foodName,
-    serving_size: meal.servingSize,
-    calories: meal.nutrition.calories,
-    protein_g: meal.nutrition.protein_g,
-    carbs_g: meal.nutrition.carbs_g,
-    fat_g: meal.nutrition.fat_g,
-  })
+    const { error } = await supabase.from("meals").insert({
+      id: meal.id,
+      user_id: userId,
+      logged_at: meal.timestamp,
+      meal_date: mealDate,
+      category: meal.category,
+      description: meal.description,
+      food_name: meal.foodName,
+      serving_size: meal.servingSize,
+      calories: meal.nutrition.calories,
+      protein_g: meal.nutrition.protein_g,
+      carbs_g: meal.nutrition.carbs_g,
+      fat_g: meal.nutrition.fat_g,
+    })
 
-  if (error) {
-    throw new Error(error.message)
+    if (error) {
+      console.error("[supabaseData] Error inserting meal:", error.message)
+    }
+  } catch (error) {
+    console.error("[supabaseData] Unexpected error inserting meal:", error)
   }
 }
 
