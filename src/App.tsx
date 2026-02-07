@@ -68,6 +68,11 @@ function AuthenticatedApp() {
   const { isFavorite: checkIsFavorite, toggleFavorite: handleToggleFavorite } = useFavorites()
 
   // Add meal with AI analysis
+  const handleViewChange = (view: "tracker" | "lifestyle" | "analytics") => {
+    setActiveView(view)
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }
+
   const handleAddMeal = async (description: string, category: MealCategory) => {
     setAiError(null)
 
