@@ -586,6 +586,9 @@ function AuthenticatedApp() {
 function App() {
   const { userId, loading } = useAuth()
 
+  // Debug logging for deployment troubleshooting
+  console.log("[App] Render state:", { userId: userId ? "present" : "null", loading })
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-card dark:bg-card">
