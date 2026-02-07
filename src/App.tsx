@@ -26,6 +26,7 @@ import {
   UtilityPanel,
   QuickAddWidget,
   ThemeToggle,
+  OnlineStatusBar,
 } from "./components"
 
 const LifestyleDashboard = React.lazy(() => import("./components/lifestyle/LifestyleDashboard"))
