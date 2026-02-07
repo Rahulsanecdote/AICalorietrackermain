@@ -94,6 +94,7 @@ export function DateProvider({ children }: { children: ReactNode }) {
 }
 
 // Custom hook to use date context
+// eslint-disable-next-line react-refresh/only-export-components
 export function useDate() {
   const context = useContext(DateContext);
   if (context === undefined) {

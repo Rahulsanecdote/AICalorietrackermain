@@ -760,6 +760,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useApp(): AppContextType {
   const context = useContext(AppContext)
   if (context === undefined) {
