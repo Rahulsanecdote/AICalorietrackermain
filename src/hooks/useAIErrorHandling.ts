@@ -360,7 +360,7 @@ export function useAPIStatus(): UseAPIStatusResult {
         latency,
         status: 'success',
       });
-    } catch (err) {
+    } catch {
       setState({
         isOnline: false,
         lastChecked: new Date().toISOString(),

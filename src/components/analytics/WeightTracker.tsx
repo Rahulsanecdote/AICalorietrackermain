@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   Filler,
+  TooltipItem,
 } from 'chart.js';
 import { Plus, Trash2, TrendingDown, TrendingUp, Activity } from 'lucide-react';
 
@@ -89,7 +90,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
         titleFont: { size: 14 },
         bodyFont: { size: 13 },
         callbacks: {
-          label: (context: any) => `${context.parsed.y} kg`,
+          label: (context: TooltipItem<'line'>) => `${context.parsed.y} kg`,
         },
       },
     },
@@ -110,7 +111,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
           color: '#f3f4f6',
         },
         ticks: {
-          callback: (value: any) => `${value} kg`,
+          callback: (value: string | number) => `${value} kg`,
         },
       },
     },
@@ -124,7 +125,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
       overweight: { color: 'text-yellow-600', bg: 'bg-yellow-50 border-yellow-200', label: 'Overweight' },
       obese: { color: 'text-destructive', bg: 'bg-red-50 border-red-200', label: 'Obese' },
     };
-    const config = statusConfig[stats.bmiCategory];
+    const config = statusConfig[stats.bmiCategory as keyof typeof statusConfig] || statusConfig.normal;
     return (
       <div className={`px-3 py-1 rounded-full text-sm font-medium border ${config.bg} ${config.color}`}>
         {config.label} (BMI: {stats.bmi})

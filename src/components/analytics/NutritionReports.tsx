@@ -1,28 +1,6 @@
 import { useState } from 'react';
+import { Download, ChevronDown } from 'lucide-react';
 import { NutritionReport, WeightEntry, ReportPeriod } from '../../types/analytics';
-import { Bar, Doughnut } from 'react-chartjs-2';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-} from 'chart.js';
-import { Download, TrendingDown, TrendingUp, Minus, ChevronDown } from 'lucide-react';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
 interface NutritionReportsProps {
   generateReport: (period: ReportPeriod) => NutritionReport;
   exportCSV: (period: ReportPeriod) => void;
@@ -30,23 +8,9 @@ interface NutritionReportsProps {
 }
 
 export default function NutritionReports({ generateReport, exportCSV }: NutritionReportsProps) {
-  const [period, setPeriod] = useState<ReportPeriod>('week');
+  const [period] = useState<ReportPeriod>('week');
   const [showDetail, setShowDetail] = useState(false);
   const report = generateReport(period);
-
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const getAdherenceColor = (percentage: number) => {
-    if (percentage >= 90 && percentage <= 110) return 'text-green-400 bg-green-500/10';
-    if (percentage >= 70 && percentage < 90) return 'text-yellow-400 bg-yellow-500/10';
-    if (percentage > 110) return 'text-red-400 bg-red-500/10';
-    return 'text-muted-foreground bg-card';
-  };
 
 
   return (

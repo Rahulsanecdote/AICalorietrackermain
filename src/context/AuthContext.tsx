@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { createContext, useContext, useEffect, useMemo, useState, useCallback, type ReactNode } from "react"
 import { supabase } from "../utils/supabaseClient"
 
 export type AppRole = "user" | "admin"
@@ -26,6 +26,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState<string | null>(null)
   const [roles, setRoles] = useState<AppRole[]>([])
   const [loading, setLoading] = useState(true)
+
+  const fetchRoles = useCallback(async (id: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", id)
+
+      if (error) throw error
+
+      setRoles(data.map((r) => r.role))
+    } catch (err) {
+      console.error("Error fetching roles:", err)
+    }
+  }, [])
 
   useEffect(() => {
     let mounted = true
@@ -96,36 +111,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (timeoutId) clearTimeout(timeoutId)
       subscription.unsubscribe()
     }
-  }, [])
+  }, [fetchRoles])
 
-  const fetchRoles = async (id: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", id)
-
-      if (error) {
-        // Handle missing table gracefully - assign default "user" role
-        if (error.message.includes("relation") && error.message.includes("does not exist")) {
-          console.warn("[auth] user_roles table missing, using default role")
-          setRoles(["user"])
-          return
-        }
-        console.warn("[auth] Failed to load roles:", error.message)
-        setRoles(["user"]) // Default to user role on error
-        return
-      }
-
-      const mapped = (data ?? []).map((row) => row.role as AppRole)
-      setRoles(mapped.length ? mapped : ["user"])
-    } catch (err) {
-      console.warn("[auth] Error fetching roles:", err)
-      setRoles(["user"]) // Default to user role on any error
-    }
-  }
-
-  const signIn = async (authEmail: string, password: string) => {
+  const signIn = useCallback(async (authEmail: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email: authEmail,
       password,
@@ -134,9 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error.message }
     }
     return {}
-  }
+  }, [])
 
-  const signUp = async (authEmail: string, password: string) => {
+  const signUp = useCallback(async (authEmail: string, password: string) => {
     const { error } = await supabase.auth.signUp({
       email: authEmail,
       password,
@@ -145,9 +133,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error.message }
     }
     return {}
-  }
+  }, [])
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -158,9 +146,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error.message }
     }
     return {}
-  }
+  }, [])
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       // 1. Explicitly clear local state first for immediate UI feedback
       setUserId(null)
@@ -179,12 +167,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserId(null)
       window.location.href = '/'
     }
-  }
+  }, [])
 
-  const refreshRoles = async () => {
+  const refreshRoles = useCallback(async () => {
     if (!userId) return
     await fetchRoles(userId)
-  }
+  }, [userId, fetchRoles])
 
   const value = useMemo(
     () => ({
@@ -199,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       refreshRoles,
     }),
-    [userId, email, roles, loading],
+    [userId, email, roles, loading, signIn, signUp, signInWithGoogle, signOut, refreshRoles],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

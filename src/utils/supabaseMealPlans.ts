@@ -126,6 +126,7 @@ export async function fetchMealPlanForDate(userId: string, date: string): Promis
   if (mealsError) throw new Error(mealsError.message)
 
   const mealIds = (meals ?? []).map((meal) => meal.id)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let items: Array<Record<string, any>> = []
 
   if (mealIds.length > 0) {

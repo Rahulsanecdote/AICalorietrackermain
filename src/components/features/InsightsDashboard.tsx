@@ -6,8 +6,10 @@ import { Sparkles, TrendingUp, TrendingDown, Info, X, RefreshCw, Lightbulb, Awar
 import { useInsightsEngine } from '../../hooks/useInsightsEngine';
 import { WeeklyInsight, InsightCategory, InsightSeverity } from '../../types/features';
 
+import { Meal } from '../../types';
+
 interface InsightsDashboardProps {
-  meals: any[];
+  meals: Meal[];
 }
 
 export function InsightsDashboard({ meals }: InsightsDashboardProps) {
@@ -234,7 +236,7 @@ function InsightCard({ insight, onDismiss }: InsightCardProps) {
 }
 
 // Compact insights summary for dashboard
-export function InsightsSummary({ meals }: { meals: any[] }) {
+export function InsightsSummary({ meals }: { meals: Meal[] }) {
   const { t } = useTranslation();
   const { hasInsights, isLoading, generateInsights } = useInsightsEngine({ meals });
 

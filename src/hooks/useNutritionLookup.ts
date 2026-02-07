@@ -5,7 +5,7 @@
  * Priority: Catalog > AI Estimation
  */
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import {
     searchFoodCatalog,
     CatalogFood,

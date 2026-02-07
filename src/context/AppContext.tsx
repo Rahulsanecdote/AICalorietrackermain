@@ -149,7 +149,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return false
       }
     },
-    [authLoading, isRemote, storageState.isReadOnly],
+    [storageState.isReadOnly],
   )
 
   useEffect(() => {
@@ -396,7 +396,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (storedMeals) {
         try {
           setMeals(JSON.parse(storedMeals));
-        } catch (e) { /* ignore */ }
+        } catch { /* ignore */ }
       }
     } finally {
       setIsInitialized(true)
@@ -654,7 +654,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         corruptionError: null,
       }))
       console.log("Exited read-only mode")
-    } catch (error) {
+    } catch {
       console.error("Cannot exit read-only mode: storage still unavailable")
     }
   }, [])
@@ -706,7 +706,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const exportUserData = useCallback(() => {
     handleBackupDownload()
-  }, [handleBackupDownload])
+  }, [])
 
   const value: AppContextType = useMemo(
     () => ({
@@ -768,4 +768,4 @@ export function useApp(): AppContextType {
   return context
 }
 
-export default AppContext
+// export default AppContext

@@ -86,6 +86,144 @@ export function useInsightsEngine({ meals, refreshInterval = 24 }: UseInsightsOp
     };
   }, [meals]);
 
+  // Generate local insights without AI
+  const generateLocalInsights = useCallback(() => {
+    const newInsights: WeeklyInsight[] = [];
+    const now = Date.now();
+    const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const end = new Date().toISOString();
+
+    // Protein insight
+    if (weeklyStats.avgProteinPerDay < 50) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'macronutrient',
+        severity: 'warning',
+        title: 'Boost Your Protein',
+        description: `You're averaging ${weeklyStats.avgProteinPerDay}g protein per day. Consider adding more lean meats, eggs, or legumes.`,
+        actionItem: 'Try Greek yogurt for breakfast',
+      });
+    } else if (weeklyStats.avgProteinPerDay >= 100) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'achievement',
+        severity: 'positive',
+        title: 'Protein Powerhouse!',
+        description: `Great job! You're hitting ${weeklyStats.avgProteinPerDay}g of protein daily, supporting muscle health.`,
+      });
+    }
+
+    // Consistency insight
+    if (weeklyStats.dayStreak >= 5) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'habit',
+        severity: 'positive',
+        title: 'On a Roll!',
+        description: `You've logged meals for ${weeklyStats.dayStreak} days this week. Keep up the consistent tracking!`,
+      });
+    } else if (weeklyStats.dayStreak < 3 && weeklyStats.mealCount > 0) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'habit',
+        severity: 'info',
+        title: 'Build Your Streak',
+        description: `You've logged meals on ${weeklyStats.dayStreak} days this week. Try to log meals for at least 5 days to build a consistent habit.`,
+        actionItem: 'Set a reminder to log your meals',
+      });
+    }
+
+    // Meal frequency insight
+    if (weeklyStats.avgMealsPerDay < 2 && weeklyStats.mealCount > 3) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'habit',
+        severity: 'info',
+        title: 'More Meals = More Energy',
+        description: 'Consider spreading your calories across more meals for steady energy throughout the day.',
+        actionItem: 'Add a healthy snack between meals',
+      });
+    } else if (weeklyStats.avgMealsPerDay >= 4) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'habit',
+        severity: 'positive',
+        title: 'Great Meal Variety!',
+        description: `You're averaging ${weeklyStats.avgMealsPerDay} meals per day, which helps maintain steady energy levels.`,
+      });
+    }
+
+    // Calorie pattern insight
+    if (weeklyStats.avgCaloriesPerDay > 2500) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'macronutrient',
+        severity: 'info',
+        title: 'Calorie Awareness',
+        description: `You're averaging ${weeklyStats.avgCaloriesPerDay} calories daily. This is useful data for understanding your energy intake.`,
+      });
+    } else if (weeklyStats.avgCaloriesPerDay < 1200 && weeklyStats.mealCount > 7) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'macronutrient',
+        severity: 'warning',
+        title: 'Low Calorie Intake',
+        description: `You're averaging only ${weeklyStats.avgCaloriesPerDay} calories daily. Make sure you're eating enough to fuel your body.`,
+        actionItem: 'Consider adding nutrient-dense foods to your meals',
+      });
+    }
+
+    // First week celebration
+    if (weeklyStats.mealCount >= 1 && weeklyStats.mealCount <= 3) {
+      newInsights.push({
+        id: uuidv4(),
+        generatedAt: now,
+        dateRange: { start: weekAgo, end },
+        category: 'achievement',
+        severity: 'positive',
+        title: 'Great Start!',
+        description: "You've begun your nutrition tracking journey. Keep logging meals to unlock more personalized insights.",
+        actionItem: 'Log meals for a few more days to see patterns emerge',
+      });
+    }
+
+    // Low variety insight
+    if (weeklyStats.topCategory !== 'none' && weeklyStats.mealCount >= 7) {
+      const varietyBonus = weeklyStats.mealCount / Object.keys({ breakfast: 1, lunch: 1, dinner: 1, snack: 1 }).length;
+      if (varietyBonus > 2) {
+        newInsights.push({
+          id: uuidv4(),
+          generatedAt: now,
+          dateRange: { start: weekAgo, end },
+          category: 'micronutrient',
+          severity: 'info',
+          title: 'Diversify Your Diet',
+          description: `Most of your meals are ${weeklyStats.topCategory}. Try incorporating different meal types for better nutritional balance.`,
+          actionItem: 'Experiment with a new recipe this week',
+        });
+      }
+    }
+
+    setInsights(newInsights);
+    setLastGenerated(now);
+  }, [weeklyStats, setLastGenerated]);
+
   // Generate insights using AI
   const generateInsights = useCallback(async () => {
     setIsLoading(true);
@@ -142,19 +280,22 @@ Keep responses friendly, motivational, and actionable. Focus on patterns and sug
       const parsedInsights = JSON.parse(content);
 
       // Transform and store
-      const newInsights: WeeklyInsight[] = parsedInsights.map((insight: any) => ({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: insight.category || 'habit',
-        severity: insight.severity || 'info',
-        title: insight.title || 'Insight',
-        description: insight.description || '',
-        actionItem: insight.actionItem,
-      }));
+      const newInsights: WeeklyInsight[] = parsedInsights.map((i: unknown) => {
+        const insight = i as Record<string, unknown>;
+        return {
+          id: uuidv4(),
+          generatedAt: Date.now(),
+          dateRange: {
+            start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+            end: new Date().toISOString(),
+          },
+          category: (insight.category as string) || 'habit',
+          severity: (insight.severity as 'info' | 'warning' | 'positive') || 'info',
+          title: (insight.title as string) || 'Insight',
+          description: (insight.description as string) || '',
+          actionItem: (insight.actionItem as string | undefined),
+        };
+      });
 
       setInsights(newInsights);
       setLastGenerated(Date.now());
@@ -165,172 +306,7 @@ Keep responses friendly, motivational, and actionable. Focus on patterns and sug
     } finally {
       setIsLoading(false);
     }
-  }, [weeklyStats, setLastGenerated]);
-
-  // Generate local insights without AI
-  const generateLocalInsights = useCallback(() => {
-    const newInsights: WeeklyInsight[] = [];
-
-    // Protein insight
-    if (weeklyStats.avgProteinPerDay < 50) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'macronutrient',
-        severity: 'warning',
-        title: 'Boost Your Protein',
-        description: `You're averaging ${weeklyStats.avgProteinPerDay}g protein per day. Consider adding more lean meats, eggs, or legumes.`,
-        actionItem: 'Try Greek yogurt for breakfast',
-      });
-    } else if (weeklyStats.avgProteinPerDay >= 100) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'achievement',
-        severity: 'positive',
-        title: 'Protein Powerhouse!',
-        description: `Great job! You're hitting ${weeklyStats.avgProteinPerDay}g of protein daily, supporting muscle health.`,
-      });
-    }
-
-    // Consistency insight
-    if (weeklyStats.dayStreak >= 5) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'habit',
-        severity: 'positive',
-        title: 'On a Roll!',
-        description: `You've logged meals for ${weeklyStats.dayStreak} days this week. Keep up the consistent tracking!`,
-      });
-    } else if (weeklyStats.dayStreak < 3 && weeklyStats.mealCount > 0) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'habit',
-        severity: 'info',
-        title: 'Build Your Streak',
-        description: `You've logged meals on ${weeklyStats.dayStreak} days this week. Try to log meals for at least 5 days to build a consistent habit.`,
-        actionItem: 'Set a reminder to log your meals',
-      });
-    }
-
-    // Meal frequency insight
-    if (weeklyStats.avgMealsPerDay < 2 && weeklyStats.mealCount > 3) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'habit',
-        severity: 'info',
-        title: 'More Meals = More Energy',
-        description: 'Consider spreading your calories across more meals for steady energy throughout the day.',
-        actionItem: 'Add a healthy snack between meals',
-      });
-    } else if (weeklyStats.avgMealsPerDay >= 4) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'habit',
-        severity: 'positive',
-        title: 'Great Meal Variety!',
-        description: `You're averaging ${weeklyStats.avgMealsPerDay} meals per day, which helps maintain steady energy levels.`,
-      });
-    }
-
-    // Calorie pattern insight
-    if (weeklyStats.avgCaloriesPerDay > 2500) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'macronutrient',
-        severity: 'info',
-        title: 'Calorie Awareness',
-        description: `You're averaging ${weeklyStats.avgCaloriesPerDay} calories daily. This is useful data for understanding your energy intake.`,
-      });
-    } else if (weeklyStats.avgCaloriesPerDay < 1200 && weeklyStats.mealCount > 7) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'macronutrient',
-        severity: 'warning',
-        title: 'Low Calorie Intake',
-        description: `You're averaging only ${weeklyStats.avgCaloriesPerDay} calories daily. Make sure you're eating enough to fuel your body.`,
-        actionItem: 'Consider adding nutrient-dense foods to your meals',
-      });
-    }
-
-    // First week celebration
-    if (weeklyStats.mealCount >= 1 && weeklyStats.mealCount <= 3) {
-      newInsights.push({
-        id: uuidv4(),
-        generatedAt: Date.now(),
-        dateRange: {
-          start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          end: new Date().toISOString(),
-        },
-        category: 'achievement',
-        severity: 'positive',
-        title: 'Great Start!',
-        description: "You've begun your nutrition tracking journey. Keep logging meals to unlock more personalized insights.",
-        actionItem: 'Log meals for a few more days to see patterns emerge',
-      });
-    }
-
-    // Low variety insight
-    if (weeklyStats.topCategory !== 'none' && weeklyStats.mealCount >= 7) {
-      const varietyBonus = weeklyStats.mealCount / Object.keys({ breakfast: 1, lunch: 1, dinner: 1, snack: 1 }).length;
-      if (varietyBonus > 2) {
-        newInsights.push({
-          id: uuidv4(),
-          generatedAt: Date.now(),
-          dateRange: {
-            start: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-            end: new Date().toISOString(),
-          },
-          category: 'micronutrient',
-          severity: 'info',
-          title: 'Diversify Your Diet',
-          description: `Most of your meals are ${weeklyStats.topCategory}. Try incorporating different meal types for better nutritional balance.`,
-          actionItem: 'Experiment with a new recipe this week',
-        });
-      }
-    }
-
-    setInsights(newInsights);
-    setLastGenerated(Date.now());
-  }, [weeklyStats, setLastGenerated]);
+  }, [weeklyStats, setLastGenerated, generateLocalInsights]);
 
   // Check if we need to refresh
   useEffect(() => {

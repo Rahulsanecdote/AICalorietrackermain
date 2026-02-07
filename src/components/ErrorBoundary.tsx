@@ -506,7 +506,8 @@ export class RootErrorBoundary extends Component<ErrorBoundaryProps, RootErrorBo
         }
       }
       backupData.localStorage = storageData
-    } catch (e) {
+    } catch {
+      // Ignore storage errors
       backupData.localStorage = { error: "Unable to read localStorage" }
     }
 

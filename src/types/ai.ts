@@ -129,7 +129,9 @@ export interface AIResponse<T> {
 // Global Window Extension for Web Speech API
 declare global {
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     SpeechRecognition: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     webkitSpeechRecognition: any;
   }
 }

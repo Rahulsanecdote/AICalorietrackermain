@@ -7,19 +7,19 @@ const isBundleReport = process.env.BUNDLE_REPORT === "true" || process.env.BUNDL
 const apiProxyTarget = process.env.VITE_API_PROXY_TARGET || "http://localhost:3001"
 const reportPlugins = isBundleReport
   ? [
-      visualizer({
-        filename: "dist/bundle-report.html",
-        template: "treemap",
-        gzipSize: true,
-        brotliSize: true,
-      }),
-      visualizer({
-        filename: "dist/bundle-report.json",
-        template: "raw-data",
-        gzipSize: true,
-        brotliSize: true,
-      }),
-    ]
+    visualizer({
+      filename: "dist/bundle-report.html",
+      template: "treemap",
+      gzipSize: true,
+      brotliSize: true,
+    }),
+    visualizer({
+      filename: "dist/bundle-report.json",
+      template: "raw-data",
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ]
   : []
 
 export default defineConfig({
@@ -57,6 +57,10 @@ export default defineConfig({
 
           if (id.includes("node_modules/i18next") || id.includes("node_modules/react-i18next")) {
             return "i18n"
+          }
+
+          if (id.includes("node_modules/@supabase")) {
+            return "supabase"
           }
 
           if (

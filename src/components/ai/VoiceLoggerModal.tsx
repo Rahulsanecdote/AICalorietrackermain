@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, forwardRef, ElementRef, ComponentPropsWithoutRef } from 'react';
-import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, Edit3, X } from 'lucide-react';
+import { Mic, MicOff, Check, RefreshCw, AlertCircle, Volume2, Clock, X } from 'lucide-react';
 import { useVoiceScanner, VoiceRecordingStage } from '../../hooks/useVoiceScanner';
 import { Button } from '../ui/button';
 import {
@@ -61,7 +61,6 @@ interface VoiceLoggerModalProps {
 
 export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModalProps) {
   const {
-    isListening,
     transcript,
     result,
     error,
@@ -102,11 +101,6 @@ export function VoiceLoggerModal({ isOpen, onClose, onConfirm }: VoiceLoggerModa
     }
   };
 
-  const handleRetry = () => {
-    reset();
-    setShowTextFallback(false);
-    setTextInput('');
-  };
 
   const handleClose = () => {
     reset();

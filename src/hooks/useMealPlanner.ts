@@ -163,9 +163,11 @@ const parseAIResponse = (
 // Hook Implementation
 // ============================================================================
 
+import type { MealCategory } from "../types"
+
 export const useMealPlanner = (
   settings: UserSettings,
-  onAddMeal: (description: string, category: any) => Promise<void>,
+  onAddMeal: (description: string, category: MealCategory) => Promise<void>,
   options: UseMealPlannerOptions = {},
 ): UseMealPlannerResult => {
   const { onSuccess, onError } = options

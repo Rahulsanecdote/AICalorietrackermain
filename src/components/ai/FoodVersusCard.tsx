@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ArrowRightLeft, Sparkles, TrendingUp, Minus, AlertCircle, Loader2, Info, Search, Check, Grid3X3, X, Pencil } from 'lucide-react';
-import { Button } from '../ui/button';
+import { useState, useMemo } from 'react';
+import { ArrowRightLeft, Grid3X3, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
-  DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
@@ -15,14 +13,11 @@ import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn } from '../../lib/utils';
 import { PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
 import { useFoodTranslation } from '../../hooks/useFoodTranslation';
-import { useNutritionLookup, createFoodFromLookup } from '../../hooks/useNutritionLookup';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
 import { CatalogFood } from '../../data/foodCatalog';
 import {
   calculateDataCompleteness,
   formatNutrientDisplay,
-  getCompletenessColor,
-  getCompletenessLabel,
   hasMinimumDataForComparison
 } from '../../utils/comparisonValidation';
 import {
@@ -74,7 +69,6 @@ const FoodComparisonContent = React.forwardRef<
 ));
 FoodComparisonContent.displayName = "FoodComparisonContent";
 
-import React from 'react';
 
 export function FoodVersusCard({ isOpen, onClose }: FoodVersusCardProps) {
   const { t } = useTranslation();
@@ -669,18 +663,17 @@ interface MacroBarProps {
 }
 
 function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
+  const maxVal = Math.max(valueA || 0, valueB || 0, 1);
+  const percentageA = ((valueA || 0) / maxVal) * 100;
+  const percentageB = ((valueB || 0) / maxVal) * 100;
   const hasA = valueA !== null;
   const hasB = valueB !== null;
-
-  const maxValue = Math.max(valueA ?? 0, valueB ?? 0, 1);
-  const percentageA = hasA ? ((valueA ?? 0) / maxValue) * 100 : 0;
-  const percentageB = hasB ? ((valueB ?? 0) / maxValue) * 100 : 0;
 
   return (
     <div>
       <div className="flex justify-between text-xs text-[hsl(var(--fc-text-muted))] mb-1">
         <span>{label}</span>
-        <span className="font-mono text-[hsl(var(--fc-text))]">
+        <span className="font-medium text-[hsl(var(--fc-text))]">
           {formatNutrientDisplay(valueA, unit)} <span className="text-[hsl(var(--fc-border))] mx-1">vs</span> {formatNutrientDisplay(valueB, unit)}
         </span>
       </div>
@@ -695,8 +688,6 @@ function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
           className={`${hasB ? 'bg-[hsl(var(--fc-chart-b))]' : 'bg-[hsl(var(--fc-text-muted)/0.3)]'} h-full transition-all`}
           style={{ width: hasB ? `${percentageB / 2}%` : '50%' }}
         />
-
-        {/* A/B Labels overlay if wide enough, otherwise below */}
       </div>
       <div className="flex justify-between text-[10px] text-[hsl(var(--fc-text-muted))] mt-0.5 px-0.5">
         <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--fc-chart-a))]"></div>A</span>

@@ -14,7 +14,7 @@ import { useAuth } from "./context/AuthContext"
 import useNutritionAI from "./hooks/useNutritionAI"
 import { useShoppingList } from "./hooks/useShoppingList"
 import { useFavorites } from "./hooks/useFavorites"
-import type { Meal, UserSettings, MealCategory } from "./types"
+import type { Meal, UserSettings, MealCategory, ActiveView, PantryInputData } from "./types"
 import type { Recipe } from "./types/recipes"
 import type { VoiceDetectedFood } from "./types/ai"
 import { createTimestampFromLocal, formatDate, formatDateKey } from "./utils/dateHelpers"
@@ -31,14 +31,13 @@ import {
   VoiceLoggerModal,
   FoodVersusCard,
   NutriBotWidget,
-  OnlineStatusBar,
 } from "./components"
-import { FeatureErrorBoundary, FeatureErrorBoundary as RootErrorBoundary } from "./components/ErrorBoundary"
+import { FeatureErrorBoundary, RootErrorBoundary, OnlineStatusBar } from "./components/system"
 import { ErrorBanner } from "./components/ui/ErrorBanner"
 import { DebugTools } from "./components/ui/DebugTools"
 import { MealPlannerBoundary, InsightsBoundary, LifestyleBoundary, AnalyticsBoundary, ShoppingListBoundary, MealPrepBoundary } from "./components/features/FeatureBoundaries"
 import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
-import { useOnlineStatusContext, OnlineStatusProvider } from "./context/OnlineStatusContext"
+import { OnlineStatusProvider, useOnlineStatusContext } from "./context/OnlineStatusContext"
 import { notifySuccess, notifyError, notifyInfo } from "./utils/notifications"
 
 // Lazy loaded components
@@ -87,15 +86,15 @@ function AuthenticatedApp() {
   const { isOnline } = useOnlineStatusContext()
 
   // View state
-  const [activeView, setActiveView] = useState<"favorites" | "tracker" | "shopping" | "mealprep" | "lifestyle" | "analytics" | "insights">("tracker")
   const [currentDate, setCurrentDate] = useState(new Date())
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isUtilityOpen, setIsUtilityOpen] = useState(false)
   const [isVoiceOpen, setIsVoiceOpen] = useState(false)
   const [isCompareOpen, setIsCompareOpen] = useState(false)
-  const [editingMeal, setEditingMeal] = useState<Meal | null>(null)
-  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false)
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
+  const [activeView, setActiveView] = useState<ActiveView>("tracker")
+  const [editingMeal, setEditingMeal] = useState<Meal | null>(null)
 
   // Local AI error state
   const [aiError, setAiError] = useState<string | null>(null)
@@ -122,8 +121,8 @@ function AuthenticatedApp() {
     setCurrentDate(new Date())
   }
 
-  const handleViewChange = (view: string) => {
-    setActiveView(view as any)
+  const handleViewChange = (view: ActiveView) => {
+    setActiveView(view)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -248,7 +247,7 @@ function AuthenticatedApp() {
       const res = await fetch('/api/health')
       if (res.ok) notifySuccess("API Health OK")
       else notifyError("API Health Check Failed")
-    } catch (e) {
+    } catch {
       notifyError("API Health Check Error")
     }
   }
@@ -256,7 +255,7 @@ function AuthenticatedApp() {
   // Placeholder handlers for MealPlanGenerator
   const generateMealPlan = async () => { notifyInfo("Meal planning coming soon") }
   const generateMealPlanFromPantry = async () => { notifyInfo("Pantry planning coming soon") }
-  const savePantry = async (pantry: any) => { console.log('Saving pantry', pantry) }
+  const savePantry = async (pantry: PantryInputData, saveAsDefault: boolean) => { console.log('Saving pantry', pantry, saveAsDefault) }
   const regenerateMealPlan = async () => { notifyInfo("Regenerating plan...") }
   const saveTemplate = async () => { }
   const loadTemplate = async () => { }
@@ -339,7 +338,7 @@ function AuthenticatedApp() {
                   settings={settings}
                   currentPlan={null}
                   templates={[]}
-                  userPantry={[]}
+                  userPantry={settings.defaultPantry || null}
                   isGenerating={false}
                   error={null}
                   onGeneratePlan={generateMealPlan}

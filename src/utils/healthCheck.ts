@@ -128,6 +128,7 @@ class HealthCheckService {
 
   private async checkPerformance(): Promise<HealthStatus> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const memory = (performance as any).memory
       const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming
 
@@ -158,7 +159,7 @@ class HealthCheckService {
         status: "pass",
         message: "Performance metrics within acceptable range",
       }
-    } catch (error) {
+    } catch {
       return {
         status: "warn",
         message: "Performance metrics unavailable",
@@ -180,5 +181,6 @@ export const healthCheckService = new HealthCheckService()
 
 // Expose health check endpoint for monitoring
 if (typeof window !== "undefined") {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).__healthCheck = () => healthCheckService.performHealthCheck()
 }

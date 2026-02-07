@@ -2,19 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useMemo, useTransition, ReactNode } from 'react';
 import i18n from '../i18n/config';
-
-// Supported languages configuration
-export const supportedLanguages = [
-  { code: 'en', label: 'English', flag: '🇺🇸', dir: 'ltr' as const },
-  { code: 'es', label: 'Español', flag: '🇪🇸', dir: 'ltr' as const },
-  { code: 'fr', label: 'Français', flag: '🇫🇷', dir: 'ltr' as const },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪', dir: 'ltr' as const },
-  { code: 'zh', label: '中文', flag: '🇨🇳', dir: 'ltr' as const },
-  { code: 'hi', label: 'हिंदी', flag: '🇮🇳', dir: 'ltr' as const },
-  { code: 'te', label: 'తెలుగు', flag: '🇮🇳', dir: 'ltr' as const },
-];
-
-export type SupportedLanguage = typeof supportedLanguages[number]['code'];
+import { supportedLanguages, SupportedLanguage } from '../constants/languages';
 
 const LANGUAGE_STORAGE_KEY = 'nutriai-language';
 const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
@@ -49,7 +37,7 @@ export function LanguageProvider({
       return (i18n.language as SupportedLanguage) || DEFAULT_LANGUAGE;
     }
   );
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Listen for language changes from i18n and sync the context state
   useEffect(() => {
@@ -129,4 +117,4 @@ export function useLanguage() {
   return context;
 }
 
-export default LanguageContext;
+// export default LanguageContext;

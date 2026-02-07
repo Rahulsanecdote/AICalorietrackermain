@@ -32,7 +32,6 @@ export { default as MoodTracker } from './lifestyle/MoodTracker';
 // Utility Components
 export { UtilityPanel } from './UtilityPanel';
 export { ThemeToggle } from './ui/ThemeToggle';
-export { OnlineStatusBar } from './ui/OnlineStatusBar';
 
 // AI Enhancement Components
 export {

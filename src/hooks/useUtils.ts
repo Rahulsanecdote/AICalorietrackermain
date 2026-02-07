@@ -342,6 +342,7 @@ export function useThrottle<T extends (...args: unknown[]) => unknown>(
 ): T {
   const lastRun = useRef<number>(0);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(
     ((...args: unknown[]) => {
       if (Date.now() - lastRun.current >= delay) {

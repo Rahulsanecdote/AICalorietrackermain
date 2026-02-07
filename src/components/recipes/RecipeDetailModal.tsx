@@ -33,7 +33,7 @@ export default function RecipeDetailModal({
           text: `Check out this recipe: ${recipe.title}`,
           url: window.location.href,
         });
-      } catch (err) {
+      } catch {
         console.log('Share cancelled');
       }
     } else {

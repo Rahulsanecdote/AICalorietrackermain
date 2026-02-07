@@ -20,6 +20,8 @@ export type ActivityLevel =
   | 'very_active'
   | 'extra_active';
 
+export type ActiveView = 'tracker' | 'lifestyle' | 'analytics' | 'shopping' | 'mealprep' | 'favorites' | 'insights';
+
 export interface Meal {
   id: string;
   description: string;
@@ -146,7 +148,7 @@ export interface DailyMealPlan {
   macroRatio: { protein: number; carbs: number; fat: number }; // percentages
   summary?: string;
   createdAt: string;
-  
+
   // Enhanced fields for pantry-based planning
   accuracyVariance?: number; // Difference between target and actual calories
   sourceType: 'generic' | 'pantry_based';

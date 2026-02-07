@@ -14,19 +14,14 @@ import {
   ShoppingCart,
   Calendar,
 } from "lucide-react"
-import type { DailyMealPlan, MealPlanGenerationRequest, UserSettings, PantryInputData, FoodItem } from "../types"
+import type { DailyMealPlan, MealPlanGenerationRequest, UserSettings, PantryInputData, FoodItem, MealPlanTemplate, PantryData } from "../types"
 import MealSectionCard from "./MealSectionCard"
-import TemplateModal from "./TemplateModal"
-import PantryInput from "./PantryInput"
-import { notifyError } from "@/utils/notifications"
-import { API_CONFIG } from "../constants"
-import { postAIChat } from "../utils/aiClient"
-
+// ...
 interface MealPlanGeneratorProps {
   settings: UserSettings
   currentPlan: DailyMealPlan | null
-  templates: any[]
-  userPantry?: any
+  templates: MealPlanTemplate[]
+  userPantry?: PantryData | null
   isGenerating: boolean
   error: string | null
   onGeneratePlan: (request: MealPlanGenerationRequest) => Promise<void>

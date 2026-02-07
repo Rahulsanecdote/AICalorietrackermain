@@ -76,6 +76,115 @@ export function useVoiceScanner() {
     return '';
   };
 
+  const processAudio = useCallback(async (audioBlob: Blob) => {
+    debugLog('processAudio() called, blob size:', audioBlob.size);
+
+    setState(prev => ({ ...prev, stage: 'transcribing' }));
+
+    try {
+      // Convert Blob to Base64
+      const reader = new FileReader();
+      const base64Audio = await new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => {
+          const result = reader.result as string;
+          debugLog('Base64 conversion complete, length:', result.length);
+          resolve(result);
+        };
+        reader.onerror = (e) => {
+          debugError('FileReader error:', e);
+          reject(new Error('Failed to read audio file'));
+        };
+        reader.readAsDataURL(audioBlob);
+      });
+
+      // Send to Transcription API
+      debugLog('Sending to /api/ai/transcribe...');
+
+      const response = await fetch('/api/ai/transcribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio: base64Audio }),
+      });
+
+      debugLog('Transcribe response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        debugError('Transcription API error:', errorData);
+        throw new Error(errorData.error?.message || `Transcription failed: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const transcriptText = data.text;
+
+      debugLog('Transcript received:', transcriptText?.substring(0, 50) + '...');
+
+      if (!transcriptText || !transcriptText.trim()) {
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          stage: 'error',
+          error: 'No speech detected. Please try again and speak clearly.',
+        }));
+        return;
+      }
+
+      setState(prev => ({ ...prev, transcript: transcriptText, stage: 'analyzing' }));
+
+      // Analyze the transcript
+      debugLog('Analyzing food from transcript...');
+      const result = await analyzeFood(transcriptText);
+
+      if (result) {
+        debugLog('Food analysis result:', result.foodName, result.calories, 'cal');
+
+        const parsingResult: VoiceParsingResult = {
+          transcript: transcriptText,
+          detectedFoods: [
+            {
+              name: result.foodName,
+              quantity: 1,
+              unit: result.servingSize,
+              estimatedCalories: Math.round(result.calories),
+              macros: {
+                protein_g: Math.round(result.protein_g),
+                carbs_g: Math.round(result.carbs_g),
+                fat_g: Math.round(result.fat_g),
+              },
+            },
+          ],
+          confidence: 0.95,
+          timestamp: new Date().toISOString(),
+        };
+
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          stage: 'success',
+          result: parsingResult,
+          error: null,
+        }));
+      } else {
+        setState(prev => ({
+          ...prev,
+          isProcessing: false,
+          stage: 'error',
+          error: 'Could not identify food in the recording. Try describing your meal more clearly.',
+        }));
+      }
+
+    } catch (err: unknown) {
+      const error = err as Error;
+      debugError('processAudio error:', error.message);
+      setState(prev => ({
+        ...prev,
+        isProcessing: false,
+        stage: 'error',
+        error: error.message || 'Failed to process audio. Please check your connection and try again.',
+      }));
+    }
+  }, [analyzeFood]);
+
   const startListening = useCallback(async () => {
     debugLog('startListening() called');
 
@@ -225,7 +334,7 @@ export function useVoiceScanner() {
         error: errorMessage,
       }));
     }
-  }, []);
+  }, [processAudio]);
 
   const stopListening = useCallback(() => {
     debugLog('stopListening() called, recorder state:', mediaRecorderRef.current?.state);
@@ -246,114 +355,6 @@ export function useVoiceScanner() {
     }
   }, []);
 
-  const processAudio = async (audioBlob: Blob) => {
-    debugLog('processAudio() called, blob size:', audioBlob.size);
-
-    setState(prev => ({ ...prev, stage: 'transcribing' }));
-
-    try {
-      // Convert Blob to Base64
-      const reader = new FileReader();
-      const base64Audio = await new Promise<string>((resolve, reject) => {
-        reader.onloadend = () => {
-          const result = reader.result as string;
-          debugLog('Base64 conversion complete, length:', result.length);
-          resolve(result);
-        };
-        reader.onerror = (e) => {
-          debugError('FileReader error:', e);
-          reject(new Error('Failed to read audio file'));
-        };
-        reader.readAsDataURL(audioBlob);
-      });
-
-      // Send to Transcription API
-      debugLog('Sending to /api/ai/transcribe...');
-
-      const response = await fetch('/api/ai/transcribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio: base64Audio }),
-      });
-
-      debugLog('Transcribe response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        debugError('Transcription API error:', errorData);
-        throw new Error(errorData.error?.message || `Transcription failed: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const transcriptText = data.text;
-
-      debugLog('Transcript received:', transcriptText?.substring(0, 50) + '...');
-
-      if (!transcriptText || !transcriptText.trim()) {
-        setState(prev => ({
-          ...prev,
-          isProcessing: false,
-          stage: 'error',
-          error: 'No speech detected. Please try again and speak clearly.',
-        }));
-        return;
-      }
-
-      setState(prev => ({ ...prev, transcript: transcriptText, stage: 'analyzing' }));
-
-      // Analyze the transcript
-      debugLog('Analyzing food from transcript...');
-      const result = await analyzeFood(transcriptText);
-
-      if (result) {
-        debugLog('Food analysis result:', result.foodName, result.calories, 'cal');
-
-        const parsingResult: VoiceParsingResult = {
-          transcript: transcriptText,
-          detectedFoods: [
-            {
-              name: result.foodName,
-              quantity: 1,
-              unit: result.servingSize,
-              estimatedCalories: Math.round(result.calories),
-              macros: {
-                protein_g: Math.round(result.protein_g),
-                carbs_g: Math.round(result.carbs_g),
-                fat_g: Math.round(result.fat_g),
-              },
-            },
-          ],
-          confidence: 0.95,
-          timestamp: new Date().toISOString(),
-        };
-
-        setState(prev => ({
-          ...prev,
-          isProcessing: false,
-          stage: 'success',
-          result: parsingResult,
-          error: null,
-        }));
-      } else {
-        setState(prev => ({
-          ...prev,
-          isProcessing: false,
-          stage: 'error',
-          error: 'Could not identify food in the recording. Try describing your meal more clearly.',
-        }));
-      }
-
-    } catch (err: unknown) {
-      const error = err as Error;
-      debugError('processAudio error:', error.message);
-      setState(prev => ({
-        ...prev,
-        isProcessing: false,
-        stage: 'error',
-        error: error.message || 'Failed to process audio. Please check your connection and try again.',
-      }));
-    }
-  };
 
   const reset = useCallback(() => {
     debugLog('reset() called');
