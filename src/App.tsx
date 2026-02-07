@@ -65,42 +65,41 @@ function AuthenticatedApp() {
   // Add error boundary logging
   console.log("[AuthenticatedApp] Component mounting...")
   
-  try {
-    const { t } = useTranslation()
-    console.log("[AuthenticatedApp] useTranslation OK")
-    
-    const {
-      meals,
-      dailyTotals,
-      addMealDirectly,
-      deleteMeal,
-      settings,
-      updateSettings,
-    } = useApp()
-    console.log("[AuthenticatedApp] useApp OK, meals:", meals?.length)
-    
-    const { signOut: handleSignOut, email } = useAuth()
-    console.log("[AuthenticatedApp] useAuth OK, email:", email)
-    
-    const { analyzeFood, error: hookAiError } = useNutritionAI()
-    console.log("[AuthenticatedApp] useNutritionAI OK")
-    
-    const {
-      items: shoppingListItems,
-      clearList,
-      removeItem,
-      toggleItemCheck,
-      addCustomItem,
-      addItem: addMealToShoppingList,
-      generateListFromMeals
-    } = useShoppingList()
-    console.log("[AuthenticatedApp] useShoppingList OK, items:", shoppingListItems?.length)
-    
-    const { isFavorite, toggleFavorite } = useFavorites()
-    console.log("[AuthenticatedApp] useFavorites OK")
-    
-    const { isOnline } = useOnlineStatusContext()
-    console.log("[AuthenticatedApp] useOnlineStatusContext OK, isOnline:", isOnline)
+  const { t } = useTranslation()
+  console.log("[AuthenticatedApp] useTranslation OK")
+  
+  const {
+    meals,
+    dailyTotals,
+    addMealDirectly,
+    deleteMeal,
+    settings,
+    updateSettings,
+  } = useApp()
+  console.log("[AuthenticatedApp] useApp OK, meals:", meals?.length)
+  
+  const { signOut: handleSignOut, email } = useAuth()
+  console.log("[AuthenticatedApp] useAuth OK, email:", email)
+  
+  const { analyzeFood, error: hookAiError } = useNutritionAI()
+  console.log("[AuthenticatedApp] useNutritionAI OK")
+  
+  const {
+    items: shoppingListItems,
+    clearList,
+    removeItem,
+    toggleItemCheck,
+    addCustomItem,
+    addItem: addMealToShoppingList,
+    generateListFromMeals
+  } = useShoppingList()
+  console.log("[AuthenticatedApp] useShoppingList OK, items:", shoppingListItems?.length)
+  
+  const { isFavorite, toggleFavorite } = useFavorites()
+  console.log("[AuthenticatedApp] useFavorites OK")
+  
+  const { isOnline } = useOnlineStatusContext()
+  console.log("[AuthenticatedApp] useOnlineStatusContext OK, isOnline:", isOnline)
 
   // View state
   const [currentDate, setCurrentDate] = useState(new Date())
