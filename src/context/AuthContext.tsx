@@ -47,6 +47,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let timeoutId: NodeJS.Timeout | undefined // Initialize as undefined
 
     const getSession = async () => {
+      // If Supabase is not configured, skip auth entirely and run in local-only mode
+      if (!isSupabaseConfigured) {
+        console.log("[auth] Supabase not configured - running in local-only mode")
+        if (mounted) {
+          setUserId(null)
+          setEmail(null)
+          setRoles([])
+          setLoading(false)
+        }
+        return
+      }
+
       try {
         // Set timeout to force loading false if supabase hangs
         // Reduced to 2.5s to prevent long "Checking your session..." screens
@@ -90,6 +102,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     getSession()
+
+    // Only subscribe to auth changes if Supabase is configured
+    if (!isSupabaseConfigured) {
+      return
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return
