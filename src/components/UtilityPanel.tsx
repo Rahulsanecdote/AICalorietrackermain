@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useOnlineStatusContext } from '../context/OnlineStatusContext';
 import {
   Download,
   Upload,
@@ -184,7 +185,7 @@ export function UtilityPanel({
     URL.revokeObjectURL(url);
   };
 
-  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+  const { isOnline } = useOnlineStatusContext();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -286,13 +287,12 @@ export function UtilityPanel({
             {/* Import Status */}
             {importStatus !== 'idle' && importResult && (
               <div
-                className={`rounded-lg p-3 ${
-                  importStatus === 'success'
-                    ? 'bg-green-50 border border-green-200'
-                    : importStatus === 'error'
-                      ? 'bg-red-50 border border-red-200'
-                      : 'bg-blue-50 border border-blue-200'
-                }`}
+                className={`rounded-lg p-3 ${importStatus === 'success'
+                  ? 'bg-green-50 border border-green-200'
+                  : importStatus === 'error'
+                    ? 'bg-red-50 border border-red-200'
+                    : 'bg-blue-50 border border-blue-200'
+                  }`}
               >
                 {importStatus === 'importing' && (
                   <div className="flex items-center gap-2 text-blue-700">
@@ -331,9 +331,8 @@ export function UtilityPanel({
 
             {/* Online/Offline Status */}
             <div
-              className={`flex items-center gap-2 rounded-lg p-3 ${
-                isOnline ? 'bg-green-50' : 'bg-yellow-50'
-              }`}
+              className={`flex items-center gap-2 rounded-lg p-3 ${isOnline ? 'bg-green-50' : 'bg-yellow-50'
+                }`}
             >
               {isOnline ? (
                 <>
