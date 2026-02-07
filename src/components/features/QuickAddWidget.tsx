@@ -1,16 +1,48 @@
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Plus, X, Send, Loader2, Sparkles, Mic } from 'lucide-react';
 import { useDate } from '../../context/DateContext';
+import { useFoodTranslation } from '../../hooks/useFoodTranslation';
+import useNutritionAI from '../../hooks/useNutritionAI';
+import { MealCategory, Meal } from '../../types';
+import { Button } from '../ui/button';
+import { v4 as uuidv4 } from 'uuid';
 
-// ... (existing imports)
+interface QuickAddWidgetProps {
+  onMealAdded: (meal: Meal) => void;
+}
+
+const QUICK_ADD_PRESETS = [
+  { name: 'Coffee', description: 'black coffee', category: 'breakfast' as MealCategory },
+  { name: 'Apple', description: '1 medium apple', category: 'snack' as MealCategory },
+  { name: 'Banana', description: '1 medium banana', category: 'snack' as MealCategory },
+  { name: 'Water', description: 'glass of water', category: 'snack' as MealCategory },
+  { name: 'Salad', description: 'garden salad', category: 'lunch' as MealCategory },
+  { name: 'Rice', description: '1 cup cooked rice', category: 'lunch' as MealCategory },
+];
+
+function createMealFromResult(result: { foodName: string; nutrition: { calories: number; protein: number; carbs: number; fat: number } }, currentDate: Date): Meal {
+  return {
+    id: uuidv4(),
+    name: result.foodName,
+    calories: result.nutrition.calories,
+    protein: result.nutrition.protein,
+    carbs: result.nutrition.carbs,
+    fat: result.nutrition.fat,
+    category: 'snack' as MealCategory,
+    timestamp: currentDate.toISOString(),
+  };
+}
 
 export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
   const { t } = useTranslation();
   const { translateFood } = useFoodTranslation();
-  const { currentDate } = useDate(); // Use date context
+  const { currentDate } = useDate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [input, setInput] = useState('');
   const [category, setCategory] = useState<MealCategory>('snack');
-
-  // ...
+  
+  const { processInput, isProcessing, error, lastResult, reset } = useNutritionAI();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,7 +50,6 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
     const result = await processInput(input, category);
     if (result) {
-      // Pass currentDate to createMealFromResult
       const meal = createMealFromResult(result, currentDate);
       onMealAdded(meal);
       setInput('');
