@@ -141,34 +141,52 @@ export async function insertMeal(userId: string, meal: Meal): Promise<void> {
 }
 
 export async function updateMeal(userId: string, meal: Meal): Promise<void> {
-  const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
+  if (!isSupabaseConfigured) {
+    console.warn("[supabaseData] Supabase not configured, skipping meal update")
+    return
+  }
+  
+  try {
+    const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
 
-  const { error } = await supabase
-    .from("meals")
-    .update({
-      logged_at: meal.timestamp,
-      meal_date: mealDate, // Update meal_date as well
-      category: meal.category,
-      description: meal.description,
-      food_name: meal.foodName,
-      serving_size: meal.servingSize,
-      calories: meal.nutrition.calories,
-      protein_g: meal.nutrition.protein_g,
-      carbs_g: meal.nutrition.carbs_g,
-      fat_g: meal.nutrition.fat_g,
-    })
-    .eq("id", meal.id)
-    .eq("user_id", userId)
+    const { error } = await supabase
+      .from("meals")
+      .update({
+        logged_at: meal.timestamp,
+        meal_date: mealDate,
+        category: meal.category,
+        description: meal.description,
+        food_name: meal.foodName,
+        serving_size: meal.servingSize,
+        calories: meal.nutrition.calories,
+        protein_g: meal.nutrition.protein_g,
+        carbs_g: meal.nutrition.carbs_g,
+        fat_g: meal.nutrition.fat_g,
+      })
+      .eq("id", meal.id)
+      .eq("user_id", userId)
 
-  if (error) {
-    throw new Error(error.message)
+    if (error) {
+      console.error("[supabaseData] Error updating meal:", error.message)
+    }
+  } catch (error) {
+    console.error("[supabaseData] Unexpected error updating meal:", error)
   }
 }
 
 export async function deleteMeal(userId: string, mealId: string): Promise<void> {
-  const { error } = await supabase.from("meals").delete().eq("id", mealId).eq("user_id", userId)
+  if (!isSupabaseConfigured) {
+    console.warn("[supabaseData] Supabase not configured, skipping meal delete")
+    return
+  }
+  
+  try {
+    const { error } = await supabase.from("meals").delete().eq("id", mealId).eq("user_id", userId)
 
-  if (error) {
-    throw new Error(error.message)
+    if (error) {
+      console.error("[supabaseData] Error deleting meal:", error.message)
+    }
+  } catch (error) {
+    console.error("[supabaseData] Unexpected error deleting meal:", error)
   }
 }
