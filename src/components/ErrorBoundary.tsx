@@ -9,7 +9,6 @@ import React, { Component, type ErrorInfo, type ReactNode, type ReactElement } f
 import { AlertTriangle, RefreshCw, Download, Copy, Check, WifiOff, ShieldAlert } from "lucide-react"
 import { generateErrorId, getErrorMessage, logError, toAppError } from "../utils/errors"
 import { captureException, addBreadcrumb, setContext } from "../utils/monitoring"
-import { notifyError, notifySuccess } from "../utils/notifications"
 
 // ============================================================================
 // Types
@@ -61,125 +60,47 @@ interface AsyncBoundaryProps {
  * Feature-level error boundary with contextual fallback UI and resetKeys support
  * Allows individual features to fail gracefully without affecting the rest of the app
  */
-export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+interface FeatureProps {
+  children: ReactNode
+  feature: string
+}
 
+interface FeatureState {
+  hasError: boolean
+  error: Error | null
+}
 
-  constructor(props: ErrorBoundaryProps) {
+export class FeatureErrorBoundary extends Component<FeatureProps, FeatureState> {
+  constructor(props: FeatureProps) {
     super(props)
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      errorId: null,
-      resetKey: null,
-    }
+    this.state = { hasError: false, error: null }
   }
 
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    return {
-      hasError: true,
-      error,
-      errorId: generateErrorId(),
-    }
+  static getDerivedStateFromError(error: Error): FeatureState {
+    return { hasError: true, error }
   }
 
-  componentDidUpdate(prevProps: ErrorBoundaryProps): void {
-    const { resetKeys = [] } = this.props
-    const { resetKeys: prevResetKeys = [] } = prevProps
-
-    // Check if resetKeys have changed
-    const keysChanged =
-      resetKeys.some((key) => !prevResetKeys.includes(key)) || prevResetKeys.some((key) => !resetKeys.includes(key))
-
-    if (keysChanged && this.state.hasError) {
-      // Reset the error boundary when resetKeys change
-      this.handleReset()
-    }
-
-
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error(`[FeatureErrorBoundary] ${this.props.feature}`, error, errorInfo)
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    const errorInfoString = errorInfo.componentStack ?? "No component stack available"
-    this.setState({ errorInfo: errorInfoString })
-
-    const appError = toAppError(error, { featureName: this.props.featureName })
-    logError(appError, errorInfoString)
-
-    setContext("errorBoundary", {
-      featureName: this.props.featureName,
-      errorId: this.state.errorId,
-      componentStack: errorInfoString,
-    })
-    captureException(error)
-
-    if (this.props.onError) {
-      this.props.onError(error, errorInfoString, this.state.errorId ?? generateErrorId())
-    }
-
-    console.error(`[${this.props.featureName ?? "Feature"}] Error Boundary caught an error:`, error, errorInfo)
-  }
-
-  handleReset = (): void => {
-    const previousState = { ...this.state }
-
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      errorId: null,
-      resetKey: Date.now(),
-    })
-
-    if (this.props.onReset) {
-      this.props.onReset(previousState)
-    }
-  }
-
-  handleReport = (): void => {
-    const { error, errorInfo, errorId } = this.state
-    const report = {
-      id: errorId,
-      message: error?.message ?? "Unknown",
-      stack: error?.stack ?? "No stack",
-      componentStack: errorInfo ?? "No component stack",
-      feature: this.props.featureName ?? "Unknown",
-      timestamp: new Date().toISOString(),
-      url: window.location.href,
-      userAgent: navigator.userAgent,
-    }
-
-    navigator.clipboard
-      .writeText(JSON.stringify(report, null, 2))
-      .then(() => {
-        notifySuccess("Error report copied to clipboard. Please share this with support.")
-      })
-      .catch((copyError) => {
-        console.error("Failed to copy error report:", copyError)
-        notifyError("Failed to copy error report. Please try again.")
-      })
-  }
-
-  render(): ReactNode {
-    const { hasError, error } = this.state
-
-    if (hasError) {
-      if (this.props.fallback) {
-        if (typeof this.props.fallback === "function") {
-          return this.props.fallback({ error: error!, reset: this.handleReset })
-        }
-        return this.props.fallback
-      }
-
+  render() {
+    if (this.state.hasError) {
       return (
-        <FeatureErrorFallback
-          featureName={this.props.featureName}
-          error={error}
-          onReset={this.handleReset}
-          onReport={this.handleReport}
-          showDetails={this.props.showDetails}
-          onManualMode={this.props.onManualMode}
-        />
+        <div className="p-6 rounded-xl bg-red-50 border border-red-200 dark:bg-red-900/10">
+          <h2 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
+            Something went wrong
+          </h2>
+          <p className="text-sm text-red-700 dark:text-red-300">
+            The {this.props.feature} feature encountered an error. Please try refreshing the page.
+          </p>
+          <button
+            onClick={() => this.setState({ hasError: false, error: null })}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          >
+            Try Again
+          </button>
+        </div>
       )
     }
 
@@ -187,108 +108,6 @@ export class FeatureErrorBoundary extends Component<ErrorBoundaryProps, ErrorBou
   }
 }
 
-// ============================================================================
-// Feature Error Fallback Component
-// ============================================================================
-
-interface FeatureErrorFallbackProps {
-  featureName?: string
-  error: Error | null
-  onReset: () => void
-  onReport: () => void
-  showDetails?: boolean
-  onManualMode?: () => void
-}
-
-function FeatureErrorFallback({
-  featureName,
-  error,
-  onReset,
-  onReport,
-  showDetails = false,
-  onManualMode,
-}: FeatureErrorFallbackProps): ReactElement {
-  const userMessage = getErrorMessage(error, "An error occurred")
-  const isChunkError = error?.message?.includes("dynamically imported module") || error?.message?.includes("Loading chunk")
-
-  // For chunk errors, override behaviors
-  const handleRetry = () => {
-    if (isChunkError) {
-      window.location.reload()
-    } else {
-      onReset()
-    }
-  }
-
-  const title = isChunkError
-    ? "New Version Available"
-    : featureName
-      ? `${featureName} unavailable`
-      : "Something went wrong"
-
-  const message = isChunkError
-    ? "A new version of the app has been deployed. Please reload to continue."
-    : userMessage
-
-  return (
-    <div className={`border border-dashed rounded-xl p-6 my-4 ${isChunkError ? 'border-blue-500/50 bg-blue-500/5' : 'border-yellow-500/50 bg-yellow-500/5'}`}>
-      <div className="flex items-start gap-4">
-        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${isChunkError ? 'bg-blue-500/10' : 'bg-yellow-500/10'}`}>
-          {isChunkError ? (
-            <RefreshCw className="w-5 h-5 text-blue-600 dark:text-blue-500" />
-          ) : (
-            <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-500" />
-          )}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-foreground mb-1">
-            {title}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">{message}</p>
-
-          {showDetails && error && !isChunkError && (
-            <details className="mb-4">
-              <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-                Show error details
-              </summary>
-              <pre className="mt-2 text-xs text-muted-foreground font-mono overflow-auto max-h-32 whitespace-pre-wrap">
-                {error.message}
-                {error.stack && `\n\n${error.stack}`}
-              </pre>
-            </details>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={handleRetry}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-primary-foreground rounded-lg transition-colors ${isChunkError ? 'bg-blue-600 hover:bg-blue-700' : 'bg-primary hover:bg-primary/90'}`}
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              {isChunkError ? "Reload Page" : "Retry"}
-            </button>
-            <button
-              onClick={onReport}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
-            >
-              <Copy className="w-3.5 h-3.5" />
-              Copy Report
-            </button>
-            {onManualMode && (
-              <button
-                onClick={onManualMode}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-secondary-foreground bg-secondary rounded-lg hover:bg-secondary/90 transition-colors"
-              >
-                <WifiOff className="w-3.5 h-3.5" />
-                Manual Mode
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ============================================================================
 // Async Boundary Component with resetKeys

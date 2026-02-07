@@ -263,3 +263,4 @@ export function InsightsSummary({ meals }: { meals: any[] }) {
     </button>
   );
 }
+export default InsightsDashboard;

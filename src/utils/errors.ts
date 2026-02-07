@@ -58,6 +58,7 @@ export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
 // ============================================================================
 
 export interface AppError {
+  message: string
   code: ErrorCode
   userMessage: string
   retryable: boolean
@@ -261,6 +262,7 @@ export function createAppError(
   context?: Record<string, unknown>,
 ): AppError {
   return {
+    message: cause?.message || userMessage,
     code,
     userMessage,
     retryable,

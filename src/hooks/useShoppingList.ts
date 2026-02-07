@@ -7,7 +7,9 @@ import { Meal } from '../types';
 const SHOPPING_LIST_STORAGE_KEY = 'act_shopping_list';
 
 interface UseShoppingListReturn {
+  items: ShoppingItem[];
   shoppingList: ShoppingList | null;
+  addItem: (item: ShoppingItem) => void;
   generateListFromMeals: (meals: Meal[], weekStartDate: string) => ShoppingList;
   addMealToShoppingList: (meal: Meal) => void;
   addIngredientToShoppingList: (name: string, amount: number, unit: string, category: ShoppingItem['category']) => void;
@@ -365,8 +367,22 @@ export function useShoppingList(): UseShoppingListReturn {
     return shoppingList.items.filter((item) => !item.checked).length;
   }, [shoppingList]);
 
+  const addItem = useCallback((item: ShoppingItem) => {
+    setShoppingList((prev) => {
+      const currentItems = prev?.items || [];
+      return {
+        id: prev?.id || uuidv4(),
+        weekStartDate: prev?.weekStartDate || new Date().toISOString().split('T')[0]!,
+        items: [...currentItems, item],
+        generatedAt: new Date().toISOString(),
+      };
+    });
+  }, [setShoppingList]);
+
   return {
+    items: shoppingList?.items || [],
     shoppingList,
+    addItem,
     generateListFromMeals,
     addMealToShoppingList,
     addIngredientToShoppingList,
