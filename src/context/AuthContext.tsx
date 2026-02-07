@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, useCallback, type ReactNode } from "react"
-import { supabase } from "../utils/supabaseClient"
+import { supabase, isSupabaseConfigured } from "../utils/supabaseClient"
 
 export type AppRole = "user" | "admin"
 
