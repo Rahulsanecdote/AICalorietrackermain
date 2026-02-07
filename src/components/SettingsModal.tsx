@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Save, Settings, Target, User, Globe } from 'lucide-react';
 import { UserSettings } from '../types';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
