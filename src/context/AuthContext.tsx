@@ -131,6 +131,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [fetchRoles])
 
   const signIn = useCallback(async (authEmail: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: "Authentication is not configured. Running in local-only mode." }
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email: authEmail,
       password,
@@ -142,6 +145,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signUp = useCallback(async (authEmail: string, password: string) => {
+    if (!isSupabaseConfigured) {
+      return { error: "Authentication is not configured. Running in local-only mode." }
+    }
     const { error } = await supabase.auth.signUp({
       email: authEmail,
       password,
@@ -153,6 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signInWithGoogle = useCallback(async () => {
+    if (!isSupabaseConfigured) {
+      return { error: "Authentication is not configured. Running in local-only mode." }
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
