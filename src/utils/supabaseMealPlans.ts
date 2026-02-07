@@ -1,8 +1,9 @@
 import { v4 as uuidv4 } from "uuid"
 import type { DailyMealPlan } from "../types"
-import { supabase } from "./supabaseClient"
+import { supabase, isSupabaseConfigured } from "./supabaseClient"
 
 export async function upsertMealPlan(userId: string, plan: DailyMealPlan): Promise<void> {
+  if (!isSupabaseConfigured) return
   const planPayload = {
     id: plan.id,
     user_id: userId,
