@@ -200,3 +200,4 @@ See [LICENSE](LICENSE) file for details.
 ---
 
 Built with React, TypeScript, and OpenAI
+# Fix: React imports added to prevent 'React is not defined' error
