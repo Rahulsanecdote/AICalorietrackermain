@@ -10,7 +10,7 @@ import { useAuth } from "./context/AuthContext"
 import { useNutritionAI } from "./hooks/useNutritionAI"
 import { useShoppingList } from "./hooks/useShoppingList"
 import { useFavorites } from "./hooks/useFavorites"
-import { useOnlineStatus } from "./hooks/useUtils"
+import { OnlineStatusProvider, useOnlineStatusContext } from "./context/OnlineStatusContext"
 import { Meal, MealCategory } from "./types"
 import { API_CONFIG } from "./constants"
 import { postAIChat } from "./utils/aiClient"
@@ -70,7 +70,7 @@ function AuthenticatedApp() {
 
   const { addMealToShoppingList, isItemInList } = useShoppingList()
   const { isFavorite: checkIsFavorite, toggleFavorite: handleToggleFavorite } = useFavorites()
-  const isOnline = useOnlineStatus()
+  const { isOnline } = useOnlineStatusContext()
 
 
   // Add meal with AI analysis
@@ -1050,7 +1050,9 @@ function App() {
 
   return (
     <FeatureErrorBoundary feature="app-root">
-      <AuthenticatedApp />
+      <OnlineStatusProvider>
+        <AuthenticatedApp />
+      </OnlineStatusProvider>
     </FeatureErrorBoundary>
   )
 }
