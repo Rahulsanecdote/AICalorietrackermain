@@ -61,6 +61,7 @@ function AuthenticatedApp() {
     settings,
   } = useApp()
   const { currentDate, goToPreviousDay, goToNextDay, goToToday } = useDate()
+  const { email, signOut: handleSignOut } = useAuth()
   const { analyzeFood, setAiError } = useNutritionAI()
   const [activeView, setActiveView] = useState<"tracker" | "lifestyle" | "analytics">("tracker")
 
