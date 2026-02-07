@@ -1,32 +1,43 @@
-import { supabase } from "./supabaseClient"
+import { supabase, isSupabaseConfigured } from "./supabaseClient"
 import type { Meal, UserSettings } from "../types"
 import { normalizeSettings } from "./settingsNormalization"
 
 export async function fetchUserSettings(userId: string): Promise<UserSettings | null> {
-  const { data, error } = await supabase
-    .from("user_settings")
-    .select("*")
-    .eq("user_id", userId)
-    .maybeSingle()
-
-  if (error) {
-    throw new Error(error.message)
+  if (!isSupabaseConfigured) {
+    console.warn("[supabaseData] Supabase not configured, returning null for settings")
+    return null
   }
+  
+  try {
+    const { data, error } = await supabase
+      .from("user_settings")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle()
 
-  if (!data) return null
+    if (error) {
+      console.error("[supabaseData] Error fetching user settings:", error.message)
+      return null // Return null instead of throwing
+    }
 
-  return normalizeSettings({
-    dailyCalorieGoal: data.daily_calorie_goal,
-    proteinGoal_g: data.protein_goal_g,
-    carbsGoal_g: data.carbs_goal_g,
-    fatGoal_g: data.fat_goal_g,
-    age: data.age ?? undefined,
-    weight: data.weight_kg ?? undefined,
-    height: data.height_cm ?? undefined,
-    activityLevel: data.activity_level ?? undefined,
-    goal: data.goal ?? undefined,
-    dietaryPreferences: data.dietary_preferences ?? [],
-  })
+    if (!data) return null
+
+    return normalizeSettings({
+      dailyCalorieGoal: data.daily_calorie_goal,
+      proteinGoal_g: data.protein_goal_g,
+      carbsGoal_g: data.carbs_goal_g,
+      fatGoal_g: data.fat_goal_g,
+      age: data.age ?? undefined,
+      weight: data.weight_kg ?? undefined,
+      height: data.height_cm ?? undefined,
+      activityLevel: data.activity_level ?? undefined,
+      goal: data.goal ?? undefined,
+      dietaryPreferences: data.dietary_preferences ?? [],
+    })
+  } catch (error) {
+    console.error("[supabaseData] Unexpected error fetching settings:", error)
+    return null
+  }
 }
 
 export async function upsertUserSettings(userId: string, settings: UserSettings): Promise<void> {
