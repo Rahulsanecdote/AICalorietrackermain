@@ -41,51 +41,70 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
 }
 
 export async function upsertUserSettings(userId: string, settings: UserSettings): Promise<void> {
-  const { error } = await supabase.from("user_settings").upsert({
-    user_id: userId,
-    daily_calorie_goal: settings.dailyCalorieGoal,
-    protein_goal_g: settings.proteinGoal_g,
-    carbs_goal_g: settings.carbsGoal_g,
-    fat_goal_g: settings.fatGoal_g,
-    age: settings.age ?? null,
-    weight_kg: settings.weight ?? null,
-    height_cm: settings.height ?? null,
-    activity_level: settings.activityLevel ?? null,
-    goal: settings.goal ?? null,
-    dietary_preferences: settings.dietaryPreferences ?? [],
-  })
+  if (!isSupabaseConfigured) {
+    console.warn("[supabaseData] Supabase not configured, skipping settings upsert")
+    return
+  }
+  
+  try {
+    const { error } = await supabase.from("user_settings").upsert({
+      user_id: userId,
+      daily_calorie_goal: settings.dailyCalorieGoal,
+      protein_goal_g: settings.proteinGoal_g,
+      carbs_goal_g: settings.carbsGoal_g,
+      fat_goal_g: settings.fatGoal_g,
+      age: settings.age ?? null,
+      weight_kg: settings.weight ?? null,
+      height_cm: settings.height ?? null,
+      activity_level: settings.activityLevel ?? null,
+      goal: settings.goal ?? null,
+      dietary_preferences: settings.dietaryPreferences ?? [],
+    })
 
-  if (error) {
-    throw new Error(error.message)
+    if (error) {
+      console.error("[supabaseData] Error upserting settings:", error.message)
+    }
+  } catch (error) {
+    console.error("[supabaseData] Unexpected error upserting settings:", error)
   }
 }
 
 export async function fetchMeals(userId: string): Promise<Meal[]> {
-  const { data, error } = await supabase
-    .from("meals")
-    .select("*")
-    .eq("user_id", userId)
-    .order("logged_at", { ascending: false })
-
-  if (error) {
-    throw new Error(error.message)
+  if (!isSupabaseConfigured) {
+    console.warn("[supabaseData] Supabase not configured, returning empty meals")
+    return []
   }
+  
+  try {
+    const { data, error } = await supabase
+      .from("meals")
+      .select("*")
+      .eq("user_id", userId)
+      .order("logged_at", { ascending: false })
 
-  return (data ?? []).map((row) => ({
-    id: row.id,
-    description: row.description,
-    foodName: row.food_name,
-    servingSize: row.serving_size,
-    nutrition: {
-      calories: row.calories,
-      protein_g: Number(row.protein_g),
-      carbs_g: Number(row.carbs_g),
-      fat_g: Number(row.fat_g),
-    },
-    timestamp: row.logged_at,
-    category: row.category,
-    // Add any other properties if needed from new schema
-  }))
+    if (error) {
+      console.error("[supabaseData] Error fetching meals:", error.message)
+      return [] // Return empty array instead of throwing
+    }
+
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      description: row.description,
+      foodName: row.food_name,
+      servingSize: row.serving_size,
+      nutrition: {
+        calories: row.calories,
+        protein_g: Number(row.protein_g),
+        carbs_g: Number(row.carbs_g),
+        fat_g: Number(row.fat_g),
+      },
+      timestamp: row.logged_at,
+      category: row.category,
+    }))
+  } catch (error) {
+    console.error("[supabaseData] Unexpected error fetching meals:", error)
+    return []
+  }
 }
 
 export async function insertMeal(userId: string, meal: Meal): Promise<void> {
