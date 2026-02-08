@@ -44,7 +44,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let mounted = true
-    let timeoutId: NodeJS.Timeout | undefined // Initialize as undefined
+    let slowSessionTimer: ReturnType<typeof setTimeout> | undefined
+    let timeoutWarningTimer: ReturnType<typeof setTimeout> | undefined
+    let sessionResolved = false
 
     const getSession = async () => {
       // If Supabase is not configured, skip auth entirely and run in local-only mode
@@ -60,15 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        // Set timeout to force loading false if supabase hangs
-        // Reduced to 2.5s to prevent long "Checking your session..." screens
-        timeoutId = setTimeout(() => {
-          if (mounted) {
-            console.warn("[auth] Session check timed out - Supabase might be unreachable")
+        // Keep startup responsive: if session is slow, continue without blocking UI.
+        slowSessionTimer = setTimeout(() => {
+          if (mounted && !sessionResolved) {
+            console.info("[auth] Session check is slow; continuing startup while auth resolves")
             setLoading(false)
-            // Do NOT force setUserId(null) blindly here, as it destroys optimistic state
           }
         }, 2500)
+
+        // Only treat as unreachable if auth is still unresolved much later.
+        timeoutWarningTimer = setTimeout(() => {
+          if (mounted && !sessionResolved) {
+            console.warn("[auth] Session check timed out - Supabase might be unreachable")
+          }
+        }, 10000)
 
         const {
           data: { session },
@@ -94,9 +101,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setRoles([])
         }
       } finally {
+        sessionResolved = true
         if (mounted) {
           setLoading(false)
-          if (timeoutId) clearTimeout(timeoutId) // Clear timeout on success or failure
+          if (slowSessionTimer) clearTimeout(slowSessionTimer)
+          if (timeoutWarningTimer) clearTimeout(timeoutWarningTimer)
         }
       }
     }
@@ -114,6 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUserId(null)
         setEmail(null)
         setRoles([])
+        setLoading(false)
         return
       }
 
@@ -125,7 +135,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       mounted = false
-      if (timeoutId) clearTimeout(timeoutId)
+      if (slowSessionTimer) clearTimeout(slowSessionTimer)
+      if (timeoutWarningTimer) clearTimeout(timeoutWarningTimer)
       subscription.unsubscribe()
     }
   }, [fetchRoles])
