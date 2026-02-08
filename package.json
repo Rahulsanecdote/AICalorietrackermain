@@ -102,5 +102,14 @@
     "vite": "^6.0.1",
     "vite-tsconfig-paths": "6.0.3",
     "vitest": "^4.0.18"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "node-pty",
+      "protobufjs",
+      "tldjs",
+      "tree-sitter-bash"
+    ]
   }
 }
