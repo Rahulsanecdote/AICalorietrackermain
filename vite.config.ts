@@ -64,6 +64,23 @@ export default defineConfig({
             return "react-vendor"
           }
 
+          if (
+            id.includes("node_modules/@floating-ui") ||
+            id.includes("node_modules/react-remove-scroll") ||
+            id.includes("node_modules/react-remove-scroll-bar") ||
+            id.includes("node_modules/react-style-singleton") ||
+            id.includes("node_modules/use-sidecar") ||
+            id.includes("node_modules/aria-hidden") ||
+            id.includes("node_modules/@radix-ui/react-popper") ||
+            id.includes("node_modules/@radix-ui/react-menu") ||
+            id.includes("node_modules/@radix-ui/react-dropdown-menu") ||
+            id.includes("node_modules/@radix-ui/react-roving-focus") ||
+            id.includes("node_modules/@radix-ui/react-collection") ||
+            id.includes("node_modules/@radix-ui/react-arrow")
+          ) {
+            return "overlay-utils"
+          }
+
           if (id.includes("node_modules/i18next") || id.includes("node_modules/react-i18next")) {
             return "i18n"
           }

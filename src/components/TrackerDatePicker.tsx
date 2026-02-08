@@ -1,10 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react"
 import { DayPicker } from "react-day-picker"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import * as PopoverPrimitive from "@radix-ui/react-popover"
 import { cn } from "../lib/utils"
 import { dateToKey, getTodayStr } from "../utils/dateHelpers"
 import { useIsMobile } from "../hooks/use-mobile"
@@ -70,6 +69,8 @@ export default function TrackerDatePicker({
   const isMobile = useIsMobile()
   const [isDesktopPopoverOpen, setIsDesktopPopoverOpen] = useState(false)
   const [isMobileSheetOpen, setIsMobileSheetOpen] = useState(false)
+  const desktopTriggerRef = useRef<HTMLButtonElement | null>(null)
+  const desktopPopoverRef = useRef<HTMLDivElement | null>(null)
 
   const safeDateKey = getSafeDateKey(selectedDate)
   const selectedDateObject = useMemo(() => parseDateKey(safeDateKey), [safeDateKey])
@@ -102,6 +103,33 @@ export default function TrackerDatePicker({
     updateDate(todayDateKey)
     closePicker()
   }
+
+  useEffect(() => {
+    if (!isDesktopPopoverOpen || isMobile) {
+      return undefined
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (desktopPopoverRef.current?.contains(target) || desktopTriggerRef.current?.contains(target)) {
+        return
+      }
+      setIsDesktopPopoverOpen(false)
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsDesktopPopoverOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown)
+    document.addEventListener("keydown", handleEscape)
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [isDesktopPopoverOpen, isMobile])
 
   const pickerPanel = (
     <div className="space-y-4">
@@ -198,30 +226,33 @@ export default function TrackerDatePicker({
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </button>
           ) : (
-            <PopoverPrimitive.Root open={isDesktopPopoverOpen} onOpenChange={setIsDesktopPopoverOpen}>
-              <PopoverPrimitive.Trigger asChild>
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  aria-label={`Open calendar. Selected date ${formatLongDate(selectedDateObject)}`}
-                  aria-haspopup="dialog"
-                  aria-expanded={isDesktopPopoverOpen}
-                >
-                  <span>{formatCompactDate(selectedDateObject)}</span>
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </PopoverPrimitive.Trigger>
-              <PopoverPrimitive.Portal>
-                <PopoverPrimitive.Content
-                  sideOffset={8}
-                  align="center"
-                  collisionPadding={16}
-                  className="z-[60] w-[340px] rounded-xl border border-border bg-popover p-4 text-popover-foreground shadow-xl outline-none"
+            <div className="relative inline-flex">
+              <button
+                ref={desktopTriggerRef}
+                type="button"
+                onClick={() => setIsDesktopPopoverOpen((previous) => !previous)}
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm font-semibold text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={`Open calendar. Selected date ${formatLongDate(selectedDateObject)}`}
+                aria-haspopup="dialog"
+                aria-expanded={isDesktopPopoverOpen}
+                aria-controls="tracker-date-picker-popover"
+              >
+                <span>{formatCompactDate(selectedDateObject)}</span>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </button>
+
+              {isDesktopPopoverOpen && (
+                <div
+                  ref={desktopPopoverRef}
+                  id="tracker-date-picker-popover"
+                  role="dialog"
+                  aria-label="Select date"
+                  className="absolute left-1/2 top-[calc(100%+8px)] z-[60] w-[340px] -translate-x-1/2 rounded-xl border border-border bg-popover p-4 text-popover-foreground shadow-xl outline-none"
                 >
                   {pickerPanel}
-                </PopoverPrimitive.Content>
-              </PopoverPrimitive.Portal>
-            </PopoverPrimitive.Root>
+                </div>
+              )}
+            </div>
           )}
 
           <p className="mt-1 text-xs text-muted-foreground" aria-live="polite">
