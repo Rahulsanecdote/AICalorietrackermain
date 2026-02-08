@@ -56,6 +56,7 @@ jobs:
         id: checks
         run: |
           echo "Running pre-flight checks..."
+          git config --global --add safe.directory $GITHUB_WORKSPACE
           
           # Check for breaking changes in commit messages
           if git log -1 --pretty=%B | grep -i "BREAKING CHANGE"; then
