@@ -1,6 +1,7 @@
 import { supabase, isSupabaseConfigured } from "./supabaseClient"
 import type { Meal, UserSettings } from "../types"
 import { normalizeSettings } from "./settingsNormalization"
+import { getLocalDateKeyFromTimestamp } from "./dateHelpers"
 
 export async function fetchUserSettings(userId: string): Promise<UserSettings | null> {
   if (!isSupabaseConfigured) {
@@ -114,8 +115,7 @@ export async function insertMeal(userId: string, meal: Meal): Promise<void> {
   }
   
   try {
-    // Extract date part from timestamp or use current date if needed
-    const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
+    const mealDate = getLocalDateKeyFromTimestamp(meal.timestamp)
 
     const { error } = await supabase.from("meals").insert({
       id: meal.id,
@@ -147,7 +147,7 @@ export async function updateMeal(userId: string, meal: Meal): Promise<void> {
   }
   
   try {
-    const mealDate = new Date(meal.timestamp).toISOString().split('T')[0];
+    const mealDate = getLocalDateKeyFromTimestamp(meal.timestamp)
 
     const { error } = await supabase
       .from("meals")

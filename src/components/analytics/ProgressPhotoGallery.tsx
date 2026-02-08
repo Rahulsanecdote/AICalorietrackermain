@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { ProgressPhoto } from '../../types/analytics';
 import { Upload, Trash2, X, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
+import { getTodayStr } from '../../utils/dateHelpers';
 
 interface ProgressPhotoGalleryProps {
   photos: ProgressPhoto[];
@@ -14,7 +15,7 @@ export default function ProgressPhotoGallery({ photos, onUpload, onDelete, isLoa
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [uploadDate, setUploadDate] = useState(new Date().toISOString().split('T')[0]);
+  const [uploadDate, setUploadDate] = useState(getTodayStr());
 
   const [compareMode, setCompareMode] = useState(false); // Added missing state
   const [comparePhoto1, setComparePhoto1] = useState<ProgressPhoto | null>(null);

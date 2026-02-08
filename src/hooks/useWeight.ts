@@ -2,8 +2,13 @@ import { useState, useCallback, useMemo } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { WeightEntry, WeightStats } from '../types/analytics';
 import { v4 as uuidv4 } from 'uuid';
+import { dateToKey, getTodayStr, parseDateKey } from '../utils/dateHelpers';
 
 const WEIGHT_STORAGE_KEY = 'act_weight_history';
+
+function sortByDateDesc(entries: WeightEntry[]): WeightEntry[] {
+  return [...entries].sort((a, b) => parseDateKey(b.date).getTime() - parseDateKey(a.date).getTime());
+}
 
 export function useWeight() {
   const [entries, setEntries] = useLocalStorage<WeightEntry[]>(WEIGHT_STORAGE_KEY, []);
@@ -18,7 +23,7 @@ export function useWeight() {
     try {
       const newEntry: WeightEntry = {
         id: uuidv4(),
-        date: date ?? new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+        date: date ?? getTodayStr(),
         weight,
         note,
         createdAt: new Date().toISOString(),
@@ -27,14 +32,12 @@ export function useWeight() {
       // Check if entry for this date already exists, update if so
       setEntries((prev) => {
         const existingIndex = prev.findIndex((e) => e.date === newEntry.date);
-        if (existingIndex >= 0) {
-          const updated = [...prev];
-          updated[existingIndex] = newEntry;
-          return updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        }
-        return [...prev, newEntry].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+          if (existingIndex >= 0) {
+            const updated = [...prev];
+            updated[existingIndex] = newEntry;
+            return sortByDateDesc(updated);
+          }
+        return sortByDateDesc([...prev, newEntry]);
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add weight entry');
@@ -78,7 +81,7 @@ export function useWeight() {
 
     const currentWeight = entries[0]?.weight ?? 0;
     const sortedByDate = [...entries].sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      (a, b) => parseDateKey(a.date).getTime() - parseDateKey(b.date).getTime()
     );
     const startWeight = sortedByDate[0]?.weight ?? 0;
     const change = currentWeight - startWeight;
@@ -111,10 +114,10 @@ export function useWeight() {
     const weeks: { [key: string]: { total: number; count: number } } = {};
 
     entries.forEach((entry) => {
-      const date = new Date(entry.date);
+      const date = parseDateKey(entry.date);
       const weekStart = new Date(date);
       weekStart.setDate(date.getDate() - date.getDay());
-      const weekKey = weekStart.toISOString().split('T')[0] ?? weekStart.toISOString();
+      const weekKey = dateToKey(weekStart);
 
       const entryWeek = weeks[weekKey];
       if (!entryWeek) {

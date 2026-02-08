@@ -3,126 +3,160 @@
  * Transcribes audio using OpenAI Whisper API
  */
 
-import OpenAI from 'openai';
+import OpenAI from "openai"
+
+const RATE_LIMIT_WINDOW_MS = 60_000
+const RATE_LIMIT_MAX = 20
+const MAX_AUDIO_BYTES = 10 * 1024 * 1024
+const rateLimitStore = new Map()
 
 export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb',
-        },
+  api: {
+    bodyParser: {
+      sizeLimit: "10mb",
     },
-};
+  },
+}
+
+function getClientIp(req) {
+  const forwarded = req.headers["x-forwarded-for"]
+  if (typeof forwarded === "string" && forwarded.length > 0) {
+    return forwarded.split(",")[0].trim()
+  }
+  if (Array.isArray(forwarded) && forwarded.length > 0) {
+    return forwarded[0].trim()
+  }
+  return req.socket?.remoteAddress ?? "unknown"
+}
+
+function getRateLimit(ip) {
+  const now = Date.now()
+
+  // Opportunistic cleanup to avoid long-lived map growth.
+  if (rateLimitStore.size > 1000) {
+    for (const [key, value] of rateLimitStore.entries()) {
+      if (value.resetAt <= now) {
+        rateLimitStore.delete(key)
+      }
+    }
+  }
+
+  const entry = rateLimitStore.get(ip)
+
+  if (!entry || entry.resetAt <= now) {
+    const resetAt = now + RATE_LIMIT_WINDOW_MS
+    rateLimitStore.set(ip, { count: 1, resetAt })
+    return { allowed: true, resetAt }
+  }
+
+  if (entry.count >= RATE_LIMIT_MAX) {
+    return { allowed: false, resetAt: entry.resetAt }
+  }
+
+  entry.count += 1
+  return { allowed: true, resetAt: entry.resetAt }
+}
+
+function isAuthorized(req) {
+  const authRequired = process.env.AI_PROXY_AUTH_REQUIRED === "true"
+  const authToken = process.env.AI_PROXY_AUTH_TOKEN ?? ""
+  if (!authRequired) return true
+  if (!authToken) return false
+
+  const header = req.headers.authorization ?? ""
+  const bearer = header.startsWith("Bearer ") ? header.slice(7) : ""
+  const tokenHeader = req.headers["x-api-token"] ?? ""
+  const token = bearer || tokenHeader
+
+  return Boolean(token) && token === authToken
+}
+
+function getAllowedOrigins() {
+  return process.env.AI_PROXY_ALLOWED_ORIGINS?.split(",").map((origin) => origin.trim()).filter(Boolean) ?? ["*"]
+}
+
+function applyCors(req, res) {
+  const allowedOrigins = getAllowedOrigins()
+  const origin = req.headers.origin ?? ""
+  if (allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigins.includes("*") ? "*" : origin)
+  }
+  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS")
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Token")
+  res.setHeader("Access-Control-Max-Age", "86400")
+}
+
+function resolveAudioFormat(audioDataUrl) {
+  if (audioDataUrl.startsWith("data:audio/mp4")) return { filename: "audio.mp4", mimeType: "audio/mp4" }
+  if (audioDataUrl.startsWith("data:audio/m4a")) return { filename: "audio.m4a", mimeType: "audio/m4a" }
+  if (audioDataUrl.startsWith("data:audio/wav")) return { filename: "audio.wav", mimeType: "audio/wav" }
+  if (audioDataUrl.startsWith("data:audio/ogg")) return { filename: "audio.ogg", mimeType: "audio/ogg" }
+  if (audioDataUrl.startsWith("data:audio/mpeg")) return { filename: "audio.mp3", mimeType: "audio/mpeg" }
+  return { filename: "audio.webm", mimeType: "audio/webm" }
+}
 
 export default async function handler(req, res) {
-    // CORS headers
-    const origin = req.headers.origin ?? '';
-    const allowedOrigins = process.env.AI_PROXY_ALLOWED_ORIGINS?.split(',').map(o => o.trim()) ?? ['*'];
+  applyCors(req, res)
 
-    if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
-        res.setHeader('Access-Control-Allow-Origin', allowedOrigins.includes('*') ? '*' : origin);
+  if (req.method === "OPTIONS") {
+    return res.status(204).end()
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: { message: "Method not allowed" } })
+  }
+
+  if (!isAuthorized(req)) {
+    return res.status(401).json({ error: { message: "Unauthorized" } })
+  }
+
+  const clientIp = getClientIp(req)
+  const limit = getRateLimit(clientIp)
+  if (!limit.allowed) {
+    res.setHeader("Retry-After", Math.ceil((limit.resetAt - Date.now()) / 1000))
+    return res.status(429).json({ error: { message: "Rate limit exceeded. Please retry later." } })
+  }
+
+  try {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      return res.status(503).json({ error: { message: "OpenAI API key not configured" } })
     }
-    res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-API-Token');
-    res.setHeader('Access-Control-Max-Age', '86400');
 
-    if (req.method === 'OPTIONS') {
-        return res.status(204).end();
+    const { audio } = req.body ?? {}
+    if (typeof audio !== "string" || !audio.startsWith("data:audio/") || !audio.includes(";base64,")) {
+      return res.status(400).json({ error: { message: "Audio data is required and must be base64 data URL" } })
     }
 
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: { message: 'Method not allowed' } });
+    const base64Data = audio.split(";base64,").pop()
+    if (!base64Data) {
+      return res.status(400).json({ error: { message: "Invalid audio format" } })
     }
 
-    console.log('[Transcribe] Request received');
-
-    try {
-        const { audio } = req.body;
-
-        if (!audio) {
-            console.error('[Transcribe] No audio data in request body');
-            return res.status(400).json({ error: { message: 'Audio data is required' } });
-        }
-
-        console.log('[Transcribe] Audio data length:', audio.length);
-
-        // Check OpenAI API key
-        const apiKey = process.env.OPENAI_API_KEY;
-        if (!apiKey) {
-            console.error('[Transcribe] OPENAI_API_KEY not configured');
-            return res.status(503).json({ error: { message: 'OpenAI API key not configured' } });
-        }
-
-        const openai = new OpenAI({ apiKey });
-
-        // Convert Base64 (data URL) to Buffer
-        const base64Data = audio.split(';base64,').pop();
-        if (!base64Data) {
-            console.error('[Transcribe] Invalid base64 format');
-            return res.status(400).json({ error: { message: 'Invalid audio format' } });
-        }
-
-        const buffer = Buffer.from(base64Data, 'base64');
-        console.log('[Transcribe] Buffer size:', buffer.length);
-
-        if (buffer.length === 0) {
-            console.error('[Transcribe] Empty audio buffer');
-            return res.status(400).json({ error: { message: 'Audio recording was empty' } });
-        }
-
-        // Determine filename and MIME type from data URL header
-        let filename = 'audio.webm';
-        let mimeType = 'audio/webm';
-
-        if (audio.startsWith('data:audio/mp4')) {
-            filename = 'audio.mp4';
-            mimeType = 'audio/mp4';
-        } else if (audio.startsWith('data:audio/m4a')) {
-            filename = 'audio.m4a';
-            mimeType = 'audio/m4a';
-        } else if (audio.startsWith('data:audio/wav')) {
-            filename = 'audio.wav';
-            mimeType = 'audio/wav';
-        } else if (audio.startsWith('data:audio/ogg')) {
-            filename = 'audio.ogg';
-            mimeType = 'audio/ogg';
-        } else if (audio.startsWith('data:audio/mpeg')) {
-            filename = 'audio.mp3';
-            mimeType = 'audio/mpeg';
-        }
-
-        console.log('[Transcribe] Using filename:', filename, 'MIME:', mimeType);
-
-        // Use OpenAI SDK's toFile helper (works in Node.js)
-        const file = await OpenAI.toFile(buffer, filename, { type: mimeType });
-
-        console.log('[Transcribe] Calling Whisper API...');
-
-        const transcription = await openai.audio.transcriptions.create({
-            file: file,
-            model: 'whisper-1',
-            language: 'en',
-        });
-
-        console.log('[Transcribe] Success! Text:', transcription.text?.substring(0, 50) + '...');
-
-        return res.status(200).json({ text: transcription.text });
-
-    } catch (error) {
-        console.error('[Transcribe] Error:', error.message || error);
-        console.error('[Transcribe] Stack:', error.stack);
-
-        // Return helpful error message
-        let userMessage = 'Transcription failed';
-        if (error.message?.includes('API key')) {
-            userMessage = 'API configuration error';
-        } else if (error.message?.includes('format')) {
-            userMessage = 'Unsupported audio format';
-        } else if (error.message?.includes('rate')) {
-            userMessage = 'Too many requests. Please wait and try again.';
-        }
-
-        return res.status(500).json({
-            error: { message: userMessage, details: error.message }
-        });
+    const buffer = Buffer.from(base64Data, "base64")
+    if (buffer.length === 0) {
+      return res.status(400).json({ error: { message: "Audio recording was empty" } })
     }
+    if (buffer.length > MAX_AUDIO_BYTES) {
+      return res.status(413).json({ error: { message: "Audio payload exceeds 10MB limit" } })
+    }
+
+    const { filename, mimeType } = resolveAudioFormat(audio)
+    const file = await OpenAI.toFile(buffer, filename, { type: mimeType })
+
+    const openai = new OpenAI({ apiKey })
+    const transcription = await openai.audio.transcriptions.create({
+      file,
+      model: "whisper-1",
+      language: "en",
+    })
+
+    return res.status(200).json({ text: transcription.text })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Transcription failed"
+    if (message.toLowerCase().includes("rate")) {
+      return res.status(429).json({ error: { message: "Too many requests. Please wait and try again." } })
+    }
+    return res.status(500).json({ error: { message: "Transcription failed" } })
+  }
 }

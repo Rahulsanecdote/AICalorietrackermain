@@ -18,7 +18,7 @@ import {
   updateMeal as updateMealRemote,
   deleteMeal as deleteMealRemote,
 } from "../utils/supabaseData"
-import { createTimestampFromLocal, getTodayStr } from "../utils/dateHelpers"
+import { createTimestampFromLocal, getLocalDateKeyFromTimestamp, getTodayStr, parseDateKey } from "../utils/dateHelpers"
 
 // Context type definitions with error handling extensions
 interface QueuedRequest {
@@ -430,11 +430,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [authLoading, userId, initializeLocalState, initializeRemoteState])
 
   const dailyTotals = useMemo((): DailyTotals => {
-    const today = new Date().toISOString().split("T")[0]
-    const dayMeals = meals.filter((meal) => {
-      const mealDate = new Date(meal.timestamp).toISOString().split("T")[0]
-      return mealDate === today
-    })
+    const today = getTodayStr()
+    const dayMeals = meals.filter((meal) => getLocalDateKeyFromTimestamp(meal.timestamp) === today)
 
     return dayMeals.reduce<DailyTotals>(
       (totals, meal) => ({
@@ -580,9 +577,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
       setMeals((prev) => {
         const updated = prev.filter((m) => m.id !== id)
-        if (!isRemote) {
-          safePersistData(STORAGE_KEYS.MEALS, updated)
-        }
+        safePersistData(STORAGE_KEYS.MEALS, updated)
         return updated
       })
 
@@ -603,17 +598,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (date: string) => {
       // Input date is YYYY-MM-DD
       return meals
-        .filter((meal) => {
-          // We must parse the timestamp and get the local date string "YYYY-MM-DD"
-          // The date input string from internal app usage is usually local time-based
-          const d = new Date(meal.timestamp);
-          // Manually construct local YYYY-MM-DD to avoid mismatch
-          const localY = d.getFullYear();
-          const localM = String(d.getMonth() + 1).padStart(2, '0');
-          const localD = String(d.getDate()).padStart(2, '0');
-          const mealDateLocal = `${localY}-${localM}-${localD}`;
-          return mealDateLocal === date;
-        })
+        .filter((meal) => getLocalDateKeyFromTimestamp(meal.timestamp) === date)
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
     },
     [meals],
@@ -621,9 +606,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const getWeeklyMeals = useCallback(
     (endDate: string) => {
-      const end = new Date(endDate)
-      const start = new Date(end)
+      const end = parseDateKey(endDate)
+      end.setHours(23, 59, 59, 999)
+      const start = parseDateKey(endDate)
       start.setDate(start.getDate() - 7)
+      start.setHours(0, 0, 0, 0)
 
       return meals.filter((meal) => {
         const mealDate = new Date(meal.timestamp)

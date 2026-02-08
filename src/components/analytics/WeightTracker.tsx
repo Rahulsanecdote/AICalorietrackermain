@@ -15,6 +15,7 @@ import {
   TooltipItem,
 } from 'chart.js';
 import { Plus, Trash2, TrendingDown, TrendingUp, Activity } from 'lucide-react';
+import { getTodayStr, parseDateKey } from '../../utils/dateHelpers';
 
 ChartJS.register(
   CategoryScale,
@@ -38,7 +39,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [weight, setWeight] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(getTodayStr());
   const [note, setNote] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -57,7 +58,7 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
       .slice()
       .reverse()
       .map((entry) => {
-        const d = new Date(entry.date);
+        const d = parseDateKey(entry.date);
         return `${d.getMonth() + 1}/${d.getDate()}`;
       }),
     datasets: [

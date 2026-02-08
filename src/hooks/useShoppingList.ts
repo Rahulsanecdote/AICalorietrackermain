@@ -3,6 +3,7 @@ import useLocalStorage from './useLocalStorage';
 import { ShoppingList, ShoppingItem } from '../types/recipes';
 import { v4 as uuidv4 } from 'uuid';
 import { Meal } from '../types';
+import { getTodayStr } from '../utils/dateHelpers';
 
 const SHOPPING_LIST_STORAGE_KEY = 'act_shopping_list';
 
@@ -135,7 +136,7 @@ export function useShoppingList(): UseShoppingListReturn {
 
         return {
           id: uuidv4(),
-          weekStartDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+          weekStartDate: getTodayStr(),
           items,
           generatedAt: new Date().toISOString(),
         };
@@ -279,7 +280,7 @@ export function useShoppingList(): UseShoppingListReturn {
       if (!prev) {
         return {
           id: uuidv4(),
-          weekStartDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+          weekStartDate: getTodayStr(),
           items: sortedItems,
           generatedAt: new Date().toISOString(),
         };
@@ -328,7 +329,7 @@ export function useShoppingList(): UseShoppingListReturn {
       if (!prev) {
         return {
           id: uuidv4(),
-          weekStartDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+          weekStartDate: getTodayStr(),
           items: [{
             id: uuidv4(),
             name,
@@ -372,7 +373,7 @@ export function useShoppingList(): UseShoppingListReturn {
       const currentItems = prev?.items || [];
       return {
         id: prev?.id || uuidv4(),
-        weekStartDate: prev?.weekStartDate || new Date().toISOString().split('T')[0]!,
+        weekStartDate: prev?.weekStartDate || getTodayStr(),
         items: [...currentItems, item],
         generatedAt: new Date().toISOString(),
       };

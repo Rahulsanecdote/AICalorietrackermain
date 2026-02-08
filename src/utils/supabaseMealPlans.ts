@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid"
 import type { DailyMealPlan } from "../types"
 import { supabase } from "./supabaseClient"
+import { getTodayStr } from "./dateHelpers"
 
 export async function upsertMealPlan(userId: string, plan: DailyMealPlan): Promise<void> {
   const planPayload = {
@@ -170,7 +171,7 @@ export async function fetchMealPlanForDate(userId: string, date: string): Promis
 
   return {
     id: plan.id,
-    date: plan.plan_date ?? new Date().toISOString().split("T")[0],
+    date: plan.plan_date ?? getTodayStr(),
     targetCalories: plan.target_calories,
     meals: mealSections,
     totalMacros: {

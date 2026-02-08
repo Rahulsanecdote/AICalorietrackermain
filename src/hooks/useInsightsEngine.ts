@@ -4,6 +4,7 @@ import { Meal } from '../types';
 import { WeeklyInsight, WeeklyStats, STORAGE_KEYS } from '../types/features';
 import { API_CONFIG } from '../constants';
 import { postAIChat } from '../utils/aiClient';
+import { getLocalDateKeyFromTimestamp } from '../utils/dateHelpers';
 import useLocalStorage from './useLocalStorage';
 
 interface UseInsightsOptions {
@@ -59,7 +60,7 @@ export function useInsightsEngine({ meals, refreshInterval = 24 }: UseInsightsOp
     let dayStreak = 0;
     const uniqueDays = new Set<string>();
     weekMeals.forEach((meal) => {
-      uniqueDays.add(new Date(meal.timestamp).toISOString().split('T')[0] ?? '');
+      uniqueDays.add(getLocalDateKeyFromTimestamp(meal.timestamp));
     });
     dayStreak = uniqueDays.size;
 

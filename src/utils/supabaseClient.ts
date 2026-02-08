@@ -3,9 +3,11 @@ import { createClient, SupabaseClient } from "@supabase/supabase-js"
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Debug logs to verify environment variable values at runtime
-console.log("[supabase] VITE_SUPABASE_URL:", supabaseUrl ? supabaseUrl.substring(0, 30) + "..." : "MISSING")
-console.log("[supabase] VITE_SUPABASE_ANON_KEY present:", Boolean(supabaseAnonKey))
+if (import.meta.env.DEV) {
+  // Debug logs to verify environment variable values at runtime
+  console.log("[supabase] VITE_SUPABASE_URL:", supabaseUrl ? supabaseUrl.substring(0, 30) + "..." : "MISSING")
+  console.log("[supabase] VITE_SUPABASE_ANON_KEY present:", Boolean(supabaseAnonKey))
+}
 
 // Check if Supabase is properly configured
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey && supabaseUrl.startsWith("http"))

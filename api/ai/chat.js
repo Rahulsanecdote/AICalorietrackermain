@@ -8,10 +8,21 @@ import { openai } from '@ai-sdk/openai';
 
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX = 60;
+const MAX_MESSAGES = 50;
+const MAX_MESSAGE_CHARS = 20000;
 const rateLimitStore = new Map();
 
 function getRateLimit(ip) {
     const now = Date.now();
+
+    if (rateLimitStore.size > 1000) {
+        for (const [key, value] of rateLimitStore.entries()) {
+            if (value.resetAt <= now) {
+                rateLimitStore.delete(key);
+            }
+        }
+    }
+
     const entry = rateLimitStore.get(ip);
 
     if (!entry || entry.resetAt <= now) {
@@ -91,14 +102,31 @@ export default async function handler(req, res) {
 
     // Parse request body
     const body = req.body;
-    if (!body) {
+    if (!body || typeof body !== 'object') {
         return res.status(400).json({ error: { message: 'Request body required' } });
     }
 
     // Validate messages
     const messages = Array.isArray(body.messages) ? body.messages : [];
-    if (messages.length === 0) {
+    if (messages.length === 0 || messages.length > MAX_MESSAGES) {
         return res.status(400).json({ error: { message: 'Request must include a non-empty messages array.' } });
+    }
+
+    const sanitizedMessages = messages
+        .filter((m) => m && typeof m === 'object')
+        .map((m) => ({
+            role: m.role,
+            content: m.content,
+        }))
+        .filter((m) =>
+            (m.role === 'system' || m.role === 'user' || m.role === 'assistant') &&
+            typeof m.content === 'string' &&
+            m.content.length > 0 &&
+            m.content.length <= MAX_MESSAGE_CHARS
+        );
+
+    if (sanitizedMessages.length === 0) {
+        return res.status(400).json({ error: { message: 'No valid messages were provided.' } });
     }
 
     // Call OpenAI using Vercel AI SDK
@@ -109,7 +137,7 @@ export default async function handler(req, res) {
 
         const result = await generateText({
             model: openai(modelId),
-            messages: messages.map(m => ({
+            messages: sanitizedMessages.map(m => ({
                 role: m.role,
                 content: m.content,
             })),

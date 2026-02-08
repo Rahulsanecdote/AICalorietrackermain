@@ -3,6 +3,7 @@ import useLocalStorage from './useLocalStorage';
 import { MoodEntry } from '../types/lifestyle';
 import { MOOD_TAGS } from '../types/lifestyle';
 import { v4 as uuidv4 } from 'uuid';
+import { dateToKey } from '../utils/dateHelpers';
 
 const MOOD_ENTRIES_KEY = 'act_mood_entries';
 
@@ -74,7 +75,7 @@ export function useMood(date: string): UseMoodReturn {
     for (let i = 6; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
-      const dateStr = date.toISOString().split('T')[0];
+      const dateStr = dateToKey(date);
 
       const dayEntries = entries.filter((e) => e.date === dateStr);
       if (dayEntries.length === 0) {

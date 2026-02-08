@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 import { ProgressPhoto } from '../types/analytics';
 import { v4 as uuidv4 } from 'uuid';
+import { getTodayStr, parseDateKey } from '../utils/dateHelpers';
 
 const PHOTOS_STORAGE_KEY = 'act_progress_photos';
 const MAX_IMAGE_WIDTH = 600;
@@ -84,7 +85,7 @@ export function useProgressPhotos(): UseProgressPhotosReturn {
       if (photos.length >= MAX_PHOTOS) {
         // Remove oldest photo
         const sorted = [...photos].sort((a, b) =>
-          new Date(a.date).getTime() - new Date(b.date).getTime()
+          parseDateKey(a.date).getTime() - parseDateKey(b.date).getTime()
         );
         setPhotos(sorted.slice(1));
       }
@@ -94,7 +95,7 @@ export function useProgressPhotos(): UseProgressPhotosReturn {
 
       const newPhoto: ProgressPhoto = {
         id: uuidv4(),
-        date: date || (new Date().toISOString().split('T')[0] ?? new Date().toISOString()),
+        date: date || getTodayStr(),
         frontUrl: compressedUrl,
         weightAtTime: weight,
         createdAt: new Date().toISOString(),
@@ -102,7 +103,7 @@ export function useProgressPhotos(): UseProgressPhotosReturn {
 
       setPhotos((prev) =>
         [...prev, newPhoto].sort(
-          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          (a, b) => parseDateKey(b.date).getTime() - parseDateKey(a.date).getTime()
         )
       );
     } catch (err) {

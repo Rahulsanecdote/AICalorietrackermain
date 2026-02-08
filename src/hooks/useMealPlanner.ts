@@ -42,6 +42,7 @@ import {
 } from "../utils/circuitBreaker"
 import { fetchMealPlanForDate, upsertMealPlan } from "../utils/supabaseMealPlans"
 import { notifyError } from "../utils/notifications"
+import { getTodayStr } from "../utils/dateHelpers"
 
 // ============================================================================
 // Storage Keys
@@ -145,7 +146,7 @@ const parseAIResponse = (
 
   return {
     id: uuidv4(),
-    date: new Date().toISOString().split("T")[0] ?? new Date().toISOString(),
+    date: getTodayStr(),
     targetCalories: settings.dailyCalorieGoal,
     meals,
     totalMacros: { protein: totalProtein, carbs: totalCarbs, fat: totalFat },
@@ -237,7 +238,7 @@ export const useMealPlanner = (
 
   useEffect(() => {
     const loadInitialPlan = async () => {
-      const today = new Date().toISOString().split("T")[0] ?? new Date().toISOString()
+      const today = getTodayStr()
 
       if (isRemote && userId) {
         try {
@@ -272,7 +273,7 @@ export const useMealPlanner = (
 
   const generateMealPlanFromPantryInternal = useCallback(
     async (pantryData: PantryInputData, regenerationCount = 1): Promise<void> => {
-      setState(createLoadingState(state))
+      setState((prev) => createLoadingState(prev))
 
       const breaker = getMealPlannerCircuitBreaker()
       const circuitInfo = breaker.getState()
@@ -289,7 +290,7 @@ export const useMealPlanner = (
         }
 
         logError(error)
-        setState(createErrorState(error, state))
+        setState((prev) => createErrorState(error, prev))
         onError?.(error)
         return
       }
@@ -352,7 +353,7 @@ CRITICAL REQUIREMENTS:
 Return ONLY valid JSON, no markdown formatting:`
 
       try {
-        await withCircuitBreaker<MealPlanGenerationResponse>({
+        const parsedResponse = await withCircuitBreaker<MealPlanGenerationResponse>({
           circuitBreaker: breaker,
           backoffOptions: {
             maxRetries: 3,
@@ -372,7 +373,7 @@ Return ONLY valid JSON, no markdown formatting:`
               timestamp: new Date().toISOString(),
             }
             logError(error)
-            setState(createErrorState(error, state))
+            setState((prev) => createErrorState(error, prev))
           },
           executor: async () => {
             const requestBody = {
@@ -452,40 +453,6 @@ Return ONLY valid JSON, no markdown formatting:`
           },
         })
 
-        // Parse and validate the response (this is safe since we got a successful response)
-        const content = await (async () => {
-          const requestBody = {
-            model: API_CONFIG.MODEL,
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: userPrompt },
-            ],
-            temperature: API_CONFIG.TEMPERATURE,
-            max_tokens: API_CONFIG.MAX_TOKENS,
-          }
-
-          const response = await postAIChat(requestBody)
-
-          const data = await response.json()
-          return data.choices?.[0]?.message?.content
-        })()
-
-        if (!content) {
-          const error: AppError = {
-            code: ERROR_CODES.PARSE_RESPONSE_ERROR,
-            userMessage: "No response from AI service",
-            retryable: true,
-            timestamp: new Date().toISOString(),
-          }
-          logError(error)
-          setState(createErrorState(error, state))
-          onError?.(error)
-          return
-        }
-
-        const cleanedContent = content.replace(/```json\s*|\s*```/g, "").trim()
-        const parsedResponse = JSON.parse(cleanedContent)
-
         // Check accuracy and retry if needed
         const actualCalories = parsedResponse.dailyTotals?.calories || 0
         const accuracyVariance = Math.abs(actualCalories - settings.dailyCalorieGoal)
@@ -498,7 +465,7 @@ Return ONLY valid JSON, no markdown formatting:`
 
         const mealPlan = parseAIResponse(parsedResponse, settings, pantry, regenerationCount)
 
-        setState(createSuccessState(mealPlan, state))
+        setState((prev) => createSuccessState(mealPlan, prev))
         savePlan(mealPlan)
         onSuccess?.(mealPlan)
       } catch (err) {
@@ -513,11 +480,11 @@ Return ONLY valid JSON, no markdown formatting:`
           logError(appError)
         }
 
-        setState(createErrorState(appError, state))
+        setState((prev) => createErrorState(appError, prev))
         onError?.(appError)
       }
     },
-    [settings, state, onSuccess, onError, savePlan],
+    [settings, onSuccess, onError, savePlan],
   )
 
   const generateMealPlanFromPantry = useCallback(
@@ -533,7 +500,7 @@ Return ONLY valid JSON, no markdown formatting:`
 
   const generateMealPlanInternal = useCallback(
     async (request: MealPlanGenerationRequest, regenerationCount = 1): Promise<void> => {
-      setState(createLoadingState(state))
+      setState((prev) => createLoadingState(prev))
 
       const breaker = getMealPlannerCircuitBreaker()
       const circuitInfo = breaker.getState()
@@ -550,7 +517,7 @@ Return ONLY valid JSON, no markdown formatting:`
         }
 
         logError(error)
-        setState(createErrorState(error, state))
+        setState((prev) => createErrorState(error, prev))
         onError?.(error)
         return
       }
@@ -599,7 +566,7 @@ Requirements:
 Respond with only the JSON object, no markdown formatting.`
 
       try {
-        await withCircuitBreaker<MealPlanGenerationResponse>({
+        const parsedResponse = await withCircuitBreaker<MealPlanGenerationResponse>({
           circuitBreaker: breaker,
           backoffOptions: {
             maxRetries: 3,
@@ -619,7 +586,7 @@ Respond with only the JSON object, no markdown formatting.`
               timestamp: new Date().toISOString(),
             }
             logError(error)
-            setState(createErrorState(error, state))
+            setState((prev) => createErrorState(error, prev))
           },
           executor: async () => {
             const requestBody = {
@@ -632,21 +599,12 @@ Respond with only the JSON object, no markdown formatting.`
               max_tokens: API_CONFIG.MAX_TOKENS,
             }
 
-            console.log("[v0] Request body prepared:", {
-              model: requestBody.model,
-              messageCount: requestBody.messages.length,
-              temperature: requestBody.temperature,
-            })
-
             const response = await postAIChat(requestBody)
-
-            console.log("[v0] API response status:", response.status)
 
             if (!response.ok) {
               let errorData: Record<string, unknown> = {}
               try {
                 errorData = await response.json().catch(() => ({}))
-                console.error("[v0] API error response:", errorData)
               } catch {
                 // Ignore
               }
@@ -666,21 +624,14 @@ Respond with only the JSON object, no markdown formatting.`
             }
 
             const data = await response.json()
-            console.log("[v0] API response parsed:", {
-              hasChoices: !!data.choices,
-              choiceCount: data.choices?.length || 0,
-            })
-
             const content = data.choices?.[0]?.message?.content
 
             if (!content) {
-              console.error("[v0] No content in API response")
               throw toAppError(new Error("Empty response from AI service"), {
                 operation: "generateMealPlan",
               })
             }
 
-            console.log("[v0] Received content, length:", content.length)
             const cleanedContent = content.replace(/```json\s*|\s*```/g, "").trim()
 
             let parsedResponse: MealPlanGenerationResponse
@@ -714,28 +665,9 @@ Respond with only the JSON object, no markdown formatting.`
           },
         })
 
-        // Get the response again (for parsing) - in a real implementation,
-        // we'd refactor to avoid this duplication
-        const requestBody = {
-          model: API_CONFIG.MODEL,
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-          ],
-          temperature: API_CONFIG.TEMPERATURE + 0.4,
-          max_tokens: API_CONFIG.MAX_TOKENS,
-        }
-
-        const response = await postAIChat(requestBody)
-
-        const data = await response.json()
-        const content = data.choices?.[0]?.message?.content
-        const cleanedContent = content.replace(/```json\s*|\s*```/g, "").trim()
-        const parsedResponse = JSON.parse(cleanedContent)
-
         const mealPlan = parseAIResponse(parsedResponse, settings)
 
-        setState(createSuccessState(mealPlan, state))
+        setState((prev) => createSuccessState(mealPlan, prev))
         savePlan(mealPlan)
         onSuccess?.(mealPlan)
       } catch (err) {
@@ -750,11 +682,11 @@ Respond with only the JSON object, no markdown formatting.`
           logError(appError)
         }
 
-        setState(createErrorState(appError, state))
+        setState((prev) => createErrorState(appError, prev))
         onError?.(appError)
       }
     },
-    [settings, state, onSuccess, onError, savePlan],
+    [settings, onSuccess, onError, savePlan],
   )
 
   const generateMealPlan = useCallback(
@@ -808,7 +740,7 @@ Respond with only the JSON object, no markdown formatting.`
         totalMacros: { protein: totalProtein, carbs: totalCarbs, fat: totalFat },
       }
 
-      setState(createSuccessState(updatedPlan, state))
+      setState((prev) => createSuccessState(updatedPlan, prev))
       savePlan(updatedPlan)
     },
     [state, savePlan],
@@ -846,7 +778,7 @@ Respond with only the JSON object, no markdown formatting.`
         totalMacros: { protein: totalProtein, carbs: totalCarbs, fat: totalFat },
       }
 
-      setState(createSuccessState(updatedPlan, state))
+      setState((prev) => createSuccessState(updatedPlan, prev))
       savePlan(updatedPlan)
     },
     [state, savePlan],
@@ -909,14 +841,14 @@ Respond with only the JSON object, no markdown formatting.`
       const newPlan = {
         ...template.plan,
         id: uuidv4(),
-        date: new Date().toISOString().split("T")[0] ?? new Date().toISOString(),
+        date: getTodayStr(),
         createdAt: new Date().toISOString(),
       }
 
-      setState(createSuccessState(newPlan, state))
+      setState((prev) => createSuccessState(newPlan, prev))
       savePlan(newPlan)
     },
-    [templates, state, savePlan],
+    [templates, savePlan],
   )
 
   const deleteTemplate = useCallback(

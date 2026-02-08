@@ -1,64 +1,84 @@
 export function createTimestampFromLocal(dateStr: string): string {
-    // dateStr is expected to be "YYYY-MM-DD"
-    // We construct a date that falls on this local date, preserving current time if possible.
+  // dateStr is expected to be "YYYY-MM-DD"
+  // We construct a date that falls on this local date, preserving current time if possible.
+  if (!dateStr) return new Date().toISOString()
 
-    if (!dateStr) return new Date().toISOString();
+  const now = new Date()
+  const targetDate = parseDateKey(dateStr)
 
-    const now = new Date();
-    const [year, month, day] = dateStr.split('-').map(Number);
-
-    // Create date object using local components
-    // Note: Month is 0-indexed in JS Date
-    const targetDate = new Date(year, month - 1, day, now.getHours(), now.getMinutes(), now.getSeconds());
-
-    return targetDate.toISOString();
+  targetDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds())
+  return targetDate.toISOString()
 }
 
 /**
- * Formats a Date object to YYYY-MM-DD
+ * Formats a Date object to YYYY-MM-DD using LOCAL calendar fields.
  */
 export function dateToKey(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
 }
 
 /**
- * Returns today's date in YYYY-MM-DD format (local time)
+ * Parse YYYY-MM-DD into a local Date at noon to avoid DST/UTC boundary issues.
+ */
+export function parseDateKey(dateStr: string): Date {
+  const [year, month, day] = dateStr.split("-").map(Number)
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return new Date()
+  }
+  return new Date(year, month - 1, day, 12, 0, 0, 0)
+}
+
+/**
+ * Returns today's date in YYYY-MM-DD format (local time).
  */
 export function getTodayStr(): string {
-    return dateToKey(new Date());
+  return dateToKey(new Date())
+}
+
+/**
+ * Convert a timestamp/string/date into a LOCAL YYYY-MM-DD date key.
+ */
+export function getLocalDateKeyFromTimestamp(timestamp: string | Date | number): string {
+  const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
+  if (Number.isNaN(date.getTime())) {
+    return getTodayStr()
+  }
+  return dateToKey(date)
+}
+
+/**
+ * Shift a YYYY-MM-DD key by +/- N days in local time.
+ */
+export function shiftDateKey(dateKey: string, deltaDays: number): string {
+  const base = parseDateKey(dateKey)
+  base.setDate(base.getDate() + deltaDays)
+  return dateToKey(base)
 }
 
 export const formatDateKey = (date: Date | string) => {
-    if (typeof date === 'string') return date;
-    return dateToKey(date);
-};
+  if (typeof date === "string") return date
+  return dateToKey(date)
+}
 
 export function formatDate(date: string, format: string): string {
-    if (!date) return "";
-    const [year, month, day] = date.split('-').map(Number);
-    const d = new Date(year, month - 1, day);
+  if (!date) return ""
+  const d = parseDateKey(date)
 
-    if (format === "weekday") {
-        const today = getTodayStr();
-        if (date === today) return "Today";
+  if (format === "weekday") {
+    const today = getTodayStr()
+    if (date === today) return "Today"
 
-        // Check yesterday
-        const y = new Date();
-        y.setDate(y.getDate() - 1);
-        const yesterday = `${y.getFullYear()}-${String(y.getMonth() + 1).padStart(2, '0')}-${String(y.getDate()).padStart(2, '0')}`;
-        if (date === yesterday) return "Yesterday";
+    const yesterday = shiftDateKey(today, -1)
+    if (date === yesterday) return "Yesterday"
 
-        // Check tomorrow
-        const t = new Date();
-        t.setDate(t.getDate() + 1);
-        const tomorrow = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-        if (date === tomorrow) return "Tomorrow";
+    const tomorrow = shiftDateKey(today, 1)
+    if (date === tomorrow) return "Tomorrow"
 
-        return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-    }
+    return d.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })
+  }
 
-    return d.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric" })
 }
