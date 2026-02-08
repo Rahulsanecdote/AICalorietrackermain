@@ -50,6 +50,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes("commonjsHelpers.js")) {
+            return "chunk-helpers"
+          }
+
           if (!id.includes("node_modules")) return
 
           const normalizedId = id.replace(/\\/g, "/")
