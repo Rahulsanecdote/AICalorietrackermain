@@ -45,7 +45,7 @@ const LifestyleDashboard = React.lazy(() => import("./components/lifestyle/Lifes
 const InsightsDashboard = React.lazy(() => import("./components/features/InsightsDashboard"))
 const ShoppingListView = React.lazy(() => import("./components/shopping/ShoppingListView"))
 const AnalyticsDashboard = React.lazy(() => import("./components/analytics/AnalyticsDashboard"))
-const CalorieDashboard = React.lazy(() => import("./components/CalorieDashboard"))
+const ProgressBreakdownCard = React.lazy(() => import("./components/tracker/ProgressBreakdownCard"))
 const MealPlanGenerator = React.lazy(() => import("./components/MealPlanGenerator"))
 
 
@@ -334,7 +334,7 @@ function AuthenticatedApp() {
                   <DashboardLoadingCard title="Loading dashboard" description="Calculating daily totals." />
                 }
               >
-                <CalorieDashboard
+                <ProgressBreakdownCard
                   totals={selectedDayTotals}
                   settings={settings}
                 />
