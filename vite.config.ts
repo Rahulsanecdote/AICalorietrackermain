@@ -52,10 +52,14 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes("node_modules")) return
 
+          const normalizedId = id.replace(/\\/g, "/")
+          const isReactCore =
+            /\/node_modules\/react(?:\/|$)/.test(normalizedId) ||
+            /\/node_modules\/react-dom(?:\/|$)/.test(normalizedId) ||
+            /\/node_modules\/scheduler(?:\/|$)/.test(normalizedId)
+
           if (
-            id.includes("node_modules/react") ||
-            id.includes("node_modules/react-dom") ||
-            id.includes("node_modules/scheduler")
+            isReactCore
           ) {
             return "react-vendor"
           }
