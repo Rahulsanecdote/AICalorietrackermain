@@ -64,6 +64,9 @@ node_modules/
 # Environment files
 *.env
 *.env.*
+
+# Local scratch repository used during experiments
+temp_repo/
 -e 
 # Environment files
 *.env
