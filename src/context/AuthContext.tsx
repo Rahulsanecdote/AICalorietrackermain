@@ -91,7 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } else {
           setUserId(session.user.id)
           setEmail(session.user.email ?? null)
-          await fetchRoles(session.user.id)
+          // Do not block app startup on roles query.
+          void fetchRoles(session.user.id)
         }
       } catch (err) {
         console.error("[auth] Error loading session:", err)
@@ -132,7 +133,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUserId(session.user.id)
       setEmail(session.user.email ?? null)
-      await fetchRoles(session.user.id)
+      // Keep auth state responsive even if roles query is slow.
+      void fetchRoles(session.user.id)
       if (mounted) setLoading(false)
     })
 
