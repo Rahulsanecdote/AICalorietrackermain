@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Edit2, Shuffle, Heart, ShoppingCart } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useFoodTranslation } from '../hooks/useFoodTranslation';
 import { FoodItem } from '../types';
 import { getMeasurementDisplay } from '../utils/foodMeasurements';
+import NumericSliderField from './ui/NumericSliderField';
 
 interface EditableFoodItemProps {
   item: FoodItem;
@@ -31,43 +32,22 @@ export default function EditableFoodItem({
   const { t } = useTranslation();
   const { translateFood } = useFoodTranslation();
   const [isEditing, setIsEditing] = useState(false);
-  const [valueInput, setValueInput] = useState('');
-  const inputRef = useRef<HTMLInputElement>(null);
-
-
-
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [isEditing]);
+  const [valueInput, setValueInput] = useState(item.weightGrams);
 
   const handleSubmit = () => {
-    const newValue = parseFloat(valueInput);
-    if (!isNaN(newValue) && newValue > 0) {
+    if (!isNaN(valueInput) && valueInput > 0) {
       // Input is already in grams, use directly
-      if (newValue !== item.weightGrams) {
-        onUpdateWeight(newValue);
+      if (valueInput !== item.weightGrams) {
+        onUpdateWeight(valueInput);
       }
     }
-    setValueInput('');
     setIsEditing(false);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleSubmit();
-    } else if (e.key === 'Escape') {
-      setValueInput('');
-      setIsEditing(false);
-    }
   };
 
   const handleClick = () => {
     setIsEditing(true);
     // When editing, show grams (what backend expects)
-    setValueInput(item.weightGrams.toString());
+    setValueInput(item.weightGrams);
   };
 
   const formatNumber = (num: number) => {
@@ -89,23 +69,25 @@ export default function EditableFoodItem({
           {/* Intuitive Measurement */}
           <div className="flex items-center gap-1">
             {isEditing ? (
-              <div className="flex items-center gap-1">
-                <input
-                  ref={inputRef}
-                  id={`food-value-${item.id}`}
-                  name={`food-value-${item.id}`}
-                  type="number"
-                  step="1"
-                  autoComplete="off"
-                  value={valueInput}
-                  onChange={(e) => setValueInput(e.target.value)}
-                  onBlur={handleSubmit}
-                  onKeyDown={handleKeyPress}
-                  className="w-16 px-2 py-1 text-sm border border-border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  min="1"
-                  max="1000"
-                />
-                <span className="text-xs text-muted-foreground">g</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-foreground">{formatNumber(valueInput)}g</span>
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="text-xs font-medium text-blue-600 hover:text-blue-700"
+                >
+                  Done
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValueInput(item.weightGrams);
+                    setIsEditing(false);
+                  }}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Cancel
+                </button>
               </div>
             ) : (
               <button
@@ -122,6 +104,26 @@ export default function EditableFoodItem({
           </div>
         </div>
       </div>
+
+      {isEditing && (
+        <div className="mt-3">
+          <NumericSliderField
+            id={`food-value-${item.id}`}
+            label="Adjust grams"
+            value={valueInput}
+            onChange={(value) => setValueInput(value)}
+            min={1}
+            max={1000}
+            step={1}
+            unit="g"
+            tone="blue"
+            minLabel="1 g"
+            maxLabel="1000 g"
+            description="Fine-tune serving size with smooth drag and +/- controls."
+            className="bg-background/70"
+          />
+        </div>
+      )}
 
       {/* Nutrition Info */}
       <div className="mt-2 flex items-center justify-between">

@@ -16,6 +16,7 @@ import {
 } from 'chart.js';
 import { Plus, Trash2, TrendingDown, TrendingUp, Activity } from 'lucide-react';
 import { getTodayStr, parseDateKey } from '../../utils/dateHelpers';
+import NumericSliderField from '../ui/NumericSliderField';
 
 ChartJS.register(
   CategoryScale,
@@ -38,15 +39,15 @@ interface WeightTrackerProps {
 export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntry }: WeightTrackerProps) {
   const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
-  const [weight, setWeight] = useState('');
+  const [weight, setWeight] = useState(70);
   const [date, setDate] = useState(getTodayStr());
   const [note, setNote] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (weight && date) {
-      onAddEntry(parseFloat(weight), date, note);
-      setWeight('');
+    if (weight > 0 && date) {
+      onAddEntry(weight, date, note);
+      setWeight(70);
       setNote('');
       setShowModal(false);
     }
@@ -229,20 +230,18 @@ export default function WeightTracker({ entries, stats, onAddEntry, onDeleteEntr
             <h3 className="text-lg font-semibold text-foreground mb-4">{t('analytics.logWeight')}</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="weight-input" className="block text-sm font-medium text-foreground mb-1">{t('analytics.weightKg') || 'Weight (kg)'}</label>
-                <input
+                <NumericSliderField
                   id="weight-input"
-                  name="weight-input"
-                  type="number"
-                  autoComplete="off"
+                  label={t('analytics.weightKg') || 'Weight (kg)'}
                   value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  step="0.1"
-                  min="0"
-                  max="500"
-                  required
-                  className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground"
-                  placeholder="70.5"
+                  onChange={(value) => setWeight(value)}
+                  step={0.1}
+                  min={30}
+                  max={250}
+                  unit="kg"
+                  tone="primary"
+                  minLabel="30 kg"
+                  maxLabel="250 kg"
                 />
               </div>
               <div>

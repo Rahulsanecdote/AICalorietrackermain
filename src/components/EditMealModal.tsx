@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Save } from 'lucide-react';
 import { Meal, MealCategory } from '../types';
+import NumericSliderField from './ui/NumericSliderField';
 
 interface EditMealModalProps {
   isOpen: boolean;
@@ -37,8 +38,8 @@ export default function EditMealModal({
     onClose();
   };
 
-  const handleNutritionChange = (field: string, value: string) => {
-    const numValue = parseInt(value) || 0;
+  const handleNutritionChange = (field: keyof Meal['nutrition'], value: number) => {
+    const numValue = Math.max(0, Math.round(value));
     setLocalMeal({
       ...localMeal,
       nutrition: {
@@ -142,66 +143,50 @@ export default function EditMealModal({
               Nutritional Values
             </h3>
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="edit-meal-calories" className="block text-sm text-muted-foreground mb-1">
-                  Calories
-                </label>
-                <input
-                  id="edit-meal-calories"
-                  name="edit-meal-calories"
-                  type="number"
-                  autoComplete="off"
-                  value={localMeal.nutrition.calories}
-                  onChange={(e) => handleNutritionChange('calories', e.target.value)}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-meal-protein" className="block text-sm text-muted-foreground mb-1">
-                  Protein (g)
-                </label>
-                <input
-                  id="edit-meal-protein"
-                  name="edit-meal-protein"
-                  type="number"
-                  autoComplete="off"
-                  value={localMeal.nutrition.protein_g}
-                  onChange={(e) => handleNutritionChange('protein_g', e.target.value)}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-meal-carbs" className="block text-sm text-muted-foreground mb-1">
-                  Carbs (g)
-                </label>
-                <input
-                  id="edit-meal-carbs"
-                  name="edit-meal-carbs"
-                  type="number"
-                  autoComplete="off"
-                  value={localMeal.nutrition.carbs_g}
-                  onChange={(e) => handleNutritionChange('carbs_g', e.target.value)}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  min="0"
-                />
-              </div>
-              <div>
-                <label htmlFor="edit-meal-fat" className="block text-sm text-muted-foreground mb-1">
-                  Fat (g)
-                </label>
-                <input
-                  id="edit-meal-fat"
-                  name="edit-meal-fat"
-                  type="number"
-                  autoComplete="off"
-                  value={localMeal.nutrition.fat_g}
-                  onChange={(e) => handleNutritionChange('fat_g', e.target.value)}
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  min="0"
-                />
-              </div>
+              <NumericSliderField
+                id="edit-meal-calories"
+                label="Calories"
+                value={localMeal.nutrition.calories}
+                min={0}
+                max={2500}
+                step={5}
+                unit="cal"
+                tone="primary"
+                onChange={(value) => handleNutritionChange('calories', value)}
+              />
+              <NumericSliderField
+                id="edit-meal-protein"
+                label="Protein"
+                value={localMeal.nutrition.protein_g}
+                min={0}
+                max={300}
+                step={1}
+                unit="g"
+                tone="blue"
+                onChange={(value) => handleNutritionChange('protein_g', value)}
+              />
+              <NumericSliderField
+                id="edit-meal-carbs"
+                label="Carbs"
+                value={localMeal.nutrition.carbs_g}
+                min={0}
+                max={400}
+                step={1}
+                unit="g"
+                tone="amber"
+                onChange={(value) => handleNutritionChange('carbs_g', value)}
+              />
+              <NumericSliderField
+                id="edit-meal-fat"
+                label="Fat"
+                value={localMeal.nutrition.fat_g}
+                min={0}
+                max={250}
+                step={1}
+                unit="g"
+                tone="red"
+                onChange={(value) => handleNutritionChange('fat_g', value)}
+              />
             </div>
           </div>
         </div>

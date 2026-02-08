@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Save, Settings, Target, User, Globe } from 'lucide-react';
 import { UserSettings } from '../types';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
+import NumericSliderField from './ui/NumericSliderField';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -99,118 +100,81 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
           <div className="p-4 overflow-y-auto max-h-[60vh]">
             {activeTab === 'goals' && (
               <div className="space-y-4">
-                <div>
-                  <label htmlFor="dailyCalorieGoal" className="block text-sm font-medium text-foreground mb-2">
-                    Daily Calorie Goal
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="dailyCalorieGoal"
-                      name="dailyCalorieGoal"
-                      type="number"
-                      value={localSettings.dailyCalorieGoal}
-                      onChange={(e) =>
-                        setLocalSettings({
-                          ...localSettings,
-                          dailyCalorieGoal: parseInt(e.target.value) || 2000,
-                        })
-                      }
-                      className="w-full px-4 py-2 pr-12 bg-card dark:bg-card border border-input rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-foreground placeholder:text-muted-foreground"
-                      placeholder="2000"
-                      min="500"
-                      max="10000"
-                    />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      cal
-                    </span>
-                  </div>
-                </div>
+                <NumericSliderField
+                  id="dailyCalorieGoal"
+                  label="Daily Calorie Goal"
+                  value={localSettings.dailyCalorieGoal}
+                  min={500}
+                  max={10000}
+                  step={10}
+                  unit="cal"
+                  tone="primary"
+                  minLabel="500 cal"
+                  maxLabel="10000 cal"
+                  description="Use the slider for fast adjustments, or +/- buttons for precise tuning."
+                  onChange={(value) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      dailyCalorieGoal: value,
+                    })
+                  }
+                />
 
                 <div className="pt-4 border-t border-border">
                   <h3 className="text-sm font-medium text-foreground mb-3">
                     Macronutrient Goals
                   </h3>
                   <div className="space-y-3">
-                    <div>
-                      <label htmlFor="proteinGoal" className="block text-sm text-muted-foreground mb-1">
-                        Protein Goal
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="proteinGoal"
-                          name="proteinGoal"
-                          type="number"
-                          value={localSettings.proteinGoal_g}
-                          onChange={(e) =>
-                            setLocalSettings({
-                              ...localSettings,
-                              proteinGoal_g: parseInt(e.target.value) || 150,
-                            })
-                          }
-                          className="w-full px-4 py-2 pr-12 bg-card dark:bg-card border border-input rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-foreground"
-                          placeholder="150"
-                          min="0"
-                          max="500"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          g
-                        </span>
-                      </div>
-                    </div>
+                    <NumericSliderField
+                      id="proteinGoal"
+                      label="Protein Goal"
+                      value={localSettings.proteinGoal_g}
+                      min={0}
+                      max={500}
+                      step={1}
+                      unit="g"
+                      tone="blue"
+                      onChange={(value) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          proteinGoal_g: value,
+                        })
+                      }
+                    />
 
-                    <div>
-                      <label htmlFor="carbsGoal" className="block text-sm text-muted-foreground mb-1">
-                        Carbs Goal
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="carbsGoal"
-                          name="carbsGoal"
-                          type="number"
-                          value={localSettings.carbsGoal_g}
-                          onChange={(e) =>
-                            setLocalSettings({
-                              ...localSettings,
-                              carbsGoal_g: parseInt(e.target.value) || 250,
-                            })
-                          }
-                          className="w-full px-4 py-2 pr-12 bg-card dark:bg-card border border-input rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent text-foreground"
-                          placeholder="250"
-                          min="0"
-                          max="1000"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          g
-                        </span>
-                      </div>
-                    </div>
+                    <NumericSliderField
+                      id="carbsGoal"
+                      label="Carbs Goal"
+                      value={localSettings.carbsGoal_g}
+                      min={0}
+                      max={1000}
+                      step={1}
+                      unit="g"
+                      tone="amber"
+                      onChange={(value) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          carbsGoal_g: value,
+                        })
+                      }
+                    />
 
-                    <div>
-                      <label htmlFor="fatGoal" className="block text-sm text-muted-foreground mb-1">
-                        Fat Goal
-                      </label>
-                      <div className="relative">
-                        <input
-                          id="fatGoal"
-                          name="fatGoal"
-                          type="number"
-                          value={localSettings.fatGoal_g}
-                          onChange={(e) =>
-                            setLocalSettings({
-                              ...localSettings,
-                              fatGoal_g: parseInt(e.target.value) || 65,
-                            })
-                          }
-                          className="w-full px-4 py-2 pr-12 bg-card dark:bg-card border border-input rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-foreground"
-                          placeholder="65"
-                          min="0"
-                          max="300"
-                        />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                          g
-                        </span>
-                      </div>
-                    </div>
+                    <NumericSliderField
+                      id="fatGoal"
+                      label="Fat Goal"
+                      value={localSettings.fatGoal_g}
+                      min={0}
+                      max={300}
+                      step={1}
+                      unit="g"
+                      tone="red"
+                      onChange={(value) =>
+                        setLocalSettings({
+                          ...localSettings,
+                          fatGoal_g: value,
+                        })
+                      }
+                    />
                   </div>
                 </div>
               </div>
@@ -219,73 +183,111 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
             {activeTab === 'profile' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="age" className="block text-sm font-medium text-foreground mb-2">
-                      Age
-                    </label>
-                    <input
-                      id="age"
-                      name="age"
-                      type="number"
-                      value={localSettings.age || ''}
-                      onChange={(e) =>
-                        setLocalSettings({
-                          ...localSettings,
-                          age: parseInt(e.target.value) || undefined,
-                        })
-                      }
-                      className="w-full px-4 py-2 bg-card dark:bg-card border border-border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-foreground"
-                      placeholder="30"
-                      min="10"
-                      max="100"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="weight" className="block text-sm font-medium text-foreground mb-2">
-                      Weight (kg)
-                    </label>
-                    <input
-                      id="weight"
-                      name="weight"
-                      type="number"
-                      value={localSettings.weight || ''}
-                      onChange={(e) =>
-                        setLocalSettings({
-                          ...localSettings,
-                          weight: parseFloat(e.target.value) || undefined,
-                        })
-                      }
-                      className="w-full px-4 py-2 bg-card dark:bg-card border border-border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-foreground"
-                      placeholder="70"
-                      min="30"
-                      max="300"
-                      step="0.1"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="height" className="block text-sm font-medium text-foreground mb-2">
-                    Height (cm)
-                  </label>
-                  <input
-                    id="height"
-                    name="height"
-                    type="number"
-                    value={localSettings.height || ''}
-                    onChange={(e) =>
+                  <NumericSliderField
+                    id="age"
+                    label="Age"
+                    value={localSettings.age ?? 30}
+                    min={10}
+                    max={100}
+                    step={1}
+                    unit="yrs"
+                    tone="primary"
+                    onChange={(value) =>
                       setLocalSettings({
                         ...localSettings,
-                        height: parseInt(e.target.value) || undefined,
+                        age: value,
                       })
                     }
-                    className="w-full px-4 py-2 bg-card dark:bg-card border border-border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-foreground"
-                    placeholder="175"
-                    min="100"
-                    max="250"
+                    actionSlot={
+                      localSettings.age !== undefined ? (
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                          onClick={() =>
+                            setLocalSettings({
+                              ...localSettings,
+                              age: undefined,
+                            })
+                          }
+                        >
+                          Clear age
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Age is currently optional.</span>
+                      )
+                    }
+                  />
+
+                  <NumericSliderField
+                    id="weight"
+                    label="Weight"
+                    value={localSettings.weight ?? 70}
+                    min={30}
+                    max={300}
+                    step={0.1}
+                    unit="kg"
+                    tone="primary"
+                    onChange={(value) =>
+                      setLocalSettings({
+                        ...localSettings,
+                        weight: value,
+                      })
+                    }
+                    actionSlot={
+                      localSettings.weight !== undefined ? (
+                        <button
+                          type="button"
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                          onClick={() =>
+                            setLocalSettings({
+                              ...localSettings,
+                              weight: undefined,
+                            })
+                          }
+                        >
+                          Clear weight
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Weight is currently optional.</span>
+                      )
+                    }
                   />
                 </div>
+
+                <NumericSliderField
+                  id="height"
+                  label="Height"
+                  value={localSettings.height ?? 175}
+                  min={100}
+                  max={250}
+                  step={1}
+                  unit="cm"
+                  tone="primary"
+                  onChange={(value) =>
+                    setLocalSettings({
+                      ...localSettings,
+                      height: value,
+                    })
+                  }
+                  actionSlot={
+                    localSettings.height !== undefined ? (
+                      <button
+                        type="button"
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                        onClick={() =>
+                          setLocalSettings({
+                            ...localSettings,
+                            height: undefined,
+                          })
+                        }
+                      >
+                        Clear height
+                      </button>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Height is currently optional.</span>
+                    )
+                  }
+                />
 
                 <div>
                   <label htmlFor="activityLevel" className="block text-sm font-medium text-foreground mb-2">

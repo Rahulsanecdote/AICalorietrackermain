@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useWater, WATER_PRESETS } from '../../hooks/useWater';
 import { Droplets, Plus, Trophy, Trash2, Edit2 } from 'lucide-react';
+import NumericSliderField from '../ui/NumericSliderField';
 
 interface WaterTrackerProps {
   date: string;
@@ -136,16 +137,19 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
           {showCustom ? 'Hide custom amount' : 'Add custom amount'}
         </button>
         {showCustom && (
-          <div className="flex gap-2 mt-2">
-            <input
+          <div className="space-y-2 mt-2">
+            <NumericSliderField
               id="water-custom-amount"
-              name="water-custom-amount"
-              type="number"
-              autoComplete="off"
+              label="Custom amount"
               value={customAmount}
-              onChange={(e) => setCustomAmount(Number(e.target.value))}
-              className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-              placeholder="Amount (ml)"
+              onChange={(value) => setCustomAmount(value)}
+              min={50}
+              max={1500}
+              step={10}
+              unit="ml"
+              tone="blue"
+              minLabel="50 ml"
+              maxLabel="1500 ml"
             />
             <button
               onClick={() => {
@@ -155,7 +159,7 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
                   setShowCustom(false);
                 }
               }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
             >
               Add
             </button>
@@ -176,28 +180,35 @@ export default function WaterTracker({ date, onDataChange }: WaterTrackerProps) 
                 <Droplets className="w-4 h-4 text-blue-500" />
                 <div className="flex-1">
                   {editingId === entry.id ? (
-                    <div className="flex items-center gap-2">
-                      <input
+                    <div className="w-full space-y-2">
+                      <NumericSliderField
                         id={`water-edit-${entry.id}`}
-                        name={`water-edit-${entry.id}`}
-                        type="number"
-                        autoComplete="off"
+                        label="Adjust amount"
                         value={editAmount}
-                        onChange={(e) => setEditAmount(Number(e.target.value))}
-                        className="w-20 px-2 py-1 text-sm border border-border rounded"
+                        onChange={(value) => setEditAmount(value)}
+                        min={50}
+                        max={1500}
+                        step={10}
+                        unit="ml"
+                        tone="blue"
+                        minLabel="50 ml"
+                        maxLabel="1500 ml"
+                        className="bg-background/70 p-2.5"
                       />
-                      <button
-                        onClick={saveEdit}
-                        className="text-xs text-blue-600 font-medium"
-                      >
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className="text-xs text-muted-foreground"
-                      >
-                        Cancel
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={saveEdit}
+                          className="text-xs text-blue-600 font-medium"
+                        >
+                          Save
+                        </button>
+                        <button
+                          onClick={() => setEditingId(null)}
+                          className="text-xs text-muted-foreground"
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <>

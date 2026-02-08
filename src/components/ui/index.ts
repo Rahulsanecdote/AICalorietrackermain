@@ -5,3 +5,4 @@ export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export { OnlineStatusBar } from './OnlineStatusBar';
 export { DebugTools } from './DebugTools';
+export { default as NumericSliderField } from './NumericSliderField';

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useExercise } from '../../hooks/useExercise';
 import { calculateCaloriesBurned } from '../../hooks/useExercise';
 import { Flame, Plus, Trash2, Timer, X } from 'lucide-react';
+import NumericSliderField from '../ui/NumericSliderField';
 
 interface ExerciseLoggerProps {
   date: string;
@@ -135,27 +136,21 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
           </div>
 
           {/* Duration */}
-          <div className="mb-3">
-            <label htmlFor="exercise-duration" className="block text-sm text-muted-foreground mb-1">
-              Duration: {duration} min
-            </label>
-            <input
-              id="exercise-duration"
-              name="exercise-duration"
-              type="range"
-              autoComplete="off"
-              min="5"
-              max="180"
-              step="5"
-              value={duration}
-              onChange={(e) => setDuration(Number(e.target.value))}
-              className="w-full h-2 bg-accent rounded-lg appearance-none cursor-pointer"
-            />
-            <div className="flex justify-between text-xs text-muted-foreground mt-1">
-              <span>5 min</span>
-              <span>180 min</span>
-            </div>
-          </div>
+          <NumericSliderField
+            id="exercise-duration"
+            label="Duration"
+            value={duration}
+            min={5}
+            max={180}
+            step={5}
+            unit="min"
+            tone="red"
+            minLabel="5 min"
+            maxLabel="180 min"
+            description="Smoothly dial workout duration with drag and precision buttons."
+            onChange={(value) => setDuration(value)}
+            className="mb-3"
+          />
 
           {/* Estimated Calories */}
           <div className="mb-3 p-3 bg-card rounded-lg border border-border">
