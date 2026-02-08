@@ -12,9 +12,10 @@ import { Toaster } from "sonner" // ✅ Add this import (or from wherever your t
 import { useApp } from "./context/AppContext"
 import { useAuth } from "./context/AuthContext"
 import useNutritionAI from "./hooks/useNutritionAI"
+import useMealPlanner from "./hooks/useMealPlanner"
 import { useShoppingList } from "./hooks/useShoppingList"
 import { useFavorites } from "./hooks/useFavorites"
-import type { Meal, UserSettings, MealCategory, ActiveView, PantryInputData } from "./types"
+import type { Meal, UserSettings, MealCategory, ActiveView } from "./types"
 import type { Recipe } from "./types/recipes"
 import type { VoiceDetectedFood } from "./types/ai"
 import { createTimestampFromLocal, formatDate, formatDateKey } from "./utils/dateHelpers"
@@ -257,6 +258,24 @@ function AuthenticatedApp() {
     }
   }
 
+  const {
+    currentPlan,
+    templates,
+    userPantry,
+    isGenerating,
+    error: mealPlannerError,
+    generateMealPlan,
+    generateMealPlanFromPantry,
+    savePantry,
+    regenerateMealPlan,
+    saveTemplate,
+    loadTemplate,
+    clearPlan,
+    updateFoodItem,
+    addMealToLog,
+    swapFoodItem,
+  } = useMealPlanner(settings, handleAddMeal)
+
   // Test API handler for DebugTools
   const testAPI = async () => {
     try {
@@ -268,17 +287,8 @@ function AuthenticatedApp() {
     }
   }
 
-  // Placeholder handlers for MealPlanGenerator
-  const generateMealPlan = async () => { notifyInfo("Meal planning coming soon") }
-  const generateMealPlanFromPantry = async () => { notifyInfo("Pantry planning coming soon") }
-  const savePantry = async (pantry: PantryInputData, saveAsDefault: boolean) => { console.log('Saving pantry', pantry, saveAsDefault) }
-  const regenerateMealPlan = async () => { notifyInfo("Regenerating plan...") }
-  const saveTemplate = async () => { }
-  const loadTemplate = async () => { }
-  const clearPlan = () => { }
   const isFoodItemFavorite = (id: string) => isFavorite(id)
   const isItemInListByName = (name: string) => shoppingListItems.some((i: { name: string }) => i.name === name)
-  const swapFoodItem = () => { notifyInfo("Food swap coming soon") }
 
   // Effect to sync AI hook error to local state if needed
   useEffect(() => {
@@ -352,11 +362,11 @@ function AuthenticatedApp() {
               >
                 <MealPlanGenerator
                   settings={settings}
-                  currentPlan={null}
-                  templates={[]}
-                  userPantry={settings.defaultPantry || null}
-                  isGenerating={false}
-                  error={null}
+                  currentPlan={currentPlan}
+                  templates={templates}
+                  userPantry={userPantry ?? settings.defaultPantry ?? null}
+                  isGenerating={isGenerating}
+                  error={mealPlannerError ? mealPlannerError.userMessage : null}
                   onGeneratePlan={generateMealPlan}
                   onGeneratePlanFromPantry={generateMealPlanFromPantry}
                   onSavePantry={savePantry}
@@ -364,6 +374,8 @@ function AuthenticatedApp() {
                   onSaveTemplate={saveTemplate}
                   onLoadTemplate={loadTemplate}
                   onClearPlan={clearPlan}
+                  onUpdateFoodItem={updateFoodItem}
+                  onAddMealToLog={addMealToLog}
                   onGenerateShoppingList={handleGenerateShoppingList}
                   onGenerateMealPrep={handleGenerateMealPrep}
                   onAddToShoppingList={(item) => {

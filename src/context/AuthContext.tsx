@@ -119,6 +119,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mounted) return
+      sessionResolved = true
+      if (slowSessionTimer) clearTimeout(slowSessionTimer)
+      if (timeoutWarningTimer) clearTimeout(timeoutWarningTimer)
       if (!session?.user) {
         setUserId(null)
         setEmail(null)
