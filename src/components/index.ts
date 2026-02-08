@@ -1,4 +1,5 @@
 export { default as DateNavigator } from './DateNavigator';
+export { default as TrackerDatePicker } from './TrackerDatePicker';
 export { default as EditMealModal } from './EditMealModal';
 export { default as Header } from './Header';
 export { default as MealCard } from './MealCard';

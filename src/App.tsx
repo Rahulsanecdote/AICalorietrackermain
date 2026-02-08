@@ -1,9 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, Suspense } from "react"
-import {
-  Calendar,
-} from "lucide-react"
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from "react"
 import { useTranslation } from "react-i18next"
 import { v4 as uuidv4 } from "uuid"
 import { Toaster } from "sonner" // ✅ Add this import (or from wherever your toast library is)
@@ -11,14 +8,15 @@ import { Toaster } from "sonner" // ✅ Add this import (or from wherever your t
 // import { Toaster } from "react-hot-toast"
 import { useApp } from "./context/AppContext"
 import { useAuth } from "./context/AuthContext"
+import { useDate } from "./context/DateContext"
 import useNutritionAI from "./hooks/useNutritionAI"
 import useMealPlanner from "./hooks/useMealPlanner"
 import { useShoppingList } from "./hooks/useShoppingList"
 import { useFavorites } from "./hooks/useFavorites"
-import type { Meal, UserSettings, MealCategory, ActiveView } from "./types"
+import type { Meal, UserSettings, MealCategory, ActiveView, DailyTotals } from "./types"
 import type { Recipe } from "./types/recipes"
 import type { VoiceDetectedFood } from "./types/ai"
-import { createTimestampFromLocal, formatDate, formatDateKey } from "./utils/dateHelpers"
+import { createTimestampFromLocal, formatDate, getTodayStr } from "./utils/dateHelpers"
 import {
   EditMealModal,
   Header,
@@ -32,6 +30,7 @@ import {
   VoiceLoggerModal,
   FoodVersusCard,
   NutriBotWidget,
+  TrackerDatePicker,
 } from "./components"
 import { FeatureErrorBoundary, RootErrorBoundary, OnlineStatusBar } from "./components/system"
 import { ErrorBanner } from "./components/ui/ErrorBanner"
@@ -71,9 +70,10 @@ function AuthenticatedApp() {
   
   const {
     meals,
-    dailyTotals,
     addMealDirectly,
+    updateMeal,
     deleteMeal,
+    getMealsForDate,
     settings,
     updateSettings,
   } = useApp()
@@ -101,9 +101,9 @@ function AuthenticatedApp() {
   
   const { isOnline } = useOnlineStatusContext()
   console.log("[AuthenticatedApp] useOnlineStatusContext OK, isOnline:", isOnline)
+  const { selectedDate, setSelectedDate } = useDate()
 
   // View state
-  const [currentDate, setCurrentDate] = useState(new Date())
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isUtilityOpen, setIsUtilityOpen] = useState(false)
   const [isVoiceOpen, setIsVoiceOpen] = useState(false)
@@ -112,31 +112,38 @@ function AuthenticatedApp() {
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null)
   const [activeView, setActiveView] = useState<ActiveView>("tracker")
   const [editingMeal, setEditingMeal] = useState<Meal | null>(null)
+  const [isDateLoading, setIsDateLoading] = useState(false)
 
   // Local AI error state
   const [aiError, setAiError] = useState<string | null>(null)
 
-
-  // Filter meals for current date
-  const currentDayMeals = meals.filter(
-    (meal) => formatDateKey(new Date(meal.timestamp)) === formatDateKey(currentDate)
+  const currentDayMeals = useMemo(() => getMealsForDate(selectedDate), [getMealsForDate, selectedDate])
+  const selectedDayTotals = useMemo<DailyTotals>(
+    () =>
+      currentDayMeals.reduce<DailyTotals>(
+        (totals, meal) => ({
+          calories: totals.calories + meal.nutrition.calories,
+          protein_g: totals.protein_g + meal.nutrition.protein_g,
+          carbs_g: totals.carbs_g + meal.nutrition.carbs_g,
+          fat_g: totals.fat_g + meal.nutrition.fat_g,
+        }),
+        { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
+      ),
+    [currentDayMeals],
   )
+  const selectedDateLabel = formatDate(selectedDate, "weekday")
+  const selectedDateIsToday = selectedDate === getTodayStr()
 
-  const goToPreviousDay = () => {
-    const newDate = new Date(currentDate)
-    newDate.setDate(newDate.getDate() - 1)
-    setCurrentDate(newDate)
-  }
-
-  const goToNextDay = () => {
-    const newDate = new Date(currentDate)
-    newDate.setDate(newDate.getDate() + 1)
-    setCurrentDate(newDate)
-  }
-
-  const goToToday = () => {
-    setCurrentDate(new Date())
-  }
+  const handleDateChange = useCallback(
+    (nextDate: string) => {
+      if (nextDate === selectedDate) {
+        return
+      }
+      setIsDateLoading(true)
+      setSelectedDate(nextDate)
+    },
+    [selectedDate, setSelectedDate],
+  )
 
   const handleViewChange = (view: ActiveView) => {
     setActiveView(view)
@@ -154,7 +161,7 @@ function AuthenticatedApp() {
   }
 
   const handleSaveEditedMeal = (updatedMeal: Meal) => {
-    addMealDirectly(updatedMeal)
+    updateMeal(updatedMeal)
     setEditingMeal(null)
     notifySuccess("Meal updated")
   }
@@ -173,7 +180,7 @@ function AuthenticatedApp() {
       servingSize: meal.servingSize || "1 serving",
       category: meal.category || "snack",
       nutrition: meal.nutrition || { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
-      timestamp: createTimestampFromLocal(formatDateKey(currentDate)),
+      timestamp: createTimestampFromLocal(selectedDate),
     }))
 
     newMeals.forEach((meal) => addMealDirectly(meal))
@@ -194,7 +201,7 @@ function AuthenticatedApp() {
           carbs_g: food.macros.carbs_g,
           fat_g: food.macros.fat_g,
         },
-        timestamp: createTimestampFromLocal(formatDateKey(currentDate)),
+        timestamp: createTimestampFromLocal(selectedDate),
         category: 'snack'
       }
       addMealDirectly(newMeal)
@@ -215,9 +222,9 @@ function AuthenticatedApp() {
   }
 
   const handleGenerateShoppingList = () => {
-    generateListFromMeals(meals, formatDateKey(currentDate))
+    generateListFromMeals(meals, selectedDate)
     setActiveView("shopping")
-    notifySuccess("Shopping list generated from today's meals")
+    notifySuccess("Shopping list generated from selected date meals")
   }
 
   const handleGenerateMealPrep = () => {
@@ -246,7 +253,7 @@ function AuthenticatedApp() {
           carbs_g: Math.round(result.carbs_g),
           fat_g: Math.round(result.fat_g),
         },
-        timestamp: createTimestampFromLocal(formatDateKey(currentDate)),
+        timestamp: createTimestampFromLocal(selectedDate),
         category,
       }
 
@@ -312,34 +319,24 @@ function AuthenticatedApp() {
     return undefined
   }, [aiError])
 
+  useEffect(() => {
+    if (!isDateLoading) {
+      return undefined
+    }
+
+    const timer = window.setTimeout(() => {
+      setIsDateLoading(false)
+    }, 120)
+
+    return () => window.clearTimeout(timer)
+  }, [selectedDate, isDateLoading])
+
   const renderView = () => {
     switch (activeView) {
       case "tracker":
         return (
           <>
-            {/* Date Navigator */}
-            <div className="flex items-center justify-between bg-card rounded-xl p-3 mb-4 dark:bg-card">
-              <button
-                onClick={goToPreviousDay}
-                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
-              >
-                <Calendar className="w-5 h-5" />
-              </button>
-              <div className="text-center">
-                <button
-                  onClick={goToToday}
-                  className="font-semibold text-foreground dark:text-white hover:text-primary transition-colors"
-                >
-                  {formatDate(formatDateKey(currentDate), "weekday")}
-                </button>
-              </div>
-              <button
-                onClick={goToNextDay}
-                className="p-2 hover:bg-accent rounded-lg dark:hover:bg-gray-700"
-              >
-                <Calendar className="w-5 h-5" />
-              </button>
-            </div>
+            <TrackerDatePicker selectedDate={selectedDate} onDateChange={handleDateChange} isLoading={isDateLoading} />
 
             <FeatureErrorBoundary feature="calorie-dashboard">
               <Suspense
@@ -348,7 +345,7 @@ function AuthenticatedApp() {
                 }
               >
                 <CalorieDashboard
-                  totals={dailyTotals}
+                  totals={selectedDayTotals}
                   settings={settings}
                 />
               </Suspense>
@@ -418,13 +415,16 @@ function AuthenticatedApp() {
               onVoiceClick={() => setIsVoiceOpen(true)}
             />
 
-            {/* Today's Meals List */}
+            {/* Meals for Selected Date */}
             <div className="bg-card rounded-2xl shadow-sm p-6 border border-border">
               <h2 className="text-lg font-semibold text-foreground mb-4">
-                {t("meals.todaysMeals") || "Today's Meals"}
+                {selectedDateIsToday ? (t("meals.todaysMeals") || "Today's Meals") : `Meals for ${selectedDateLabel}`}
               </h2>
               <MealList
                 meals={currentDayMeals}
+                isLoading={isDateLoading}
+                emptyTitle="No meals logged for this day."
+                emptyDescription="No meals logged for this day."
                 onDelete={handleDeleteMeal}
                 onEdit={handleEditMeal}
                 onViewRecipe={handleViewRecipe}
@@ -462,7 +462,7 @@ function AuthenticatedApp() {
                 <DashboardLoadingCard title="Loading lifestyle dashboard" description="Syncing wellness data." />
               }
             >
-              <LifestyleDashboard date={formatDateKey(currentDate)} />
+              <LifestyleDashboard date={selectedDate} />
             </Suspense>
           </LifestyleBoundary>
         )
@@ -584,7 +584,7 @@ function AuthenticatedApp() {
         <UtilityPanel
           meals={meals}
           settings={settings}
-          dailyTotals={dailyTotals}
+          dailyTotals={selectedDayTotals}
           onImportMeals={handleImportMeals}
           isOpen={isUtilityOpen}
           onClose={() => setIsUtilityOpen(false)}

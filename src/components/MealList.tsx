@@ -1,7 +1,7 @@
 import { Meal } from '../types';
 import { Recipe } from '../types/recipes';
 import MealCard from './MealCard';
-import { UtensilsCrossed } from 'lucide-react';
+import { Loader2, UtensilsCrossed } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface MealListProps {
@@ -13,6 +13,9 @@ interface MealListProps {
   isFavorite?: (recipeId: string) => boolean;
   onAddToShoppingList?: (meal: Meal) => void;
   isInShoppingList?: (meal: Meal) => boolean;
+  isLoading?: boolean;
+  emptyTitle?: string;
+  emptyDescription?: string;
 }
 
 export default function MealList({ 
@@ -23,7 +26,10 @@ export default function MealList({
   onToggleFavorite,
   isFavorite = () => false,
   onAddToShoppingList,
-  isInShoppingList = () => false
+  isInShoppingList = () => false,
+  isLoading = false,
+  emptyTitle,
+  emptyDescription,
 }: MealListProps) {
   const { t } = useTranslation();
   const groupedMeals = meals.reduce((acc, meal) => {
@@ -42,14 +48,25 @@ export default function MealList({
     'snack',
   ];
 
+  if (isLoading) {
+    return (
+      <div className="bg-card rounded-2xl shadow-sm p-8 text-center">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-accent rounded-full mb-3">
+          <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
+        </div>
+        <p className="text-sm text-muted-foreground">Loading meals for the selected date...</p>
+      </div>
+    );
+  }
+
   if (meals.length === 0) {
     return (
       <div className="bg-card rounded-2xl shadow-sm p-8 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-accent rounded-full mb-4">
           <UtensilsCrossed className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground mb-2">{t('mealList.noMeals')}</h3>
-        <p className="text-muted-foreground">{t('mealList.startTracking')}</p>
+        <h3 className="text-lg font-semibold text-foreground mb-2">{emptyTitle || t('mealList.noMeals')}</h3>
+        <p className="text-muted-foreground">{emptyDescription || t('mealList.startTracking')}</p>
       </div>
     );
   }

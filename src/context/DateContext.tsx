@@ -1,9 +1,12 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import { dateToKey, getTodayStr } from '../utils/dateHelpers';
 
 type DateContextType = {
+  selectedDate: string;
   currentDate: string;
+  setSelectedDate: (date: string) => void;
   setCurrentDate: (date: string) => void;
   goToPreviousDay: () => void;
   goToNextDay: () => void;
@@ -11,8 +14,49 @@ type DateContextType = {
   formatDate: (date: string, format?: 'short' | 'long' | 'weekday') => string;
 };
 
+const DATE_STORAGE_KEY = 'nutriai_selected_date';
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseDateKey(dateKey: string): Date {
+  const [yearStr, monthStr, dayStr] = dateKey.split('-');
+  const year = Number(yearStr);
+  const month = Number(monthStr);
+  const day = Number(dayStr);
+
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return new Date();
+  }
+
+  // Use noon local time to avoid timezone boundary shifts.
+  return new Date(year, month - 1, day, 12, 0, 0, 0);
+}
+
+function isValidDateKey(dateKey: string): boolean {
+  if (!DATE_KEY_PATTERN.test(dateKey)) {
+    return false;
+  }
+
+  const parsed = parseDateKey(dateKey);
+  return !Number.isNaN(parsed.getTime());
+}
+
+function getInitialDateKey(): string {
+  if (typeof window === 'undefined') {
+    return getTodayStr();
+  }
+
+  const stored = window.localStorage.getItem(DATE_STORAGE_KEY);
+  if (stored && isValidDateKey(stored)) {
+    return stored;
+  }
+
+  return getTodayStr();
+}
+
 const initialContext: DateContextType = {
-  currentDate: new Date().toISOString().split('T')[0] ?? new Date().toISOString(),
+  selectedDate: getTodayStr(),
+  currentDate: getTodayStr(),
+  setSelectedDate: () => { },
   setCurrentDate: () => { },
   goToPreviousDay: () => { },
   goToNextDay: () => { },
@@ -23,36 +67,47 @@ const initialContext: DateContextType = {
 const DateContext = createContext<DateContextType>(initialContext);
 
 export function DateProvider({ children }: { children: ReactNode }) {
-  const [currentDate, setCurrentDate] = useState<string>(
-    new Date().toISOString().split('T')[0] ?? new Date().toISOString()
-  );
+  const [selectedDate, setSelectedDateState] = useState<string>(getInitialDateKey);
+
+  const setSelectedDate = useCallback((date: string) => {
+    if (!isValidDateKey(date)) {
+      return;
+    }
+    setSelectedDateState(date);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(DATE_STORAGE_KEY, selectedDate);
+    }
+  }, [selectedDate]);
 
   // Navigate to previous day
   const goToPreviousDay = useCallback(() => {
-    setCurrentDate((prev) => {
-      const date = new Date(prev);
+    setSelectedDateState((prev) => {
+      const date = parseDateKey(prev);
       date.setDate(date.getDate() - 1);
-      return date.toISOString().split('T')[0] ?? date.toISOString();
+      return dateToKey(date);
     });
   }, []);
 
   // Navigate to next day
   const goToNextDay = useCallback(() => {
-    setCurrentDate((prev) => {
-      const date = new Date(prev);
+    setSelectedDateState((prev) => {
+      const date = parseDateKey(prev);
       date.setDate(date.getDate() + 1);
-      return date.toISOString().split('T')[0] ?? date.toISOString();
+      return dateToKey(date);
     });
   }, []);
 
   // Reset to today
   const goToToday = useCallback(() => {
-    setCurrentDate(new Date().toISOString().split('T')[0] ?? new Date().toISOString());
+    setSelectedDateState(getTodayStr());
   }, []);
 
   // Format date for display
   const formatDate = useCallback((date: string, format: 'short' | 'long' | 'weekday' = 'short'): string => {
-    const d = new Date(date + 'T12:00:00'); // Use noon to avoid timezone issues
+    const d = parseDateKey(date); // Use noon to avoid timezone issues
 
     switch (format) {
       case 'long':
@@ -78,8 +133,10 @@ export function DateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: DateContextType = {
-    currentDate,
-    setCurrentDate,
+    selectedDate,
+    currentDate: selectedDate,
+    setSelectedDate,
+    setCurrentDate: setSelectedDate,
     goToPreviousDay,
     goToNextDay,
     goToToday,
