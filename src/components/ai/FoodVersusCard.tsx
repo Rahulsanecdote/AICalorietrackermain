@@ -1,7 +1,19 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { ArrowRightLeft, Grid3X3, X } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import {
+  ArrowRightLeft,
+  Grid3X3,
+  X,
+  Pencil,
+  Info,
+  Search,
+  Loader2,
+  AlertCircle,
+  TrendingUp,
+  Minus,
+  Sparkles,
+} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   Dialog,
@@ -12,6 +24,7 @@ import {
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { cn } from '../../lib/utils';
 import { PRESET_COMPARISONS } from '../../hooks/useFoodComparator';
+import { useNutritionLookup, createFoodFromLookup } from '../../hooks/useNutritionLookup';
 import { useFoodTranslation } from '../../hooks/useFoodTranslation';
 import { ComparisonFoodItem, ComparisonVerdict } from '../../types/ai';
 import { CatalogFood } from '../../data/foodCatalog';
@@ -696,4 +709,3 @@ function MacroBar({ label, valueA, valueB, unit }: MacroBarProps) {
     </div>
   );
 }
-
