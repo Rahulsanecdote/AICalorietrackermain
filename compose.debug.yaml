@@ -1,0 +1,6 @@
+services:
+  aicalorietrackermain:
+    image: aicalorietrackermain
+    build:
+      context: .
+      dockerfile: ./Dockerfile
