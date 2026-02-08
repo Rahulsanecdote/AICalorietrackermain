@@ -39,5 +39,9 @@
     "timeout": 120000,
     "workingDirectory": null,
     "defaultModel": "grok-4-latest"
+  },
+  "storage": {
+    "type": "file",
+    "operatingMode": "solo"
   }
 }
