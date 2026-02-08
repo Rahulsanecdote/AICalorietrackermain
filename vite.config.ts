@@ -74,13 +74,7 @@ export default defineConfig({
             id.includes("node_modules/react-remove-scroll-bar") ||
             id.includes("node_modules/react-style-singleton") ||
             id.includes("node_modules/use-sidecar") ||
-            id.includes("node_modules/aria-hidden") ||
-            id.includes("node_modules/@radix-ui/react-popper") ||
-            id.includes("node_modules/@radix-ui/react-menu") ||
-            id.includes("node_modules/@radix-ui/react-dropdown-menu") ||
-            id.includes("node_modules/@radix-ui/react-roving-focus") ||
-            id.includes("node_modules/@radix-ui/react-collection") ||
-            id.includes("node_modules/@radix-ui/react-arrow")
+            id.includes("node_modules/aria-hidden")
           ) {
             return "overlay-utils"
           }
