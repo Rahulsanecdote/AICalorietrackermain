@@ -119,7 +119,7 @@ export default function EditableFoodItem({
             tone="blue"
             minLabel="1 g"
             maxLabel="1000 g"
-            description="Fine-tune serving size with smooth drag and +/- controls."
+            description="Drag the grams value to fine-tune quickly, or tap it to enter an exact amount."
             className="bg-background/70"
           />
         </div>

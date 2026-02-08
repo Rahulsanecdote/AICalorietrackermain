@@ -111,7 +111,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                   tone="primary"
                   minLabel="500 cal"
                   maxLabel="10000 cal"
-                  description="Use the slider for fast adjustments, or +/- buttons for precise tuning."
+                  description="Drag the value directly for quick changes, or tap it to type an exact target."
                   onChange={(value) =>
                     setLocalSettings({
                       ...localSettings,

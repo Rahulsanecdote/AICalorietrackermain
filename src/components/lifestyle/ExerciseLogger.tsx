@@ -147,7 +147,7 @@ export default function ExerciseLogger({ date, weightKg = 70, onDataChange }: Ex
             tone="red"
             minLabel="5 min"
             maxLabel="180 min"
-            description="Smoothly dial workout duration with drag and precision buttons."
+            description="Drag the duration value for quick tuning, or tap it to enter an exact number."
             onChange={(value) => setDuration(value)}
             className="mb-3"
           />

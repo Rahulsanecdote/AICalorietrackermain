@@ -323,6 +323,54 @@
   touch-action: pan-y;
 }
 
+.numeric-value-chip {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  will-change: transform, box-shadow;
+  transition: transform 160ms ease, box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.numeric-value-chip:hover {
+  border-color: hsl(var(--border));
+  box-shadow: 0 8px 20px hsl(var(--foreground) / 0.09);
+}
+
+.numeric-value-chip:focus-visible {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow:
+    0 0 0 3px hsl(var(--ring) / 0.24),
+    0 8px 20px hsl(var(--foreground) / 0.1);
+}
+
+.numeric-value-chip-dragging {
+  cursor: grabbing;
+  transform: scale(1.03);
+  border-color: color-mix(in oklab, var(--slider-color), hsl(var(--border)) 45%);
+  box-shadow:
+    0 10px 22px hsl(var(--foreground) / 0.16),
+    0 0 0 4px color-mix(in oklab, var(--slider-color), transparent 78%);
+}
+
+.numeric-value-chip-affordance {
+  font-size: 0.65rem;
+  letter-spacing: -0.08em;
+  color: hsl(var(--muted-foreground));
+  opacity: 0.9;
+}
+
+.numeric-value-direct-input {
+  appearance: none;
+  -moz-appearance: textfield;
+}
+
+.numeric-value-direct-input::-webkit-outer-spin-button,
+.numeric-value-direct-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .numeric-slider-tone-primary {
   --slider-color: hsl(var(--primary));
 }
