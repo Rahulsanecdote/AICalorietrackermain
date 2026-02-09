@@ -95,6 +95,14 @@ export default defineConfig({
             return "charts"
           }
 
+          if (
+            id.includes("node_modules/framer-motion") ||
+            id.includes("node_modules/motion-dom") ||
+            id.includes("node_modules/motion-utils")
+          ) {
+            return "motion"
+          }
+
           if (id.includes("node_modules/@radix-ui")) {
             return "radix"
           }
