@@ -52,9 +52,11 @@ export function AssistantPromptPill({
     >
       <div
         className={cn(
-          "flex h-12 items-center gap-2 rounded-full border border-border/60 bg-background/70 px-2 shadow-lg backdrop-blur-md transition-all duration-200",
-          "w-[min(calc(100vw-1rem),18rem)] sm:w-[18rem]",
-          isExpanded && "w-[min(calc(100vw-1rem),22rem)] sm:w-[22rem]"
+          "relative flex h-11 items-center gap-2 rounded-full border border-border/60 bg-background/70 px-2 shadow-md backdrop-blur-md transition-all duration-200 will-change-transform",
+          "w-[min(calc(100vw-1rem),15rem)] sm:w-[15rem]",
+          "hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-xl",
+          "focus-within:-translate-y-0.5 focus-within:shadow-xl focus-within:ring-1 focus-within:ring-ring/40",
+          isExpanded && "h-12 w-[min(calc(100vw-1rem),20rem)] sm:w-[20rem]"
         )}
       >
         <button

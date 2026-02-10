@@ -443,6 +443,18 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .assistant-widget-overlay {
+    background: hsl(var(--background) / 0.62);
+  }
+
+  @supports ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+    .assistant-widget-overlay {
+      background: hsl(var(--background) / 0.42);
+      backdrop-filter: blur(8px) saturate(1.05);
+      -webkit-backdrop-filter: blur(8px) saturate(1.05);
+    }
+  }
 }
 
 .numeric-slider-track {

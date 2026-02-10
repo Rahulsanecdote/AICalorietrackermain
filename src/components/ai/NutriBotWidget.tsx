@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Button } from '../ui/button';
 import { AssistantPromptPill } from '../ui/assistant-prompt-pill';
 import { useNutriTutor, QUICK_PROMPTS } from '../../hooks/useNutriTutor';
@@ -11,8 +12,15 @@ export function NutriBotWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   const { session, status, error, sendMessage, clearSession, quickPrompts } = useNutriTutor();
+
+  const handleClose = useCallback(() => {
+    setIsOpen(false);
+    clearSession();
+  }, [clearSession]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -21,6 +29,36 @@ export function NutriBotWidget() {
   useEffect(() => {
     scrollToBottom();
   }, [session?.messages]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    inputRef.current?.focus();
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        handleClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [isOpen, handleClose]);
 
   const handleSend = async () => {
     if (!inputValue.trim() || status === 'processing') return;
@@ -50,140 +88,165 @@ export function NutriBotWidget() {
     }
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-    clearSession();
-  };
-
   return (
     <>
-      {/* Floating Button */}
+      {/* Launcher */}
       {!isOpen && (
         <AssistantPromptPill
           onOpenAssistant={handleOpenAssistant}
           onSubmitPrompt={handlePromptSubmit}
           disabled={status === 'processing'}
           placeholder="Ask NutriAI"
+          className="z-[60]"
         />
       )}
 
-      {/* Chat Widget */}
-      {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-card dark:bg-card rounded-2xl shadow-2xl border border-border border-border flex flex-col overflow-hidden">
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-card/20 rounded-full flex items-center justify-center">
-                <Bot className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold">NutriBot</h3>
-                <p className="text-xs text-white/80">Your Nutrition Assistant</p>
-              </div>
-            </div>
-            <button
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.button
+              type="button"
+              aria-label="Close NutriBot panel"
               onClick={handleClose}
-              className="p-1 hover:bg-card/20 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+              className="assistant-widget-overlay fixed inset-0 z-[70]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: prefersReducedMotion ? 0.12 : 0.2, ease: 'easeOut' }}
+            />
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {!session && (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 mx-auto mb-4 bg-indigo-100 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-8 h-8 text-primary" />
+            <motion.section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="nutribot-title"
+              tabIndex={-1}
+              className="fixed inset-x-3 bottom-4 z-[80] flex h-[min(33rem,calc(100vh-5rem))] flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-2xl sm:inset-x-auto sm:bottom-6 sm:right-6 sm:h-[min(36rem,calc(100vh-4rem))] sm:w-[22rem]"
+              initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 24, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.96 }}
+              transition={{
+                duration: prefersReducedMotion ? 0.12 : 0.24,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-3 text-white">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-card/20">
+                    <Bot className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 id="nutribot-title" className="font-semibold">NutriBot</h3>
+                    <p className="text-xs text-white/80">Your Nutrition Assistant</p>
+                  </div>
                 </div>
-                <h4 className="font-medium text-foreground dark:text-white mb-2">
-                  Welcome to NutriBot!
-                </h4>
-                <p className="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
-                  Ask me anything about nutrition, healthy eating, or food choices.
-                </p>
-                <div className="text-left">
-                  <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
-                    {QUICK_PROMPTS.slice(0, 3).map((prompt) => (
+                <button
+                  onClick={handleClose}
+                  className="rounded-lg p-1 transition-colors hover:bg-card/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80"
+                  aria-label="Close NutriBot"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 space-y-4 overflow-y-auto p-4">
+                {!session && (
+                  <div className="py-8 text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100">
+                      <Sparkles className="h-8 w-8 text-primary" />
+                    </div>
+                    <h4 className="mb-2 font-medium text-foreground dark:text-white">
+                      Welcome to NutriBot!
+                    </h4>
+                    <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
+                      Ask me anything about nutrition, healthy eating, or food choices.
+                    </p>
+                    <div className="text-left">
+                      <p className="mb-2 text-xs text-muted-foreground">Try asking:</p>
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {QUICK_PROMPTS.slice(0, 3).map((prompt) => (
+                          <button
+                            key={prompt.id}
+                            onClick={() => handleQuickPrompt(prompt.prompt)}
+                            className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs text-indigo-700 transition-colors hover:bg-indigo-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                          >
+                            {prompt.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {session?.messages
+                  .filter((m) => m.role !== 'system')
+                  .map((message) => (
+                    <MessageBubble key={message.id} message={message} />
+                  ))}
+
+                {status === 'processing' && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Thinking...</span>
+                  </div>
+                )}
+
+                {error && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+                    <p className="text-sm text-destructive">{error}</p>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Quick Prompts */}
+              {session && (
+                <div className="border-t border-border px-4 py-2">
+                  <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-2">
+                    {quickPrompts.slice(0, 5).map((prompt) => (
                       <button
                         key={prompt.id}
                         onClick={() => handleQuickPrompt(prompt.prompt)}
-                        className="text-xs px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full hover:bg-indigo-100 transition-colors"
+                        className="flex-shrink-0 rounded-full bg-accent px-3 py-1.5 text-xs text-foreground transition-colors hover:bg-indigo-100 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-card dark:text-muted-foreground dark:hover:bg-indigo-900/30 dark:hover:text-indigo-400"
                       >
                         {prompt.label}
                       </button>
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {session?.messages
-              .filter((m) => m.role !== 'system')
-              .map((message) => (
-                <MessageBubble key={message.id} message={message} />
-              ))}
-
-            {status === 'processing' && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Thinking...</span>
-              </div>
-            )}
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-destructive">{error}</p>
-              </div>
-            )}
-
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* Quick Prompts */}
-          {session && (
-            <div className="px-4 py-2 border-t border-border border-border">
-              <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                {quickPrompts.slice(0, 5).map((prompt) => (
-                  <button
-                    key={prompt.id}
-                    onClick={() => handleQuickPrompt(prompt.prompt)}
-                    className="flex-shrink-0 text-xs px-3 py-1.5 bg-accent dark:bg-card text-foreground dark:text-muted-foreground rounded-full hover:bg-indigo-100 dark:hover:bg-indigo-900/30 hover:text-indigo-700 dark:hover:text-indigo-400 transition-colors"
+              {/* Input */}
+              <div className="border-t border-border p-4">
+                <div className="flex gap-2">
+                  <input
+                    ref={inputRef}
+                    id="nutribot-input"
+                    name="nutribot-input"
+                    type="text"
+                    autoComplete="off"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="Ask about nutrition..."
+                    disabled={status === 'processing'}
+                    className="flex-1 rounded-full border border-border bg-card px-4 py-2 text-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-card dark:text-white"
+                  />
+                  <Button
+                    onClick={handleSend}
+                    disabled={!inputValue.trim() || status === 'processing'}
+                    className="rounded-full px-4"
                   >
-                    {prompt.label}
-                  </button>
-                ))}
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Input */}
-          <div className="p-4 border-t border-border border-border">
-            <div className="flex gap-2">
-              <input
-                id="nutribot-input"
-                name="nutribot-input"
-                type="text"
-                autoComplete="off"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder="Ask about nutrition..."
-                disabled={status === 'processing'}
-                className="flex-1 px-4 py-2 border border-border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-card dark:bg-card text-foreground dark:text-white"
-              />
-              <Button
-                onClick={handleSend}
-                disabled={!inputValue.trim() || status === 'processing'}
-                className="rounded-full px-4"
-              >
-                <Send className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.section>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
