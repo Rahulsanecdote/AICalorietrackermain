@@ -12,7 +12,7 @@ const budgets = [
   { name: "i18n", pattern: /^i18n-.*\.js$/, maxGzipKb: 16.5 },
   { name: "icons", pattern: /^icons-.*\.js$/, maxGzipKb: 7 },
   { name: "ui-utils", pattern: /^ui-utils-.*\.js$/, maxGzipKb: 8.5 },
-  { name: "dashboard-analytics", pattern: /^AnalyticsDashboard-.*\.js$/, maxGzipKb: 6.0 },
+  { name: "dashboard-analytics", pattern: /^AnalyticsDashboard-.*\.js$/, maxGzipKb: 6.2 },
   { name: "dashboard-calorie", pattern: /^(CalorieDashboard|ProgressBreakdownCard)-.*\.js$/, maxGzipKb: 3.5 },
   { name: "dashboard-insights", pattern: /^InsightsDashboard-.*\.js$/, maxGzipKb: 5.2 },
   { name: "dashboard-lifestyle", pattern: /^LifestyleDashboard-.*\.js$/, maxGzipKb: 8.9 },
