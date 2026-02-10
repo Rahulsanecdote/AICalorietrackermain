@@ -8,7 +8,11 @@ import { AssistantPromptPill } from '../ui/assistant-prompt-pill';
 import { useNutriTutor, QUICK_PROMPTS } from '../../hooks/useNutriTutor';
 import { EduMessage } from '../../types/ai';
 
-export function NutriBotWidget() {
+interface NutriBotWidgetProps {
+  launcherClassName?: string;
+}
+
+export function NutriBotWidget({ launcherClassName }: NutriBotWidgetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -97,7 +101,7 @@ export function NutriBotWidget() {
           onSubmitPrompt={handlePromptSubmit}
           disabled={status === 'processing'}
           placeholder="Ask NutriAI"
-          className="z-[60]"
+          className={launcherClassName}
         />
       )}
 

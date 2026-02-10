@@ -63,20 +63,15 @@ export function AssistantPromptPill({
   };
 
   return (
-    <div
-      className={cn(
-        "fixed bottom-4 left-1/2 z-50 -translate-x-1/2 pb-[env(safe-area-inset-bottom)] sm:left-auto sm:right-6 sm:translate-x-0",
-        className
-      )}
-    >
+    <div className={cn("w-full", className)}>
       <div
         ref={containerRef}
         className={cn(
           "relative flex h-11 items-center gap-2 rounded-full border border-border/60 bg-background/70 px-2 shadow-md backdrop-blur-md transition-all duration-200 will-change-transform",
-          "w-[min(calc(100vw-1rem),15rem)] sm:w-[15rem]",
+          "w-full md:w-[15rem]",
           "hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-xl",
           "focus-within:-translate-y-0.5 focus-within:shadow-xl focus-within:ring-1 focus-within:ring-ring/40",
-          isExpanded && "h-12 w-[min(calc(100vw-1rem),20rem)] sm:w-[20rem]"
+          isExpanded && "h-12 md:w-[20rem]"
         )}
       >
         <button

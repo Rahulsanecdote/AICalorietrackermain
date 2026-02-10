@@ -51,3 +51,4 @@ export { NutriBotWidget, NutriBotButton } from './ai/NutriBotWidget';
 // Feature Components
 export { QuickAddWidget } from './features/QuickAddWidget';
 export { LanguageSwitcher } from './features/LanguageSwitcher';
+export { FloatingActions } from './layout/FloatingActions';

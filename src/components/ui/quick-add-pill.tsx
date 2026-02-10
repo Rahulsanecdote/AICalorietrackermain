@@ -21,11 +21,10 @@ export function QuickAddPill({
       disabled={disabled}
       aria-label="Quick add"
       className={cn(
-        "group fixed bottom-4 left-4 z-50 inline-flex h-11 items-center gap-2 rounded-full border border-border/50 bg-background/60 px-2.5 shadow-lg backdrop-blur-md transition-all duration-200",
+        "group inline-flex h-11 items-center gap-2 rounded-full border border-border/50 bg-background/60 px-2.5 shadow-lg backdrop-blur-md transition-all duration-200",
         "hover:-translate-y-0.5 hover:bg-background/70 hover:shadow-xl",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        "sm:bottom-6 sm:left-6",
         className
       )}
     >
