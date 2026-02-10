@@ -12,6 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 interface QuickAddWidgetProps {
   onMealAdded: (meal: Meal) => void;
   launcherClassName?: string;
+  launcherIconOnlyOnMobile?: boolean;
 }
 
 const QUICK_ADD_PRESETS = [
@@ -36,7 +37,11 @@ function createMealFromResult(result: { foodName: string; nutrition: { calories:
   };
 }
 
-export function QuickAddWidget({ onMealAdded, launcherClassName }: QuickAddWidgetProps) {
+export function QuickAddWidget({
+  onMealAdded,
+  launcherClassName,
+  launcherIconOnlyOnMobile = false,
+}: QuickAddWidgetProps) {
   const { t } = useTranslation();
   const { translateFood } = useFoodTranslation();
   const { currentDate } = useDate();
@@ -78,6 +83,7 @@ export function QuickAddWidget({ onMealAdded, launcherClassName }: QuickAddWidge
           onOpen={() => setIsExpanded(true)}
           label={t('quickAdd.title')}
           className={launcherClassName}
+          iconOnlyOnMobile={launcherIconOnlyOnMobile}
         />
       )}
 

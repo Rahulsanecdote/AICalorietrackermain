@@ -28,7 +28,7 @@ import {
   RecipeDetailModal,
   VoiceLoggerModal,
   FoodVersusCard,
-  FloatingActions,
+  AppFooter,
   TrackerDatePicker,
 } from "./components"
 import { FeatureErrorBoundary, RootErrorBoundary, OnlineStatusBar } from "./components/system"
@@ -523,7 +523,7 @@ function AuthenticatedApp() {
 
   return (
     <RootErrorBoundary feature="app-root">
-      <div className="min-h-screen bg-background pb-[calc(7.5rem+env(safe-area-inset-bottom))] dark:bg-background md:pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      <div className="min-h-screen bg-background pb-[calc(var(--app-footer-h)+env(safe-area-inset-bottom))] dark:bg-background">
         <Toaster />
         <Header
           onOpenSettings={() => setIsSettingsOpen(true)}
@@ -581,7 +581,7 @@ function AuthenticatedApp() {
 
         <VoiceLoggerModal isOpen={isVoiceOpen} onClose={() => setIsVoiceOpen(false)} onConfirm={handleVoiceConfirm} />
         <FoodVersusCard isOpen={isCompareOpen} onClose={() => setIsCompareOpen(false)} />
-        <FloatingActions
+        <AppFooter
           onQuickAddMeal={(meal: Meal) => {
             addMealDirectly(meal)
             notifySuccess("Quick added meal")

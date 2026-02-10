@@ -5,6 +5,7 @@
 @layer base {
   :root {
     --radius: 0.75rem;
+    --app-footer-h: 72px;
 
     /* Forest Mist Theme (Light Mode) */
     /* bg Forest Mist #F2F6F3 */
