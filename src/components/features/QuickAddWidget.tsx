@@ -6,6 +6,7 @@ import { useFoodTranslation } from '../../hooks/useFoodTranslation';
 import useNutritionAI from '../../hooks/useNutritionAI';
 import { MealCategory, Meal } from '../../types';
 import { Button } from '../ui/button';
+import { QuickAddPill } from '../ui/quick-add-pill';
 import { v4 as uuidv4 } from 'uuid';
 
 interface QuickAddWidgetProps {
@@ -71,17 +72,12 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
   return (
     <>
-      {/* Floating Action Button */}
-      <button
-        onClick={() => setIsExpanded(true)}
-        className={`fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center ${isExpanded
-          ? 'bg-card0 opacity-0 scale-0'
-          : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-xl transform hover:scale-105'
-          }`}
-        aria-label={t('quickAdd.title')}
-      >
-        <Plus className="w-6 h-6 text-white" />
-      </button>
+      {!isExpanded && (
+        <QuickAddPill
+          onOpen={() => setIsExpanded(true)}
+          label={t('quickAdd.title')}
+        />
+      )}
 
       {/* Expanded Widget */}
       {isExpanded && (

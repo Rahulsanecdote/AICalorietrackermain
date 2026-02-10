@@ -9,3 +9,4 @@ export { DebugTools } from './DebugTools';
 export { default as NumericSliderField } from './NumericSliderField';
 export { DonutChart } from './donut-chart';
 export { Switch as MaterialDesign3Switch } from './material-design-3-switch';
+export { QuickAddPill } from './quick-add-pill';
