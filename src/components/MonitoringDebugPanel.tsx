@@ -33,7 +33,7 @@ export function MonitoringDebugPanel() {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-4 right-4 z-50 p-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-colors"
+        className="fixed right-4 z-50 p-3 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition-colors bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-4"
         title="Debug Panel"
       >
         <Bug className="w-5 h-5" />
@@ -41,7 +41,7 @@ export function MonitoringDebugPanel() {
 
       {/* Debug Panel */}
       {isOpen && (
-        <div className="fixed bottom-20 right-4 z-50 w-96 max-h-[600px] bg-card dark:bg-card rounded-lg shadow-2xl border border-border border-border flex flex-col">
+        <div className="fixed right-4 z-50 w-96 max-h-[600px] bg-card dark:bg-card rounded-lg shadow-2xl border border-border border-border flex flex-col bottom-[calc(11rem+env(safe-area-inset-bottom))] md:bottom-20">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border border-border">
             <div className="flex items-center gap-2">

@@ -50,7 +50,7 @@ export function NutriBotWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center"
+          className="fixed right-6 z-50 w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6"
         >
           <Sparkles className="w-6 h-6 text-white" />
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full text-xs text-white flex items-center justify-center">
@@ -61,7 +61,7 @@ export function NutriBotWidget() {
 
       {/* Chat Widget */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-card dark:bg-card rounded-2xl shadow-2xl border border-border border-border flex flex-col overflow-hidden">
+        <div className="fixed right-6 z-50 w-96 max-w-[calc(100vw-2rem)] h-[600px] max-h-[calc(100vh-2rem)] bg-card dark:bg-card rounded-2xl shadow-2xl border border-border border-border flex flex-col overflow-hidden bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
             <div className="flex items-center gap-2">

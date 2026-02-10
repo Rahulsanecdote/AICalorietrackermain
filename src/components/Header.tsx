@@ -1,5 +1,4 @@
-import { Settings, Flame, BarChart2, ShoppingCart, Calendar, Heart, Coffee, RefreshCw, ArrowRightLeft, Lightbulb, Mic2, LogOut } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Settings, Flame, RefreshCw, ArrowRightLeft, Mic2, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
 
@@ -8,24 +7,11 @@ interface HeaderProps {
   onOpenUtilities: () => void;
   onOpenVoice: () => void;
   onOpenCompare: () => void;
-  activeView: 'tracker' | 'analytics' | 'shopping' | 'mealprep' | 'favorites' | 'lifestyle' | 'insights';
-  onViewChange: (view: 'tracker' | 'analytics' | 'shopping' | 'mealprep' | 'favorites' | 'lifestyle' | 'insights') => void;
   userEmail?: string | null;
   onSignOut?: () => void;
 }
 
-export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, onOpenCompare, activeView, onViewChange, userEmail, onSignOut }: HeaderProps) {
-  const { t } = useTranslation();
-  const navItems = [
-    { id: 'tracker' as const, label: t('header.tracker'), icon: Flame },
-    { id: 'lifestyle' as const, label: t('header.lifestyle'), icon: Coffee },
-    { id: 'analytics' as const, label: t('header.analytics'), icon: BarChart2 },
-    { id: 'insights' as const, label: t('header.insights'), icon: Lightbulb },
-    { id: 'shopping' as const, label: t('header.shopping'), icon: ShoppingCart },
-    { id: 'mealprep' as const, label: t('header.mealprep'), icon: Calendar },
-    { id: 'favorites' as const, label: t('header.favorites'), icon: Heart },
-  ];
-
+export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, onOpenCompare, userEmail, onSignOut }: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg border-b border-border">
       <div className="max-w-4xl mx-auto px-4 py-3">
@@ -103,27 +89,6 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
             </div>
           </div>
         </div>
-
-        {/* Navigation Tabs */}
-        <nav className="flex gap-1 overflow-x-auto pb-1 scrollbar-hide mt-3">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeView === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onViewChange(item.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
-                  }`}
-              >
-                <Icon className="w-3.5 h-3.5" />
-                {item.label}
-              </button>
-            );
-          })}
-        </nav>
       </div>
     </header>
   );
