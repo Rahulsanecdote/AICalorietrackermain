@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Send, Bot, User, RefreshCw } from 'lucide-react';
 import { Button } from '../ui/button';
+import { AssistantPromptPill } from '../ui/assistant-prompt-pill';
 import { useNutriTutor, QUICK_PROMPTS } from '../../hooks/useNutriTutor';
 import { EduMessage } from '../../types/ai';
 
@@ -32,6 +33,16 @@ export function NutriBotWidget() {
     await sendMessage(prompt);
   };
 
+  const handleOpenAssistant = () => {
+    setIsOpen(true);
+  };
+
+  const handlePromptSubmit = async (prompt: string) => {
+    if (!prompt.trim() || status === 'processing') return;
+    setIsOpen(true);
+    await sendMessage(prompt.trim());
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -48,15 +59,12 @@ export function NutriBotWidget() {
     <>
       {/* Floating Button */}
       {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-105 flex items-center justify-center"
-        >
-          <Sparkles className="w-6 h-6 text-white" />
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full text-xs text-white flex items-center justify-center">
-            AI
-          </span>
-        </button>
+        <AssistantPromptPill
+          onOpenAssistant={handleOpenAssistant}
+          onSubmitPrompt={handlePromptSubmit}
+          disabled={status === 'processing'}
+          placeholder="Ask NutriAI"
+        />
       )}
 
       {/* Chat Widget */}
