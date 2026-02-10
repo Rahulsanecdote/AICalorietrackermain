@@ -20,11 +20,30 @@ export function AssistantPromptPill({
   const [isExpanded, setIsExpanded] = useState(false);
   const [draft, setDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isExpanded) {
       inputRef.current?.focus();
     }
+  }, [isExpanded]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node | null;
+      if (!target) return;
+      if (containerRef.current?.contains(target)) return;
+
+      setIsExpanded(false);
+      setDraft("");
+    };
+
+    document.addEventListener("pointerdown", handleOutsidePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsidePointerDown);
+    };
   }, [isExpanded]);
 
   const handleSubmit = async () => {
@@ -51,6 +70,7 @@ export function AssistantPromptPill({
       )}
     >
       <div
+        ref={containerRef}
         className={cn(
           "relative flex h-11 items-center gap-2 rounded-full border border-border/60 bg-background/70 px-2 shadow-md backdrop-blur-md transition-all duration-200 will-change-transform",
           "w-[min(calc(100vw-1rem),15rem)] sm:w-[15rem]",
