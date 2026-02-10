@@ -74,7 +74,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsExpanded(true)}
-        className={`fixed left-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6 ${isExpanded
+        className={`fixed bottom-6 left-6 z-50 w-14 h-14 rounded-full shadow-lg transition-all duration-300 flex items-center justify-center ${isExpanded
           ? 'bg-card0 opacity-0 scale-0'
           : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-xl transform hover:scale-105'
           }`}
@@ -85,7 +85,7 @@ export function QuickAddWidget({ onMealAdded }: QuickAddWidgetProps) {
 
       {/* Expanded Widget */}
       {isExpanded && (
-        <div className="fixed left-6 z-50 w-80 sm:w-96 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6">
+        <div className="fixed bottom-6 left-6 z-50 w-80 sm:w-96">
           <div className="bg-card dark:bg-card rounded-2xl shadow-2xl border border-border border-border overflow-hidden animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-emerald-600">

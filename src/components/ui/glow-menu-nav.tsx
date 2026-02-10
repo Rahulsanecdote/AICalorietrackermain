@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
   BarChart2,
@@ -22,38 +23,41 @@ import {
 interface GlowMenuNavProps {
   activeView: ActiveView;
   onViewChange: (view: ActiveView) => void;
+  className?: string;
 }
 
-const PRIMARY_VIEWS = ["tracker", "insights", "lifestyle", "analytics"] as const;
+const PRIMARY_VIEWS = ["tracker", "lifestyle", "analytics", "insights"] as const;
 const MORE_VIEWS = ["shopping", "mealprep", "favorites"] as const;
 
-export default function GlowMenuNav({ activeView, onViewChange }: GlowMenuNavProps) {
+type NavTone = "tracker" | "lifestyle" | "analytics" | "insights" | "more";
+
+interface NavItem {
+  label: string;
+  icon: ReactNode;
+  tone: NavTone;
+}
+
+export default function GlowMenuNav({ activeView, onViewChange, className }: GlowMenuNavProps) {
   const { t } = useTranslation();
 
-  const navItems = {
-    tracker: { label: t("header.tracker"), icon: Flame },
-    insights: { label: t("header.insights"), icon: Lightbulb },
-    lifestyle: { label: t("header.lifestyle"), icon: Coffee },
-    analytics: { label: t("header.analytics"), icon: BarChart2 },
-    shopping: { label: t("header.shopping"), icon: ShoppingCart },
-    mealprep: { label: t("header.mealprep"), icon: Calendar },
-    favorites: { label: t("header.favorites"), icon: Heart },
-  } as const;
+  const navItems: Record<ActiveView, NavItem> = {
+    tracker: { label: t("header.tracker"), icon: <Flame className="h-4 w-4" />, tone: "tracker" },
+    lifestyle: { label: t("header.lifestyle"), icon: <Coffee className="h-4 w-4" />, tone: "lifestyle" },
+    analytics: { label: t("header.analytics"), icon: <BarChart2 className="h-4 w-4" />, tone: "analytics" },
+    insights: { label: t("header.insights"), icon: <Lightbulb className="h-4 w-4" />, tone: "insights" },
+    shopping: { label: t("header.shopping"), icon: <ShoppingCart className="h-4 w-4" />, tone: "more" },
+    mealprep: { label: t("header.mealprep"), icon: <Calendar className="h-4 w-4" />, tone: "more" },
+    favorites: { label: t("header.favorites"), icon: <Heart className="h-4 w-4" />, tone: "more" },
+  };
 
   const isMoreActive = MORE_VIEWS.includes(activeView as (typeof MORE_VIEWS)[number]);
 
   return (
-    <nav
-      className="fixed left-1/2 z-50 w-[calc(100%-1rem)] max-w-fit -translate-x-1/2 pb-[env(safe-area-inset-bottom)]"
-      style={{ bottom: "calc(1rem + env(safe-area-inset-bottom))" }}
-      aria-label="Primary navigation"
-    >
-      <div className="relative">
-        <div className="pointer-events-none absolute -inset-1 rounded-[1.25rem] bg-primary/20 opacity-35 blur-xl" />
-        <ul className="relative flex items-center gap-1 rounded-2xl border border-border/40 bg-background/30 p-1.5 shadow-lg backdrop-blur-xl">
+    <nav className={cn("w-full", className)} aria-label="Primary navigation">
+      <div className="w-full overflow-x-auto pb-1 scrollbar-hide">
+        <ul className="glow-nav-shell mx-auto flex w-max items-center gap-1 p-1.5">
           {PRIMARY_VIEWS.map((viewId) => {
             const item = navItems[viewId];
-            const Icon = item.icon;
             const isActive = activeView === viewId;
 
             return (
@@ -61,13 +65,11 @@ export default function GlowMenuNav({ activeView, onViewChange }: GlowMenuNavPro
                 <button
                   type="button"
                   onClick={() => onViewChange(viewId)}
+                  data-tone={item.tone}
+                  data-active={isActive ? "true" : "false"}
                   className={cn(
-                    "relative flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                    "hover:-translate-y-0.5 hover:text-foreground",
-                    isActive
-                      ? "text-foreground shadow-[0_0_20px_hsl(var(--primary)/0.35)]"
-                      : "text-muted-foreground",
+                    "glow-nav-button",
+                    isActive && "glow-nav-button-active",
                   )}
                   aria-current={isActive ? "page" : undefined}
                   aria-label={`Open ${item.label}`}
@@ -75,12 +77,12 @@ export default function GlowMenuNav({ activeView, onViewChange }: GlowMenuNavPro
                   {isActive && (
                     <motion.span
                       layoutId="glow-menu-active-pill"
-                      className="absolute inset-0 rounded-xl bg-primary/15"
+                      className="glow-nav-active-pill"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       aria-hidden="true"
                     />
                   )}
-                  <Icon className="relative z-10 h-4 w-4" />
+                  <span className="glow-nav-icon relative z-10">{item.icon}</span>
                   <span className="relative z-10">{item.label}</span>
                 </button>
               </li>
@@ -92,13 +94,11 @@ export default function GlowMenuNav({ activeView, onViewChange }: GlowMenuNavPro
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
+                  data-tone="more"
+                  data-active={isMoreActive ? "true" : "false"}
                   className={cn(
-                    "relative flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium transition-all duration-200",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                    "hover:-translate-y-0.5 hover:text-foreground",
-                    isMoreActive
-                      ? "text-foreground shadow-[0_0_20px_hsl(var(--primary)/0.35)]"
-                      : "text-muted-foreground",
+                    "glow-nav-button",
+                    isMoreActive && "glow-nav-button-active",
                   )}
                   aria-current={isMoreActive ? "page" : undefined}
                   aria-label={t("header.more", { defaultValue: "More" })}
@@ -106,41 +106,41 @@ export default function GlowMenuNav({ activeView, onViewChange }: GlowMenuNavPro
                   {isMoreActive && (
                     <motion.span
                       layoutId="glow-menu-active-pill"
-                      className="absolute inset-0 rounded-xl bg-primary/15"
+                      className="glow-nav-active-pill"
                       transition={{ type: "spring", stiffness: 380, damping: 30 }}
                       aria-hidden="true"
                     />
                   )}
-                  <MoreHorizontal className="relative z-10 h-4 w-4" />
+                  <MoreHorizontal className="glow-nav-icon relative z-10 h-4 w-4" />
                   <span className="relative z-10">{t("header.more", { defaultValue: "More" })}</span>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="end"
-                side="top"
+                side="bottom"
                 sideOffset={10}
                 className="w-52 rounded-xl border-border/70 bg-popover/95 backdrop-blur-lg"
               >
                 {MORE_VIEWS.map((viewId) => {
                   const item = navItems[viewId];
-                  const Icon = item.icon;
                   const isActive = activeView === viewId;
 
                   return (
                     <DropdownMenuItem
                       key={viewId}
                       onSelect={() => onViewChange(viewId)}
+                      data-tone={item.tone}
                       className={cn(
-                        "flex cursor-pointer items-center justify-between rounded-lg px-2.5 py-2",
-                        isActive && "bg-accent text-foreground",
+                        "glow-nav-menu-item flex cursor-pointer items-center justify-between rounded-lg px-2.5 py-2",
+                        isActive && "glow-nav-menu-item-active",
                       )}
                       aria-label={`Open ${item.label}`}
                     >
                       <span className="flex items-center gap-2">
-                        <Icon className="h-4 w-4" />
+                        <span className="glow-nav-icon">{item.icon}</span>
                         {item.label}
                       </span>
-                      {isActive ? <span className="h-2 w-2 rounded-full bg-primary" aria-hidden="true" /> : null}
+                      {isActive ? <span className="glow-nav-indicator h-2 w-2 rounded-full" aria-hidden="true" /> : null}
                     </DropdownMenuItem>
                   );
                 })}

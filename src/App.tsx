@@ -35,7 +35,6 @@ import {
 import { FeatureErrorBoundary, RootErrorBoundary, OnlineStatusBar } from "./components/system"
 import { ErrorBanner } from "./components/ui/ErrorBanner"
 import { DebugTools } from "./components/ui/DebugTools"
-import GlowMenuNav from "./components/ui/glow-menu-nav"
 import { MealPlannerBoundary, InsightsBoundary, LifestyleBoundary, AnalyticsBoundary, ShoppingListBoundary, MealPrepBoundary } from "./components/features/FeatureBoundaries"
 import { MonitoringDebugPanel } from "./components/MonitoringDebugPanel"
 import { OnlineStatusProvider, useOnlineStatusContext } from "./context/OnlineStatusContext"
@@ -525,13 +524,15 @@ function AuthenticatedApp() {
 
   return (
     <RootErrorBoundary feature="app-root">
-      <div className="min-h-screen bg-background pb-[calc(6rem+env(safe-area-inset-bottom))] dark:bg-background">
+      <div className="min-h-screen bg-background pb-20 dark:bg-background">
         <Toaster />
         <Header
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenUtilities={() => setIsUtilityOpen(true)}
           onOpenVoice={() => setIsVoiceOpen(true)}
           onOpenCompare={() => setIsCompareOpen(true)}
+          activeView={activeView}
+          onViewChange={handleViewChange}
           userEmail={email || "User"}
           onSignOut={handleSignOut}
         />
@@ -591,7 +592,6 @@ function AuthenticatedApp() {
         <ErrorBanner />
         <MonitoringDebugPanel />
         <DebugTools testAPI={testAPI} onOpenUtilities={() => setIsUtilityOpen(true)} />
-        <GlowMenuNav activeView={activeView} onViewChange={handleViewChange} />
 
         <footer className="text-center py-6 text-sm text-muted-foreground dark:text-muted-foreground">
           <p>NutriAI - AI-Powered Calorie Tracking & Meal Planning</p>

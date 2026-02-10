@@ -77,6 +77,13 @@
     --chart-3: 142 45% 34%;       /* Fern */
     --chart-4: 9 59% 40%;         /* Rowan Red */
     --chart-5: 14 62% 43%;        /* Rust */
+
+    /* Glow Navigation Tones - Light Mode (soft, desaturated earth palette) */
+    --nav-tracker-glow: 145 34% 39%;   /* forest green */
+    --nav-lifestyle-glow: 24 29% 45%;  /* clay brown */
+    --nav-analytics-glow: 37 38% 53%;  /* sandstone */
+    --nav-insights-glow: 184 31% 42%;  /* ocean teal */
+    --nav-more-glow: 42 47% 47%;       /* muted amber */
   }
 
   .dark {
@@ -128,6 +135,13 @@
     --chart-3: 148 50% 24%;
     --chart-4: 142 45% 34%;
     --chart-5: 18 62% 44%;
+
+    /* Glow Navigation Tones - Dark Mode (deeper, richer earth palette) */
+    --nav-tracker-glow: 145 41% 57%;   /* deep fern */
+    --nav-lifestyle-glow: 24 39% 60%;  /* rich clay */
+    --nav-analytics-glow: 38 52% 62%;  /* warm sandstone */
+    --nav-insights-glow: 184 41% 58%;  /* ocean teal */
+    --nav-more-glow: 42 58% 60%;       /* amber */
   }
 
   /* Extra specificity override to ensure body is dark */
@@ -173,6 +187,127 @@
   }
 
   /* Dark mode override removed as semantic tokens handle it */
+
+  .glow-nav-shell {
+    @apply rounded-2xl border border-border/50 bg-background/80 backdrop-blur-xl;
+    box-shadow: 0 10px 26px hsl(var(--foreground) / 0.08);
+  }
+
+  .dark .glow-nav-shell {
+    box-shadow: 0 10px 30px hsl(var(--foreground) / 0.18);
+  }
+
+  .glow-nav-button {
+    @apply relative inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground transition-all duration-200;
+    --nav-button-glow: var(--nav-tracker-glow);
+  }
+
+  .glow-nav-button[data-tone="tracker"] {
+    --nav-button-glow: var(--nav-tracker-glow);
+  }
+
+  .glow-nav-button[data-tone="lifestyle"] {
+    --nav-button-glow: var(--nav-lifestyle-glow);
+  }
+
+  .glow-nav-button[data-tone="analytics"] {
+    --nav-button-glow: var(--nav-analytics-glow);
+  }
+
+  .glow-nav-button[data-tone="insights"] {
+    --nav-button-glow: var(--nav-insights-glow);
+  }
+
+  .glow-nav-button[data-tone="more"] {
+    --nav-button-glow: var(--nav-more-glow);
+  }
+
+  .glow-nav-button:hover {
+    @apply -translate-y-[1px] text-foreground;
+    background: hsl(var(--nav-button-glow) / 0.12);
+    box-shadow: 0 8px 18px hsl(var(--nav-button-glow) / 0.22);
+  }
+
+  .dark .glow-nav-button:hover {
+    background: hsl(var(--nav-button-glow) / 0.18);
+    box-shadow: 0 8px 22px hsl(var(--nav-button-glow) / 0.3);
+  }
+
+  .glow-nav-button:focus-visible {
+    outline: none;
+    box-shadow:
+      0 0 0 2px hsl(var(--ring)),
+      0 0 0 5px hsl(var(--nav-button-glow) / 0.24);
+  }
+
+  .glow-nav-button-active {
+    @apply text-foreground;
+    box-shadow:
+      0 0 0 1px hsl(var(--nav-button-glow) / 0.28),
+      0 10px 24px hsl(var(--nav-button-glow) / 0.24);
+  }
+
+  .dark .glow-nav-button-active {
+    box-shadow:
+      0 0 0 1px hsl(var(--nav-button-glow) / 0.42),
+      0 12px 28px hsl(var(--nav-button-glow) / 0.34);
+  }
+
+  .glow-nav-active-pill {
+    @apply absolute inset-0 rounded-xl;
+    border: 1px solid hsl(var(--nav-button-glow) / 0.4);
+    background: linear-gradient(
+      170deg,
+      hsl(var(--nav-button-glow) / 0.24),
+      hsl(var(--nav-button-glow) / 0.11)
+    );
+  }
+
+  .dark .glow-nav-active-pill {
+    border-color: hsl(var(--nav-button-glow) / 0.55);
+    background: linear-gradient(
+      170deg,
+      hsl(var(--nav-button-glow) / 0.32),
+      hsl(var(--nav-button-glow) / 0.16)
+    );
+  }
+
+  .glow-nav-icon {
+    transition: color 180ms ease, transform 180ms ease;
+  }
+
+  .glow-nav-button:hover .glow-nav-icon,
+  .glow-nav-button-active .glow-nav-icon {
+    color: hsl(var(--nav-button-glow));
+  }
+
+  .glow-nav-menu-item {
+    --nav-button-glow: var(--nav-more-glow);
+    @apply text-sm text-foreground/90 transition-colors duration-200;
+  }
+
+  .glow-nav-menu-item[data-tone="more"] {
+    --nav-button-glow: var(--nav-more-glow);
+  }
+
+  .glow-nav-menu-item:hover,
+  .glow-nav-menu-item:focus {
+    background: hsl(var(--nav-button-glow) / 0.12);
+  }
+
+  .dark .glow-nav-menu-item:hover,
+  .dark .glow-nav-menu-item:focus {
+    background: hsl(var(--nav-button-glow) / 0.2);
+  }
+
+  .glow-nav-menu-item-active {
+    background: hsl(var(--nav-button-glow) / 0.16);
+    color: hsl(var(--foreground));
+  }
+
+  .glow-nav-indicator {
+    background: hsl(var(--nav-button-glow));
+  }
   
   /* Voice Modal Scoped Theme */
   .voice-modal-theme {

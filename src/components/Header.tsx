@@ -1,17 +1,30 @@
 import { Settings, Flame, RefreshCw, ArrowRightLeft, Mic2, LogOut } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
+import GlowMenuNav from './ui/glow-menu-nav';
+import type { ActiveView } from '../types';
 
 interface HeaderProps {
   onOpenSettings: () => void;
   onOpenUtilities: () => void;
   onOpenVoice: () => void;
   onOpenCompare: () => void;
+  activeView: ActiveView;
+  onViewChange: (view: ActiveView) => void;
   userEmail?: string | null;
   onSignOut?: () => void;
 }
 
-export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, onOpenCompare, userEmail, onSignOut }: HeaderProps) {
+export default function Header({
+  onOpenSettings,
+  onOpenUtilities,
+  onOpenVoice,
+  onOpenCompare,
+  activeView,
+  onViewChange,
+  userEmail,
+  onSignOut,
+}: HeaderProps) {
   return (
     <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg border-b border-border">
       <div className="max-w-4xl mx-auto px-4 py-3">
@@ -88,6 +101,9 @@ export default function Header({ onOpenSettings, onOpenUtilities, onOpenVoice, o
               </button>
             </div>
           </div>
+        </div>
+        <div className="mt-3">
+          <GlowMenuNav activeView={activeView} onViewChange={onViewChange} />
         </div>
       </div>
     </header>
