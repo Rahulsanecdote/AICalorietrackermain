@@ -1,4 +1,4 @@
-import { ArrowUp, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { cn } from "../../lib/utils";
 
 interface QuickAddPillProps {
@@ -37,13 +37,6 @@ export function QuickAddPill({
       </span>
 
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
-
-      <span
-        aria-hidden="true"
-        className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 text-primary transition-colors group-hover:bg-primary/25"
-      >
-        <ArrowUp className="h-4 w-4" />
-      </span>
     </button>
   );
 }
