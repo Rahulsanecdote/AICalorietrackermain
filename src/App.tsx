@@ -473,6 +473,19 @@ function AuthenticatedApp() {
           </AnalyticsBoundary>
         )
 
+      case "insights":
+        return (
+          <InsightsBoundary onViewMeals={() => setActiveView("tracker")}>
+            <Suspense
+              fallback={
+                <DashboardLoadingCard title="Loading insights" description="Generating insight widgets." />
+              }
+            >
+              <InsightsDashboard meals={meals} />
+            </Suspense>
+          </InsightsBoundary>
+        )
+
       case "shopping":
         return (
           <ShoppingListBoundary>
