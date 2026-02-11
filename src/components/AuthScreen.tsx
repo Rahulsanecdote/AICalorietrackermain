@@ -1,27 +1,31 @@
 import React, { useState } from "react"
 import { useAuth } from "../context/AuthContext"
+import { SignUp } from "./ui/sign-up"
 
 export default function AuthScreen() {
-  const { signIn, signUp, signInWithGoogle } = useAuth()
-  const [mode, setMode] = useState<"signin" | "signup">("signin")
+  const { signIn, signInWithGoogle } = useAuth()
+  const [showSignUp, setShowSignUp] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSignInSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     setError(null)
     setIsSubmitting(true)
 
-    const result =
-      mode === "signin" ? await signIn(email, password) : await signUp(email, password)
+    const result = await signIn(email, password)
 
     if (result.error) {
       setError(result.error)
     }
 
     setIsSubmitting(false)
+  }
+
+  if (showSignUp) {
+    return <SignUp onSwitchToSignIn={() => setShowSignUp(false)} />
   }
 
   return (
@@ -31,17 +35,13 @@ export default function AuthScreen() {
           <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-primary-foreground font-bold">
             NA
           </div>
-          <h1 className="text-2xl font-semibold text-foreground mt-4">
-            {mode === "signin" ? "Welcome back" : "Create your account"}
-          </h1>
+          <h1 className="text-2xl font-semibold text-foreground mt-4">Welcome back</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            {mode === "signin"
-              ? "Sign in to access your nutrition dashboard."
-              : "Sign up to sync meals and plans across devices."}
+            Sign in to access your nutrition dashboard.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSignInSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-1" htmlFor="email">
               Email
@@ -80,7 +80,7 @@ export default function AuthScreen() {
             disabled={isSubmitting}
             className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-60"
           >
-            {isSubmitting ? "Please wait..." : mode === "signin" ? "Sign In" : "Create Account"}
+            {isSubmitting ? "Please wait..." : "Sign In"}
           </button>
         </form>
 
@@ -129,13 +129,13 @@ export default function AuthScreen() {
         </div>
 
         <div className="mt-5 text-center text-sm text-muted-foreground">
-          {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
+          New here?{" "}
           <button
             type="button"
             className="text-primary hover:text-primary/80 font-medium"
-            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+            onClick={() => setShowSignUp(true)}
           >
-            {mode === "signin" ? "Create one" : "Sign in"}
+            Create one
           </button>
         </div>
       </div>
