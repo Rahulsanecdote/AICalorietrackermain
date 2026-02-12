@@ -84,7 +84,7 @@ function AuthenticatedApp() {
     removeItem,
     toggleItemCheck,
     addCustomItem,
-    addItem: addMealToShoppingList,
+    addItem: addShoppingListItem,
     generateListFromMeals
   } = useShoppingList()
   
@@ -315,7 +315,47 @@ function AuthenticatedApp() {
     }
   }
 
-  const isItemInListByName = (name: string) => shoppingListItems.some((i: { name: string }) => i.name === name)
+  const normalizeShoppingItemName = useCallback((value: string) => value.trim().toLowerCase(), [])
+
+  const getMatchingShoppingItems = useCallback(
+    (itemId: string, name: string) => {
+      const normalizedName = normalizeShoppingItemName(name)
+      return shoppingListItems.filter(
+        (entry) => entry.id === itemId || normalizeShoppingItemName(entry.name) === normalizedName,
+      )
+    },
+    [normalizeShoppingItemName, shoppingListItems],
+  )
+
+  const isFoodInShoppingList = useCallback(
+    (itemId: string, name: string) => getMatchingShoppingItems(itemId, name).length > 0,
+    [getMatchingShoppingItems],
+  )
+
+  const toggleFoodInShoppingList = useCallback(
+    (item: { id: string; name: string; unit?: string }) => {
+      const existingEntries = getMatchingShoppingItems(item.id, item.name)
+
+      if (existingEntries.length > 0) {
+        existingEntries.forEach((entry) => removeItem(entry.id))
+        notifyInfo("Removed from shopping list")
+        return
+      }
+
+      addShoppingListItem({
+        id: item.id,
+        name: item.name,
+        category: "other",
+        amount: 1,
+        unit: item.unit || "serving",
+        checked: false,
+        recipeNames: [item.name],
+        sourceRecipeIds: [],
+      })
+      notifySuccess("Added to shopping list")
+    },
+    [addShoppingListItem, getMatchingShoppingItems, removeItem],
+  )
 
   // Effect to sync AI hook error to local state if needed
   useEffect(() => {
@@ -395,21 +435,16 @@ function AuthenticatedApp() {
                   onAddMealToLog={addMealToLog}
                   onGenerateShoppingList={handleGenerateShoppingList}
                   onGenerateMealPrep={handleGenerateMealPrep}
-                  onAddToShoppingList={(item) => {
-                    addMealToShoppingList({
+                  onAddToShoppingList={(item) =>
+                    toggleFoodInShoppingList({
                       id: item.id,
                       name: item.name,
-                      category: "other",
-                      amount: 1,
                       unit: "serving",
-                      checked: false,
-                      recipeNames: [item.name],
-                      sourceRecipeIds: []
                     })
-                  }}
+                  }
                   onToggleFavorite={handleToggleFoodItemFavorite}
                   isFavorite={(item) => isFoodItemFavorite(item.id)}
-                  isInShoppingList={(item) => isItemInListByName(item.name)}
+                  isInShoppingList={(item) => isFoodInShoppingList(item.id, item.name)}
                   onSwapFood={swapFoodItem}
                 />
               </Suspense>
@@ -452,20 +487,15 @@ function AuthenticatedApp() {
                   if (meal.recipe) {
                     notifyInfo("Added recipe ingredients to list")
                   } else {
-                    addMealToShoppingList({
+                    toggleFoodInShoppingList({
                       id: meal.id,
                       name: meal.foodName,
-                      category: "other",
-                      amount: 1,
-                      unit: "serving",
-                      checked: false,
-                      recipeNames: [meal.foodName],
-                      sourceRecipeIds: []
+                      unit: meal.servingSize || "serving",
                     })
                   }
                 }}
                 isInShoppingList={(meal) =>
-                  meal.recipe ? isItemInListByName(meal.recipe.title) : isItemInListByName(meal.foodName)
+                  meal.recipe ? normalizeShoppingItemName(meal.recipe.title).length > 0 && shoppingListItems.some((entry) => normalizeShoppingItemName(entry.name) === normalizeShoppingItemName(meal.recipe.title)) : isFoodInShoppingList(meal.id, meal.foodName)
                 }
               />
             </div>
