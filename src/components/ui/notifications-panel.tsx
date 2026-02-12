@@ -66,7 +66,7 @@ export function NotificationsBell({
       aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
       className={cn(
         'relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/40 bg-background/45 text-muted-foreground backdrop-blur-xl',
-        'shadow-[0_10px_26px_hsl(var(--foreground)/0.12),inset_0_1px_0_hsl(var(--foreground)/0.08)]',
+        'shadow-[0_10px_24px_hsl(var(--foreground)/0.11),inset_0_1px_0_hsl(var(--foreground)/0.08)]',
         'transition-all duration-200 hover:text-foreground hover:bg-background/65 hover:brightness-110',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         'supports-[selector(:focus-visible)]:focus-visible:scale-[1.02] md:hover:scale-[1.03]',
@@ -135,15 +135,25 @@ export function NotificationsPanel({
       <SheetContent
         side={side}
         className={cn(
-          'p-0 border-border/40 bg-background/50 supports-[backdrop-filter]:bg-background/35 backdrop-blur-2xl',
-          'shadow-[0_20px_50px_hsl(var(--foreground)/0.24),inset_0_1px_0_hsl(var(--foreground)/0.15)]',
-          side === 'right' && 'w-[min(92vw,410px)] sm:max-w-[410px]',
-          side === 'bottom' && 'h-[min(74vh,620px)] rounded-t-3xl border-x border-t border-b-0'
+          'p-0 border-border/40 bg-background/65 supports-[backdrop-filter]:bg-background/45 backdrop-blur-2xl',
+          'shadow-[0_24px_54px_hsl(var(--foreground)/0.23),inset_0_1px_0_hsl(var(--foreground)/0.14)]',
+          side === 'right' &&
+            'w-[min(92vw,410px)] sm:max-w-[410px] rounded-l-3xl border-y border-l border-r-0 mr-4 my-4 h-[calc(100vh-2rem)]',
+          side === 'bottom' &&
+            'h-[min(74vh,620px)] rounded-t-3xl border-x border-t border-b-0 px-0 pb-0'
         )}
       >
-        <div className="relative flex h-full flex-col overflow-hidden">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-foreground/[0.07] via-transparent to-transparent" />
-          <SheetHeader className="relative border-b border-border/40 p-5 pb-4">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-[inherit]">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-foreground/[0.08] via-transparent to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-background/45 via-background/20 to-transparent" />
+
+          {side === 'bottom' ? (
+            <div className="relative flex justify-center pt-3">
+              <span className="h-1 w-12 rounded-full bg-muted-foreground/45" aria-hidden />
+            </div>
+          ) : null}
+
+          <SheetHeader className="relative border-b border-border/45 p-5 pb-4">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <SheetTitle className="text-base">Notifications</SheetTitle>
@@ -165,7 +175,7 @@ export function NotificationsPanel({
                 size="sm"
                 onClick={onMarkAllRead}
                 disabled={notifications.length === 0 || unreadCount === 0}
-                className="h-8 rounded-full border-border/50 bg-background/40 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/35"
+                className="h-8 rounded-full border-border/55 bg-background/45 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/35"
               >
                 <CheckCheck className="mr-1.5 h-3.5 w-3.5" />
                 Mark all read
@@ -177,7 +187,7 @@ export function NotificationsPanel({
                   size="sm"
                   onClick={onClearAll}
                   disabled={notifications.length === 0}
-                  className="h-8 rounded-full border border-border/40 bg-background/35 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/35"
+                  className="h-8 rounded-full border border-border/45 bg-background/40 px-3 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/35"
                 >
                   <Trash2 className="mr-1.5 h-3.5 w-3.5" />
                   Clear all
@@ -191,7 +201,7 @@ export function NotificationsPanel({
             style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
           >
             {notifications.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-dashed border-border/50 bg-background/35 p-8 text-center">
+              <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-dashed border-border/55 bg-background/35 p-8 text-center">
                 <Bell className="mb-3 h-6 w-6 text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">No notifications</p>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -212,20 +222,20 @@ export function NotificationsPanel({
                       }}
                       className={cn(
                         'relative flex-1 rounded-xl border p-3 text-left transition-all duration-200',
-                        'hover:bg-muted/30 hover:border-border/60 hover:shadow-[0_8px_20px_hsl(var(--foreground)/0.09)]',
+                        'hover:bg-muted/30 hover:border-border/65 hover:shadow-[0_10px_22px_hsl(var(--foreground)/0.11)]',
                         notification.read
-                          ? 'border-border/35 bg-background/30'
-                          : 'border-border/60 bg-background/65'
+                          ? 'border-border/40 bg-background/32'
+                          : 'border-border/65 bg-background/68'
                       )}
                       aria-label={`${notification.title}${notification.read ? '' : ', unread'}`}
                     >
                       {!notification.read ? (
-                        <span className="absolute left-0 top-3 h-6 w-1 rounded-r-full bg-primary/70" aria-hidden />
+                        <span className="absolute left-0 top-3 h-6 w-1 rounded-r-full bg-primary/75" aria-hidden />
                       ) : null}
                       <div className="flex items-start gap-3">
                         <div
                           className={cn(
-                            'mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/50',
+                            'mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/55',
                             notification.read ? 'bg-background/35' : 'bg-primary/15 text-primary'
                           )}
                         >
