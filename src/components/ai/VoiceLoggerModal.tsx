@@ -376,3 +376,5 @@ function DetectedFoodCard({ food }: { food: VoiceDetectedFood }) {
     </div>
   );
 }
+
+export { VoiceWaveform, MicrophoneButton } from './VoiceControls';
