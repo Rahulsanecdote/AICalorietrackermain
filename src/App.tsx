@@ -87,7 +87,14 @@ function AuthenticatedApp() {
     generateListFromMeals
   } = useShoppingList()
   
-  const { isFavorite, toggleFavorite } = useFavorites()
+  const {
+    favorites,
+    isFavorite,
+    toggleFavorite,
+    removeFoodItemFavorite,
+    removeRecipeFavorite,
+    clearFavorites,
+  } = useFavorites()
   
   const { isOnline } = useOnlineStatusContext()
   const { selectedDate, setSelectedDate } = useDate()
@@ -122,6 +129,14 @@ function AuthenticatedApp() {
   )
   const selectedDateLabel = formatDate(selectedDate, "weekday")
   const selectedDateIsToday = selectedDate === getTodayStr()
+  const foodFavorites = useMemo(
+    () => favorites.filter((favorite) => favorite.type === "food"),
+    [favorites],
+  )
+  const recipeFavorites = useMemo(
+    () => favorites.filter((favorite) => favorite.type === "recipe"),
+    [favorites],
+  )
 
   const handleDateChange = useCallback(
     (nextDate: string) => {
@@ -524,8 +539,95 @@ function AuthenticatedApp() {
       case "favorites":
         return (
           <div className="bg-card rounded-2xl shadow-sm border border-border p-6 dark:bg-card border-border">
-            <h2 className="text-lg font-semibold text-foreground dark:text-white mb-6">{t("favorites.title")}</h2>
-            <p className="text-muted-foreground">Favorites view implementation pending.</p>
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+              <h2 className="text-lg font-semibold text-foreground dark:text-white">{t("favorites.title")}</h2>
+              {favorites.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearFavorites}
+                  className="px-3 py-2 rounded-lg border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            {favorites.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border bg-muted/30 p-6 text-center">
+                <p className="text-foreground font-medium">No favorites saved yet.</p>
+                <p className="text-sm text-muted-foreground mt-1">Favorite meals and recipes to see them here.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <section>
+                  <h3 className="text-base font-semibold text-foreground mb-3">Food favorites</h3>
+                  {foodFavorites.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No favorite foods yet.</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {foodFavorites.map((favorite) => (
+                        <li key={favorite.id} className="rounded-xl border border-border bg-background/70 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <p className="font-medium text-foreground">{favorite.name}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Added {new Date(favorite.addedAt).toLocaleString()}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {favorite.calories} kcal • P {favorite.protein}g • C {favorite.carbs}g • F {favorite.fat}g
+                              </p>
+                            </div>
+                            {favorite.foodItemId && (
+                              <button
+                                type="button"
+                                onClick={() => removeFoodItemFavorite(favorite.foodItemId)}
+                                className="text-sm text-destructive hover:underline"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                <section>
+                  <h3 className="text-base font-semibold text-foreground mb-3">Recipe favorites</h3>
+                  {recipeFavorites.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No favorite recipes yet.</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {recipeFavorites.map((favorite) => (
+                        <li key={favorite.id} className="rounded-xl border border-border bg-background/70 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <p className="font-medium text-foreground">{favorite.name || "Unnamed recipe"}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Added {new Date(favorite.addedAt).toLocaleString()}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {favorite.calories} kcal • P {favorite.protein}g • C {favorite.carbs}g • F {favorite.fat}g
+                              </p>
+                            </div>
+                            {favorite.recipeId && (
+                              <button
+                                type="button"
+                                onClick={() => removeRecipeFavorite(favorite.recipeId)}
+                                className="text-sm text-destructive hover:underline"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </div>
+            )}
           </div>
         )
 
