@@ -79,6 +79,7 @@ function AuthenticatedApp() {
   
   const {
     items: shoppingListItems,
+    shoppingList,
     clearList,
     removeItem,
     toggleItemCheck,
@@ -495,7 +496,7 @@ function AuthenticatedApp() {
               }
             >
               <ShoppingListView
-                shoppingList={{ id: "temp", weekStartDate: new Date().toISOString(), items: [], generatedAt: new Date().toISOString() }}
+                shoppingList={shoppingList}
                 onToggleItem={toggleItemCheck}
                 onRemoveItem={removeItem}
                 onAddCustomItem={addCustomItem}
