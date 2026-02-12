@@ -91,7 +91,9 @@ function AuthenticatedApp() {
   const {
     favorites,
     isFavorite,
+    isFoodItemFavorite,
     toggleFavorite,
+    toggleFoodItemFavorite,
     removeFoodItemFavorite,
     removeRecipeFavorite,
     clearFavorites,
@@ -223,6 +225,20 @@ function AuthenticatedApp() {
   const handleToggleFavorite = (recipeId: string) => {
     const wasFavorite = isFavorite(recipeId)
     toggleFavorite(recipeId)
+    notifySuccess(wasFavorite ? "Removed from favorites" : "Added to favorites")
+  }
+
+  const handleToggleFoodItemFavorite = (item: {
+    id: string
+    name: string
+    calories: number
+    protein: number
+    carbs: number
+    fat: number
+    emoji?: string
+  }) => {
+    const wasFavorite = isFoodItemFavorite(item.id)
+    toggleFoodItemFavorite(item)
     notifySuccess(wasFavorite ? "Removed from favorites" : "Added to favorites")
   }
 
@@ -391,10 +407,8 @@ function AuthenticatedApp() {
                       sourceRecipeIds: []
                     })
                   }}
-                  onToggleFavorite={() => {
-                    notifyInfo("Toggle favorite food item")
-                  }}
-                  isFavorite={(item) => isFavorite(item.id)}
+                  onToggleFavorite={handleToggleFoodItemFavorite}
+                  isFavorite={(item) => isFoodItemFavorite(item.id)}
                   isInShoppingList={(item) => isItemInListByName(item.name)}
                   onSwapFood={swapFoodItem}
                 />
