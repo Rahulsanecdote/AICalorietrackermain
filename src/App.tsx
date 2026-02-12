@@ -299,7 +299,6 @@ function AuthenticatedApp() {
     }
   }
 
-  const isFoodItemFavorite = (id: string) => isFavorite(id)
   const isItemInListByName = (name: string) => shoppingListItems.some((i: { name: string }) => i.name === name)
 
   // Effect to sync AI hook error to local state if needed
@@ -395,7 +394,7 @@ function AuthenticatedApp() {
                   onToggleFavorite={() => {
                     notifyInfo("Toggle favorite food item")
                   }}
-                  isFavorite={(item) => isFoodItemFavorite(item.id)}
+                  isFavorite={(item) => isFavorite(item.id)}
                   isInShoppingList={(item) => isItemInListByName(item.name)}
                   onSwapFood={swapFoodItem}
                 />
