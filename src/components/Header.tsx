@@ -7,6 +7,12 @@ import {
   NotificationsBell,
   NotificationsPanel,
 } from './ui/notifications-panel';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip';
 import { useNotificationCenter } from '../hooks/useNotificationCenter';
 import type { ActiveView } from '../types';
 
@@ -19,6 +25,26 @@ interface HeaderProps {
   onViewChange: (view: ActiveView) => void;
   userEmail?: string | null;
   onSignOut?: () => void;
+}
+
+interface IconTooltipProps {
+  label: string;
+  children: React.ReactNode;
+}
+
+function IconTooltip({ label, children }: IconTooltipProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{children}</TooltipTrigger>
+      <TooltipContent
+        side="bottom"
+        sideOffset={10}
+        className="rounded-full border-border/60 bg-background/90 px-2.5 py-1 text-xs text-foreground backdrop-blur-lg"
+      >
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 export default function Header({
@@ -64,66 +90,82 @@ export default function Header({
 
             {/* Action Buttons - Properly spaced */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Voice Button */}
-              <button
-                onClick={onOpenVoice}
-                className={`${iconGlassButtonClass} border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20`}
-                title="Voice Input"
-                aria-label="Voice Input"
-              >
-                <Mic2 className="w-4 h-4" />
-              </button>
+              <TooltipProvider delayDuration={120}>
+                <div className="flex items-center gap-0.5">
+                  <IconTooltip label="Voice Input">
+                    <button
+                      onClick={onOpenVoice}
+                      className={`${iconGlassButtonClass} border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20`}
+                      aria-label="Voice Input"
+                    >
+                      <Mic2 className="w-4 h-4" />
+                    </button>
+                  </IconTooltip>
 
-              {/* Secondary Actions - Icons only to save space */}
-              <div className="flex items-center gap-0.5">
-                <button
-                  onClick={onOpenCompare}
-                  className={iconGlassButtonClass}
-                  title="Compare Foods"
-                  aria-label="Compare Foods"
-                >
-                  <ArrowRightLeft className="w-4 h-4 text-primary" />
-                </button>
+                  <IconTooltip label="Compare Foods">
+                    <button
+                      onClick={onOpenCompare}
+                      className={iconGlassButtonClass}
+                      aria-label="Compare Foods"
+                    >
+                      <ArrowRightLeft className="w-4 h-4 text-primary" />
+                    </button>
+                  </IconTooltip>
 
-                <button
-                  onClick={onOpenUtilities}
-                  className={iconGlassButtonClass}
-                  title="Utilities"
-                  aria-label="Utilities"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                </button>
+                  <IconTooltip label="Utilities">
+                    <button
+                      onClick={onOpenUtilities}
+                      className={iconGlassButtonClass}
+                      aria-label="Utilities"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                  </IconTooltip>
 
-                <NotificationsBell
-                  unreadCount={unreadCount}
-                  onOpen={() => setIsNotificationsOpen(true)}
-                  title="Open notifications"
-                />
+                  <IconTooltip label="Notifications">
+                    <span className="inline-flex">
+                      <NotificationsBell
+                        unreadCount={unreadCount}
+                        onOpen={() => setIsNotificationsOpen(true)}
+                      />
+                    </span>
+                  </IconTooltip>
 
-                <ThemeToggle />
+                  <IconTooltip label="Theme">
+                    <span className="inline-flex">
+                      <ThemeToggle />
+                    </span>
+                  </IconTooltip>
 
-                <LanguageSwitcher variant="icon" iconTriggerClassName={iconGlassButtonClass} />
+                  <IconTooltip label="Language">
+                    <span className="inline-flex">
+                      <LanguageSwitcher variant="icon" iconTriggerClassName={iconGlassButtonClass} />
+                    </span>
+                  </IconTooltip>
 
-                {onSignOut ? (
-                  <button
-                    onClick={onSignOut}
-                    className={iconGlassButtonClass}
-                    title={userEmail ? `Sign out (${userEmail})` : "Sign out"}
-                    aria-label={userEmail ? `Sign out (${userEmail})` : "Sign out"}
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                ) : null}
+                  {onSignOut ? (
+                    <IconTooltip label={userEmail ? `Sign out (${userEmail})` : 'Sign out'}>
+                      <button
+                        onClick={onSignOut}
+                        className={iconGlassButtonClass}
+                        aria-label={userEmail ? `Sign out (${userEmail})` : "Sign out"}
+                      >
+                        <LogOut className="w-4 h-4" />
+                      </button>
+                    </IconTooltip>
+                  ) : null}
 
-                <button
-                  onClick={onOpenSettings}
-                  className={iconGlassButtonClass}
-                  title="Settings"
-                  aria-label="Settings"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
-              </div>
+                  <IconTooltip label="Settings">
+                    <button
+                      onClick={onOpenSettings}
+                      className={iconGlassButtonClass}
+                      aria-label="Settings"
+                    >
+                      <Settings className="w-4 h-4" />
+                    </button>
+                  </IconTooltip>
+                </div>
+              </TooltipProvider>
             </div>
           </div>
           <div className="mt-3">
