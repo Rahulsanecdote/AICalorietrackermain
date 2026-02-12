@@ -87,7 +87,7 @@ function AuthenticatedApp() {
     generateListFromMeals
   } = useShoppingList()
   
-  const { isFavorite, toggleFavorite } = useFavorites()
+  const { isFavorite, toggleFavorite, toggleFoodItemFavorite, isFoodItemFavorite } = useFavorites()
   
   const { isOnline } = useOnlineStatusContext()
   const { selectedDate, setSelectedDate } = useDate()
@@ -376,7 +376,16 @@ function AuthenticatedApp() {
                       sourceRecipeIds: []
                     })
                   }}
-                  onToggleFavorite={() => {
+                  onToggleFavorite={(item) => {
+                    toggleFoodItemFavorite({
+                      id: item.id,
+                      name: item.name,
+                      calories: item.calories,
+                      protein: item.protein,
+                      carbs: item.carbs,
+                      fat: item.fat,
+                      emoji: item.emoji,
+                    })
                     notifyInfo("Toggle favorite food item")
                   }}
                   isFavorite={(item) => isFoodItemFavorite(item.id)}
