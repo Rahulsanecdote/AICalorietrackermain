@@ -21,6 +21,7 @@ permissions:
 env:
   NODE_ENV: production
   DEPLOYMENT_ID: ${{ github.sha }}
+  EXPECTED_GITHUB_REPOSITORY: Rahulsanecdote/AICalorietrackermain
 
 jobs:
   pre-flight-checks:
@@ -40,6 +41,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -94,6 +98,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -149,6 +156,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -192,6 +202,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Setup pnpm
         uses: pnpm/action-setup@v3

@@ -12,6 +12,7 @@ on:
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  EXPECTED_GITHUB_REPOSITORY: Rahulsanecdote/AICalorietrackermain
 
 permissions:
   contents: read
@@ -35,6 +36,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --config.engine-strict=false
@@ -81,11 +85,19 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
       
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 9
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Install Vercel CLI
         run: pnpm add -g vercel@latest
@@ -136,6 +148,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
+
+      - name: Validate canonical repository root
+        run: node scripts/ci-root-guard.mjs
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --config.engine-strict=false
