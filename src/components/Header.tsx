@@ -40,6 +40,9 @@ export default function Header({
     clearAll,
   } = useNotificationCenter();
 
+  const iconGlassButtonClass =
+    'relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/40 bg-background/45 text-muted-foreground backdrop-blur-xl shadow-[0_10px_24px_hsl(var(--foreground)/0.11),inset_0_1px_0_hsl(var(--foreground)/0.08)] transition-all duration-200 hover:text-foreground hover:bg-background/65 hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background md:hover:scale-[1.03]';
+
   return (
     <>
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg border-b border-border">
@@ -61,22 +64,21 @@ export default function Header({
 
             {/* Action Buttons - Properly spaced */}
             <div className="flex items-center gap-1 flex-shrink-0">
-              {/* Voice Button - Compact and non-overlapping */}
+              {/* Voice Button */}
               <button
                 onClick={onOpenVoice}
-                className="flex items-center gap-1 px-3 py-2 text-destructive bg-destructive/10 hover:bg-destructive/20 rounded-lg transition-colors"
+                className={`${iconGlassButtonClass} border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive/20`}
                 title="Voice Input"
                 aria-label="Voice Input"
               >
-                <Mic2 className="w-4 h-4 text-destructive" />
-                <span className="text-sm font-medium text-destructive hidden xs:inline">Voice</span>
+                <Mic2 className="w-4 h-4" />
               </button>
 
               {/* Secondary Actions - Icons only to save space */}
               <div className="flex items-center gap-0.5">
                 <button
                   onClick={onOpenCompare}
-                  className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
+                  className={iconGlassButtonClass}
                   title="Compare Foods"
                   aria-label="Compare Foods"
                 >
@@ -85,7 +87,7 @@ export default function Header({
 
                 <button
                   onClick={onOpenUtilities}
-                  className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
+                  className={iconGlassButtonClass}
                   title="Utilities"
                   aria-label="Utilities"
                 >
@@ -100,12 +102,12 @@ export default function Header({
 
                 <ThemeToggle />
 
-                <LanguageSwitcher variant="icon" />
+                <LanguageSwitcher variant="icon" iconTriggerClassName={iconGlassButtonClass} />
 
                 {onSignOut ? (
                   <button
                     onClick={onSignOut}
-                    className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
+                    className={iconGlassButtonClass}
                     title={userEmail ? `Sign out (${userEmail})` : "Sign out"}
                     aria-label={userEmail ? `Sign out (${userEmail})` : "Sign out"}
                   >
@@ -115,7 +117,7 @@ export default function Header({
 
                 <button
                   onClick={onOpenSettings}
-                  className="p-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors hover:text-foreground"
+                  className={iconGlassButtonClass}
                   title="Settings"
                   aria-label="Settings"
                 >

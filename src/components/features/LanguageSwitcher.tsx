@@ -12,15 +12,18 @@ import {
 import { Button } from '../ui/button';
 import { SupportedLanguage } from '../../i18n/config';
 import { useLanguage } from '../../context/LanguageContext';
+import { cn } from '../../lib/utils';
 
 interface LanguageSwitcherProps {
   variant?: 'button' | 'icon' | 'full';
   onLanguageChange?: (language: SupportedLanguage) => void;
+  iconTriggerClassName?: string;
 }
 
 export function LanguageSwitcher({
   variant = 'button',
   onLanguageChange,
+  iconTriggerClassName,
 }: LanguageSwitcherProps) {
   const { t } = useTranslation();
   const { language, setLanguage, availableLanguages } = useLanguage();
@@ -36,7 +39,11 @@ export function LanguageSwitcher({
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-9 w-9">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-9 w-9", iconTriggerClassName)}
+          >
             <Globe className="h-[1.2rem] w-[1.2rem]" />
             <span className="sr-only">Select language</span>
           </Button>
