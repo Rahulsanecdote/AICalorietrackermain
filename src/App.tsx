@@ -283,7 +283,6 @@ function AuthenticatedApp() {
     }
   }
 
-  const isFoodItemFavorite = (id: string) => isFavorite(id)
   const isItemInListByName = (name: string) => shoppingListItems.some((i: { name: string }) => i.name === name)
 
   // Effect to sync AI hook error to local state if needed
