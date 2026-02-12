@@ -13,6 +13,7 @@ export { DonutChart } from './donut-chart';
 export { Switch as MaterialDesign3Switch } from './material-design-3-switch';
 export { QuickAddPill } from './quick-add-pill';
 export { default as DockMorph } from './dock-morph';
+export { GlassSurface } from './glass-surface';
 export {
   NotificationsBell,
   NotificationsPanel,
