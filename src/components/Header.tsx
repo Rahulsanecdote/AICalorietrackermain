@@ -73,7 +73,7 @@ export default function Header({
     <>
       <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-lg border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
             {/* Branding Section */}
             <div className="flex items-center gap-3 flex-1 min-w-0">
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary to-primary/60 rounded-xl flex-shrink-0">
@@ -89,9 +89,9 @@ export default function Header({
             </div>
 
             {/* Action Buttons - Properly spaced */}
-            <div className="flex items-center gap-1 flex-shrink-0">
+            <div className="flex items-center justify-end gap-1 sm:flex-shrink-0">
               <TooltipProvider delayDuration={120}>
-                <div className="flex items-center gap-0.5">
+                <div className="flex max-w-full items-center gap-0.5 overflow-x-auto pb-1 pr-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                   <IconTooltip label="Voice Input">
                     <button
                       onClick={onOpenVoice}
