@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Settings, Target, Globe } from 'lucide-react';
 import { UserSettings } from '../types';
-import { LanguageSwitcher } from './features/LanguageSwitcher';
 import NumericSliderField from './ui/NumericSliderField';
+import { LanguageSelector } from './ui/language-selector';
+import { useLanguage } from '../context/LanguageContext';
+import type { SupportedLanguage } from '../constants/languages';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -14,6 +16,13 @@ interface SettingsModalProps {
 export default function SettingsModal({ isOpen, onClose, settings, onSave }: SettingsModalProps) {
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
   const [activeTab, setActiveTab] = useState<'goals' | 'language'>('goals');
+  const { language, setLanguage, availableLanguages } = useLanguage();
+
+  const languageOptions = availableLanguages.map((item) => ({
+    code: item.code,
+    label: item.label,
+    flagEmoji: item.flag,
+  }));
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -159,17 +168,27 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
 
             {activeTab === 'language' && (
               <div className="space-y-4">
-                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
-                  <h3 className="text-sm font-medium text-primary mb-2">
+                <div className="rounded-xl border border-border/60 bg-card/70 p-4 backdrop-blur-xl">
+                  <h3 className="mb-2 text-sm font-medium text-foreground">
                     Choose Your Language
                   </h3>
-                  <p className="text-sm text-primary/80">
-                    Select your preferred language for the interface. This will affect all text displayed in the app.
+                  <p className="text-sm text-muted-foreground">
+                    This changes all app text.
                   </p>
                 </div>
 
-                <div>
-                  <LanguageSwitcher variant="full" />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Language
+                  </label>
+                  <LanguageSelector
+                    value={language}
+                    onChange={(code) => setLanguage(code as SupportedLanguage)}
+                    options={languageOptions}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Changes apply immediately and are saved for your next visit.
+                  </p>
                 </div>
               </div>
             )}

@@ -29,6 +29,7 @@ export { default as DockMorph } from './dock-morph';
 export { GlassSurface } from './glass-surface';
 export { ProfilePanel } from './profile-panel';
 export { UserMenu } from './user-menu';
+export { LanguageSelector, type LanguageSelectorOption } from './language-selector';
 export {
   NotificationsBell,
   NotificationsPanel,
