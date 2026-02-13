@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Settings, Target, User, Globe } from 'lucide-react';
+import { X, Save, Settings, Target, Globe } from 'lucide-react';
 import { UserSettings } from '../types';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
 import NumericSliderField from './ui/NumericSliderField';
@@ -8,12 +8,12 @@ interface SettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   settings: UserSettings;
-  onSave: (settings: UserSettings) => void;
+  onSave: (settings: Partial<UserSettings>) => void;
 }
 
 export default function SettingsModal({ isOpen, onClose, settings, onSave }: SettingsModalProps) {
   const [localSettings, setLocalSettings] = useState<UserSettings>(settings);
-  const [activeTab, setActiveTab] = useState<'goals' | 'profile' | 'language'>('goals');
+  const [activeTab, setActiveTab] = useState<'goals' | 'language'>('goals');
 
   useEffect(() => {
     setLocalSettings(settings);
@@ -22,18 +22,6 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
   const handleSave = () => {
     onSave(localSettings);
     onClose();
-  };
-
-  const toggleDietaryPreference = (preference: string) => {
-    const currentPrefs = localSettings.dietaryPreferences || [];
-    const updatedPrefs = currentPrefs.includes(preference)
-      ? currentPrefs.filter(p => p !== preference)
-      : [...currentPrefs, preference];
-
-    setLocalSettings({
-      ...localSettings,
-      dietaryPreferences: updatedPrefs,
-    });
   };
 
   if (!isOpen) return null;
@@ -72,17 +60,6 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
             >
               <Target className="w-4 h-4 inline mr-2" />
               Goals
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('profile')}
-              className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${activeTab === 'profile'
-                ? 'text-primary border-b-2 border-primary'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                }`}
-            >
-              <User className="w-4 h-4 inline mr-2" />
-              Profile
             </button>
             <button
               type="button"
@@ -175,193 +152,6 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                         })
                       }
                     />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'profile' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <NumericSliderField
-                    id="age"
-                    label="Age"
-                    value={localSettings.age ?? 30}
-                    min={10}
-                    max={100}
-                    step={1}
-                    unit="yrs"
-                    tone="primary"
-                    onChange={(value) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        age: value,
-                      })
-                    }
-                    actionSlot={
-                      localSettings.age !== undefined ? (
-                        <button
-                          type="button"
-                          className="text-xs text-muted-foreground hover:text-foreground"
-                          onClick={() =>
-                            setLocalSettings({
-                              ...localSettings,
-                              age: undefined,
-                            })
-                          }
-                        >
-                          Clear age
-                        </button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Age is currently optional.</span>
-                      )
-                    }
-                  />
-
-                  <NumericSliderField
-                    id="weight"
-                    label="Weight"
-                    value={localSettings.weight ?? 70}
-                    min={30}
-                    max={300}
-                    step={0.1}
-                    unit="kg"
-                    tone="primary"
-                    onChange={(value) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        weight: value,
-                      })
-                    }
-                    actionSlot={
-                      localSettings.weight !== undefined ? (
-                        <button
-                          type="button"
-                          className="text-xs text-muted-foreground hover:text-foreground"
-                          onClick={() =>
-                            setLocalSettings({
-                              ...localSettings,
-                              weight: undefined,
-                            })
-                          }
-                        >
-                          Clear weight
-                        </button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Weight is currently optional.</span>
-                      )
-                    }
-                  />
-                </div>
-
-                <NumericSliderField
-                  id="height"
-                  label="Height"
-                  value={localSettings.height ?? 175}
-                  min={100}
-                  max={250}
-                  step={1}
-                  unit="cm"
-                  tone="primary"
-                  onChange={(value) =>
-                    setLocalSettings({
-                      ...localSettings,
-                      height: value,
-                    })
-                  }
-                  actionSlot={
-                    localSettings.height !== undefined ? (
-                      <button
-                        type="button"
-                        className="text-xs text-muted-foreground hover:text-foreground"
-                        onClick={() =>
-                          setLocalSettings({
-                            ...localSettings,
-                            height: undefined,
-                          })
-                        }
-                      >
-                        Clear height
-                      </button>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Height is currently optional.</span>
-                    )
-                  }
-                />
-
-                <div>
-                  <label htmlFor="activityLevel" className="block text-sm font-medium text-foreground mb-2">
-                    Activity Level
-                  </label>
-                  <select
-                    id="activityLevel"
-                    name="activityLevel"
-                    value={localSettings.activityLevel || 'moderately_active'}
-                    onChange={(e) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        activityLevel: e.target.value as UserSettings['activityLevel'],
-                      })
-                    }
-                    className="w-full px-4 py-2 bg-card dark:bg-card border border-border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-foreground"
-                  >
-                    <option value="sedentary">Sedentary (little/no exercise)</option>
-                    <option value="lightly_active">Lightly Active (light exercise 1-3 days/week)</option>
-                    <option value="moderately_active">Moderately Active (moderate exercise 3-5 days/week)</option>
-                    <option value="very_active">Very Active (hard exercise 6-7 days/week)</option>
-                    <option value="extra_active">Extra Active (very hard exercise, physical job)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label htmlFor="goal" className="block text-sm font-medium text-foreground mb-2">
-                    Goal
-                  </label>
-                  <select
-                    id="goal"
-                    name="goal"
-                    value={localSettings.goal || 'maintain'}
-                    onChange={(e) =>
-                      setLocalSettings({
-                        ...localSettings,
-                        goal: e.target.value as UserSettings['goal'],
-                      })
-                    }
-                    className="w-full px-4 py-2 bg-card dark:bg-card border border-border rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-foreground"
-                  >
-                    <option value="lose">Weight Loss</option>
-                    <option value="maintain">Maintain Weight</option>
-                    <option value="gain">Muscle Gain</option>
-                  </select>
-                </div>
-
-                <div>
-                  <span className="block text-sm font-medium text-foreground mb-2">
-                    Dietary Preferences
-                  </span>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      'vegetarian',
-                      'vegan',
-                      'gluten-free',
-                      'dairy-free',
-                      'high-protein',
-                      'low-carb',
-                      'mediterranean',
-                      'keto',
-                    ].map((preference) => (
-                      <button
-                        key={preference}
-                        type="button"
-                        onClick={() => toggleDietaryPreference(preference)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${(localSettings.dietaryPreferences || []).includes(preference)
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                          }`}
-                      >
-                        {preference.replace('-', ' ')}
-                      </button>
-                    ))}
                   </div>
                 </div>
               </div>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Settings, Flame, RefreshCw, ArrowRightLeft, Mic2, LogOut } from 'lucide-react';
+import { Flame, RefreshCw, ArrowRightLeft, Mic2 } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { LanguageSwitcher } from './features/LanguageSwitcher';
 import GlowMenuNav from './ui/glow-menu-nav';
+import { UserMenu } from './ui/user-menu';
 import {
   NotificationsBell,
   NotificationsPanel,
@@ -14,7 +15,7 @@ import {
   TooltipTrigger,
 } from './ui/tooltip';
 import { useNotificationCenter } from '../hooks/useNotificationCenter';
-import type { ActiveView } from '../types';
+import type { ActiveView, UserSettings } from '../types';
 
 interface HeaderProps {
   onOpenSettings: () => void;
@@ -23,8 +24,10 @@ interface HeaderProps {
   onOpenCompare: () => void;
   activeView: ActiveView;
   onViewChange: (view: ActiveView) => void;
+  settings: UserSettings;
+  onSaveProfile: (settings: Partial<UserSettings>) => void;
   userEmail?: string | null;
-  onSignOut?: () => void;
+  onSignOut?: () => Promise<void>;
 }
 
 interface IconTooltipProps {
@@ -54,6 +57,8 @@ export default function Header({
   onOpenCompare,
   activeView,
   onViewChange,
+  settings,
+  onSaveProfile,
   userEmail,
   onSignOut,
 }: HeaderProps) {
@@ -143,26 +148,16 @@ export default function Header({
                     </span>
                   </IconTooltip>
 
-                  {onSignOut ? (
-                    <IconTooltip label={userEmail ? `Sign out (${userEmail})` : 'Sign out'}>
-                      <button
-                        onClick={onSignOut}
-                        className={iconGlassButtonClass}
-                        aria-label={userEmail ? `Sign out (${userEmail})` : "Sign out"}
-                      >
-                        <LogOut className="w-4 h-4" />
-                      </button>
-                    </IconTooltip>
-                  ) : null}
-
-                  <IconTooltip label="Settings">
-                    <button
-                      onClick={onOpenSettings}
-                      className={iconGlassButtonClass}
-                      aria-label="Settings"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
+                  <IconTooltip label="Account">
+                    <span className="inline-flex">
+                      <UserMenu
+                        email={userEmail}
+                        settings={settings}
+                        onOpenSettings={onOpenSettings}
+                        onSignOut={onSignOut}
+                        onSaveProfile={onSaveProfile}
+                      />
+                    </span>
                   </IconTooltip>
                 </div>
               </TooltipProvider>

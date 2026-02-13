@@ -179,6 +179,11 @@ function AuthenticatedApp() {
     notifySuccess("Settings saved")
   }
 
+  const handleProfileSave = (newSettings: Partial<UserSettings>) => {
+    updateSettings(newSettings)
+    notifySuccess("Profile updated")
+  }
+
   const handleImportMeals = (importedMeals: Partial<Meal>[]) => {
     const newMeals: Meal[] = importedMeals.map((meal) => ({
       id: uuidv4(),
@@ -691,6 +696,8 @@ function AuthenticatedApp() {
           onOpenCompare={() => setIsCompareOpen(true)}
           activeView={activeView}
           onViewChange={handleViewChange}
+          settings={settings}
+          onSaveProfile={handleProfileSave}
           userEmail={email || "User"}
           onSignOut={handleSignOut}
         />

@@ -1,8 +1,21 @@
 export { ThemeToggle } from './ThemeToggle';
 export { Button } from './button';
+export { Avatar, AvatarImage, AvatarFallback } from './avatar';
 export { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from './dialog';
 export { Sheet, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from './sheet';
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from './dropdown-menu';
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverBody,
+  PopoverHeader,
+  PopoverTitle,
+  PopoverDescription,
+  PopoverFooter,
+  PopoverAnchor,
+  PopoverClose,
+} from './popover';
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './tabs';
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';
@@ -14,6 +27,8 @@ export { Switch as MaterialDesign3Switch } from './material-design-3-switch';
 export { QuickAddPill } from './quick-add-pill';
 export { default as DockMorph } from './dock-morph';
 export { GlassSurface } from './glass-surface';
+export { ProfilePanel } from './profile-panel';
+export { UserMenu } from './user-menu';
 export {
   NotificationsBell,
   NotificationsPanel,
