@@ -691,7 +691,6 @@ function AuthenticatedApp() {
         <Toaster />
         <Header
           onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenUtilities={() => setIsUtilityOpen(true)}
           onOpenVoice={() => setIsVoiceOpen(true)}
           onOpenCompare={() => setIsCompareOpen(true)}
           activeView={activeView}

@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Flame, RefreshCw, ArrowRightLeft, Mic2 } from 'lucide-react';
+import { Flame, Mic2 } from 'lucide-react';
 import { ThemeToggle } from './ui/ThemeToggle';
-import { LanguageSwitcher } from './features/LanguageSwitcher';
 import GlowMenuNav from './ui/glow-menu-nav';
 import { UserMenu } from './ui/user-menu';
 import {
@@ -19,7 +18,6 @@ import type { ActiveView, UserSettings } from '../types';
 
 interface HeaderProps {
   onOpenSettings: () => void;
-  onOpenUtilities: () => void;
   onOpenVoice: () => void;
   onOpenCompare: () => void;
   activeView: ActiveView;
@@ -52,7 +50,6 @@ function IconTooltip({ label, children }: IconTooltipProps) {
 
 export default function Header({
   onOpenSettings,
-  onOpenUtilities,
   onOpenVoice,
   onOpenCompare,
   activeView,
@@ -107,26 +104,6 @@ export default function Header({
                     </button>
                   </IconTooltip>
 
-                  <IconTooltip label="Compare Foods">
-                    <button
-                      onClick={onOpenCompare}
-                      className={iconGlassButtonClass}
-                      aria-label="Compare Foods"
-                    >
-                      <ArrowRightLeft className="w-4 h-4 text-primary" />
-                    </button>
-                  </IconTooltip>
-
-                  <IconTooltip label="Utilities">
-                    <button
-                      onClick={onOpenUtilities}
-                      className={iconGlassButtonClass}
-                      aria-label="Utilities"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </button>
-                  </IconTooltip>
-
                   <IconTooltip label="Notifications">
                     <span className="inline-flex">
                       <NotificationsBell
@@ -139,12 +116,6 @@ export default function Header({
                   <IconTooltip label="Theme">
                     <span className="inline-flex">
                       <ThemeToggle />
-                    </span>
-                  </IconTooltip>
-
-                  <IconTooltip label="Language">
-                    <span className="inline-flex">
-                      <LanguageSwitcher variant="icon" iconTriggerClassName={iconGlassButtonClass} />
                     </span>
                   </IconTooltip>
 
@@ -164,7 +135,11 @@ export default function Header({
             </div>
           </div>
           <div className="mt-3">
-            <GlowMenuNav activeView={activeView} onViewChange={onViewChange} />
+            <GlowMenuNav
+              activeView={activeView}
+              onViewChange={onViewChange}
+              onOpenCompare={onOpenCompare}
+            />
           </div>
         </div>
       </header>

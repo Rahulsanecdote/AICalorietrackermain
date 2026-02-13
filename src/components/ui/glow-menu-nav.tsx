@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import {
+  ArrowRightLeft,
   BarChart2,
   Calendar,
   Coffee,
@@ -23,6 +24,7 @@ import {
 interface GlowMenuNavProps {
   activeView: ActiveView;
   onViewChange: (view: ActiveView) => void;
+  onOpenCompare?: () => void;
   className?: string;
 }
 
@@ -37,7 +39,12 @@ interface NavItem {
   tone: NavTone;
 }
 
-export default function GlowMenuNav({ activeView, onViewChange, className }: GlowMenuNavProps) {
+export default function GlowMenuNav({
+  activeView,
+  onViewChange,
+  onOpenCompare,
+  className,
+}: GlowMenuNavProps) {
   const { t } = useTranslation();
 
   const navItems: Record<ActiveView, NavItem> = {
@@ -51,6 +58,23 @@ export default function GlowMenuNav({ activeView, onViewChange, className }: Glo
   };
 
   const isMoreActive = MORE_VIEWS.includes(activeView as (typeof MORE_VIEWS)[number]);
+
+  const moreItems = [
+    ...MORE_VIEWS.map((viewId) => ({
+      id: viewId,
+      label: navItems[viewId].label,
+      icon: navItems[viewId].icon,
+      isActive: activeView === viewId,
+      onSelect: () => onViewChange(viewId),
+    })),
+    {
+      id: "compare",
+      label: t("compare.compareButton", { defaultValue: "Compare" }),
+      icon: <ArrowRightLeft className="h-4 w-4" />,
+      isActive: false,
+      onSelect: () => onOpenCompare?.(),
+    },
+  ] as const;
 
   return (
     <nav className={cn("w-full", className)} aria-label="Primary navigation">
@@ -121,29 +145,26 @@ export default function GlowMenuNav({ activeView, onViewChange, className }: Glo
                 sideOffset={10}
                 className="w-52 rounded-xl border-border/70 bg-popover/95 backdrop-blur-lg"
               >
-                {MORE_VIEWS.map((viewId) => {
-                  const item = navItems[viewId];
-                  const isActive = activeView === viewId;
-
-                  return (
-                    <DropdownMenuItem
-                      key={viewId}
-                      onSelect={() => onViewChange(viewId)}
-                      data-tone={item.tone}
-                      className={cn(
-                        "glow-nav-menu-item flex cursor-pointer items-center justify-between rounded-lg px-2.5 py-2",
-                        isActive && "glow-nav-menu-item-active",
-                      )}
-                      aria-label={`Open ${item.label}`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className="glow-nav-icon">{item.icon}</span>
-                        {item.label}
-                      </span>
-                      {isActive ? <span className="glow-nav-indicator h-2 w-2 rounded-full" aria-hidden="true" /> : null}
-                    </DropdownMenuItem>
-                  );
-                })}
+                {moreItems.map((item) => (
+                  <DropdownMenuItem
+                    key={item.id}
+                    onSelect={item.onSelect}
+                    data-tone="more"
+                    className={cn(
+                      "glow-nav-menu-item flex cursor-pointer items-center justify-between rounded-lg px-2.5 py-2",
+                      item.isActive && "glow-nav-menu-item-active",
+                    )}
+                    aria-label={`Open ${item.label}`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span className="glow-nav-icon">{item.icon}</span>
+                      {item.label}
+                    </span>
+                    {item.isActive ? (
+                      <span className="glow-nav-indicator h-2 w-2 rounded-full" aria-hidden="true" />
+                    ) : null}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </li>
