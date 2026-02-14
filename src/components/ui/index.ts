@@ -27,6 +27,7 @@ export { Switch as MaterialDesign3Switch } from './material-design-3-switch';
 export { QuickAddPill } from './quick-add-pill';
 export { default as DockMorph } from './dock-morph';
 export { GlassSurface } from './glass-surface';
+export { GridPatternCard, GridPatternCardBody } from './card-with-grid-ellipsis-pattern';
 export { ProfilePanel } from './profile-panel';
 export { UserMenu } from './user-menu';
 export { LanguageSelector, type LanguageSelectorOption } from './language-selector';

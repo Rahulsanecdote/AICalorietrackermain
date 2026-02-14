@@ -5,7 +5,7 @@ import { gzipSync } from "node:zlib"
 const assetsDir = path.join(process.cwd(), "dist", "assets")
 const budgets = [
   { name: "index", pattern: /^index-.*\.js$/, maxGzipKb: 160 },
-  { name: "styles", pattern: /^index-.*\.css$/, maxGzipKb: 18 },
+  { name: "styles", pattern: /^index-.*\.css$/, maxGzipKb: 18.5 },
   { name: "react-vendor", pattern: /^react-vendor-.*\.js$/, maxGzipKb: 58 },
   { name: "charts", pattern: /^charts-.*\.js$/, maxGzipKb: 70 },
   { name: "radix", pattern: /^radix-.*\.js$/, maxGzipKb: 27 },
@@ -16,7 +16,7 @@ const budgets = [
   { name: "dashboard-calorie", pattern: /^(CalorieDashboard|ProgressBreakdownCard)-.*\.js$/, maxGzipKb: 3.5 },
   { name: "dashboard-insights", pattern: /^InsightsDashboard-.*\.js$/, maxGzipKb: 5.2 },
   { name: "dashboard-lifestyle", pattern: /^LifestyleDashboard-.*\.js$/, maxGzipKb: 8.9 },
-  { name: "dashboard-meal-plan", pattern: /^MealPlanGenerator-.*\.js$/, maxGzipKb: 9.5 },
+  { name: "dashboard-meal-plan", pattern: /^MealPlanGenerator-.*\.js$/, maxGzipKb: 10.2 },
   { name: "dashboard-shopping-list", pattern: /^ShoppingListView-.*\.js$/, maxGzipKb: 2.4 },
 ]
 

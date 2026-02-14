@@ -62,6 +62,12 @@ export default {
           foreground: "hsl(var(--warm-foreground))",
         },
       },
+      backgroundImage: {
+        "grid-pattern":
+          "linear-gradient(to right, hsl(var(--foreground) / 0.09) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground) / 0.09) 1px, transparent 1px), radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.16) 0.8px, transparent 1px)",
+        "grid-pattern-light":
+          "linear-gradient(to right, hsl(var(--foreground) / 0.05) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--foreground) / 0.05) 1px, transparent 1px), radial-gradient(circle at 1px 1px, hsl(var(--foreground) / 0.1) 0.8px, transparent 1px)",
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
