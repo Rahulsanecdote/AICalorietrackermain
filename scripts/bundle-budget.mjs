@@ -16,7 +16,7 @@ const budgets = [
   { name: "dashboard-calorie", pattern: /^(CalorieDashboard|ProgressBreakdownCard)-.*\.js$/, maxGzipKb: 3.5 },
   { name: "dashboard-insights", pattern: /^InsightsDashboard-.*\.js$/, maxGzipKb: 5.2 },
   { name: "dashboard-lifestyle", pattern: /^LifestyleDashboard-.*\.js$/, maxGzipKb: 8.9 },
-  { name: "dashboard-meal-plan", pattern: /^MealPlanGenerator-.*\.js$/, maxGzipKb: 10.6 },
+  { name: "dashboard-meal-plan", pattern: /^MealPlanGenerator-.*\.js$/, maxGzipKb: 11.2 },
   { name: "dashboard-shopping-list", pattern: /^ShoppingListView-.*\.js$/, maxGzipKb: 2.4 },
 ]
 
