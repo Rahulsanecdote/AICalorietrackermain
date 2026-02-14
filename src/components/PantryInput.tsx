@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Check, ChefHat, ChevronDown, Lightbulb, Package, Sparkles, X } from "lucide-react"
 import { GridPatternCard, GridPatternCardBody } from "@/components/ui/card-with-grid-ellipsis-pattern"
 import { PantryInputData, PantryInputProps } from "../types"
@@ -63,6 +63,7 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
   const [saveAsDefault, setSaveAsDefault] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isSuggestionsExpanded, setIsSuggestionsExpanded] = useState(false)
+  const panelRef = useRef<HTMLDivElement | null>(null)
 
   useEffect(() => {
     setPantryData(initialData || defaultData)
@@ -73,6 +74,77 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
       setIsSuggestionsExpanded(false)
     }
   }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") {
+      return
+    }
+
+    const html = document.documentElement
+    const body = document.body
+    const scrollY = window.scrollY
+
+    const previousHtml = {
+      overflow: html.style.overflow,
+      overscrollBehavior: html.style.overscrollBehavior,
+      height: html.style.height,
+    }
+    const previousBody = {
+      overflow: body.style.overflow,
+      overscrollBehavior: body.style.overscrollBehavior,
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+    }
+
+    html.style.overflow = "hidden"
+    html.style.overscrollBehavior = "none"
+    html.style.height = "100%"
+
+    body.style.overflow = "hidden"
+    body.style.overscrollBehavior = "none"
+    body.style.position = "fixed"
+    body.style.top = `-${scrollY}px`
+    body.style.left = "0"
+    body.style.right = "0"
+    body.style.width = "100%"
+
+    const preventBackgroundTouchMove = (event: TouchEvent) => {
+      if (!panelRef.current?.contains(event.target as Node)) {
+        event.preventDefault()
+      }
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose()
+      }
+    }
+
+    document.addEventListener("touchmove", preventBackgroundTouchMove, { passive: false })
+    document.addEventListener("keydown", handleEscape)
+
+    return () => {
+      document.removeEventListener("touchmove", preventBackgroundTouchMove)
+      document.removeEventListener("keydown", handleEscape)
+
+      html.style.overflow = previousHtml.overflow
+      html.style.overscrollBehavior = previousHtml.overscrollBehavior
+      html.style.height = previousHtml.height
+
+      body.style.overflow = previousBody.overflow
+      body.style.overscrollBehavior = previousBody.overscrollBehavior
+      body.style.position = previousBody.position
+      body.style.top = previousBody.top
+      body.style.left = previousBody.left
+      body.style.right = previousBody.right
+      body.style.width = previousBody.width
+
+      window.scrollTo(0, scrollY)
+    }
+  }, [isOpen, onClose])
 
   const parsedFoods = useMemo(
     () => ({
@@ -141,8 +213,11 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
   const isFormValid = pantryData.breakfast.trim() && pantryData.lunch.trim() && pantryData.dinner.trim()
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/55 p-3 supports-[backdrop-filter]:backdrop-blur-sm sm:p-6">
-      <div className="mx-auto flex h-[min(92vh,880px)] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-border/45 bg-card/70 shadow-[0_24px_64px_hsl(var(--foreground)/0.34)] supports-[backdrop-filter]:backdrop-blur-xl">
+    <div className="fixed inset-0 z-[140] overflow-hidden bg-black/70 overscroll-none supports-[backdrop-filter]:backdrop-blur-sm md:flex md:items-center md:justify-center md:p-6">
+      <div
+        ref={panelRef}
+        className="relative flex h-[100dvh] w-full flex-col overflow-hidden bg-card/90 shadow-[0_24px_64px_hsl(var(--foreground)/0.34)] supports-[backdrop-filter]:backdrop-blur-xl md:mx-auto md:h-[min(92vh,880px)] md:max-w-6xl md:rounded-3xl md:border md:border-border/45"
+      >
         <div className="flex items-start justify-between gap-3 border-b border-border/45 px-4 py-4 sm:px-6">
           <div className="flex items-start gap-3">
             <div className="mt-0.5 inline-flex h-10 w-10 items-center justify-center rounded-full border border-border/45 bg-primary/15 text-primary">
@@ -163,7 +238,7 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:overflow-visible md:px-6 md:py-5 md:pb-5">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch] md:overflow-visible md:px-6 md:py-5">
           <div className="grid gap-4 md:h-full lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
             <div className="min-h-0 space-y-4 pr-1 md:overflow-y-auto">
               {(Object.keys(pantryData) as Array<keyof PantryInputData>).map((mealKey) => {
@@ -366,7 +441,7 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
         </div>
 
         <div
-          className="sticky bottom-0 z-30 flex flex-wrap items-center justify-end gap-3 border-t border-border/50 bg-card/95 px-4 py-3 supports-[backdrop-filter]:backdrop-blur-xl md:static md:bg-background/50"
+          className="sticky bottom-0 z-40 flex flex-wrap items-center justify-end gap-3 border-t border-border/55 bg-card px-4 py-3 supports-[backdrop-filter]:bg-card/95 supports-[backdrop-filter]:backdrop-blur-xl md:static md:bg-background/50"
           style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
         >
           <button
