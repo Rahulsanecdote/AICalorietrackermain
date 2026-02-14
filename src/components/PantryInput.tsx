@@ -163,9 +163,9 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 px-4 py-4 sm:px-6 sm:py-5">
-          <div className="grid h-full gap-4 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
-            <div className="min-h-0 space-y-4 overflow-y-auto pr-1">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] md:overflow-visible md:px-6 md:py-5 md:pb-5">
+          <div className="grid gap-4 md:h-full lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,1fr)]">
+            <div className="min-h-0 space-y-4 pr-1 md:overflow-y-auto">
               {(Object.keys(pantryData) as Array<keyof PantryInputData>).map((mealKey) => {
                 const meta = mealMeta[mealKey]
                 const currentFoods = parsedFoods[mealKey]
@@ -245,7 +245,7 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
               </GridPatternCard>
             </div>
 
-            <div className="min-h-0 overflow-y-auto">
+            <div className="min-h-0 overflow-visible md:overflow-y-auto">
               <GridPatternCard className="md:hidden">
                 <GridPatternCardBody className="p-3">
                   <button
@@ -278,12 +278,15 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
                   <div
                     id="pantry-ai-suggestions-panel"
                     className={cn(
-                      "grid transition-all duration-300 ease-out motion-reduce:transition-none",
+                      "grid min-h-0 transition-all duration-300 ease-out motion-reduce:transition-none",
                       isSuggestionsExpanded ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                     )}
                   >
                     <div className="min-h-0 overflow-hidden">
-                      <div className="max-h-[40vh] space-y-3 overflow-y-auto pr-1 overscroll-contain">
+                      <div
+                        className="min-h-0 max-h-[42vh] space-y-3 overflow-y-auto overscroll-contain pr-1 [scrollbar-gutter:stable] [-webkit-overflow-scrolling:touch]"
+                        style={{ WebkitOverflowScrolling: "touch" }}
+                      >
                         <p className="rounded-xl border border-border/40 bg-background/35 p-3 text-xs text-muted-foreground">
                           Based on your pantry, NutriAI will combine foods into balanced meal cards.
                         </p>
@@ -363,7 +366,7 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
         </div>
 
         <div
-          className="flex flex-wrap items-center justify-end gap-3 border-t border-border/45 bg-background/50 px-4 py-3 sm:px-6"
+          className="sticky bottom-0 z-30 flex flex-wrap items-center justify-end gap-3 border-t border-border/50 bg-card/95 px-4 py-3 supports-[backdrop-filter]:backdrop-blur-xl md:static md:bg-background/50"
           style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
         >
           <button
