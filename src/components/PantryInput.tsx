@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react"
-import { Check, ChefHat, Lightbulb, Package, Sparkles, X } from "lucide-react"
+import { Check, ChefHat, ChevronDown, Lightbulb, Package, Sparkles, X } from "lucide-react"
 import { GridPatternCard, GridPatternCardBody } from "@/components/ui/card-with-grid-ellipsis-pattern"
 import { PantryInputData, PantryInputProps } from "../types"
 import { cn } from "@/lib/utils"
@@ -62,10 +62,17 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
   const [pantryData, setPantryData] = useState<PantryInputData>(initialData || defaultData)
   const [saveAsDefault, setSaveAsDefault] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isSuggestionsExpanded, setIsSuggestionsExpanded] = useState(false)
 
   useEffect(() => {
     setPantryData(initialData || defaultData)
   }, [initialData])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsSuggestionsExpanded(false)
+    }
+  }, [isOpen])
 
   const parsedFoods = useMemo(
     () => ({
@@ -75,6 +82,27 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
       snacks: parseFoods(pantryData.snacks),
     }),
     [pantryData]
+  )
+
+  const suggestionGroups = useMemo(
+    () =>
+      (Object.keys(parsedFoods) as Array<keyof PantryInputData>).map((mealKey) => {
+        const meta = mealMeta[mealKey]
+        const foods = parsedFoods[mealKey]
+        const candidates = foods.length > 0 ? foods : fallbackSuggestions[mealKey]
+
+        return {
+          mealKey,
+          meta,
+          candidates: candidates.slice(0, 6),
+        }
+      }),
+    [parsedFoods]
+  )
+
+  const suggestionCount = useMemo(
+    () => suggestionGroups.reduce((total, group) => total + group.candidates.length, 0),
+    [suggestionGroups]
   )
 
   if (!isOpen) {
@@ -95,6 +123,7 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
       if (saveAsDefault) {
         await onSave(pantryData, true)
       }
+      setIsSuggestionsExpanded(false)
       onClose()
     } catch (error) {
       console.error("Error generating meal plan:", error)
@@ -217,33 +246,94 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
             </div>
 
             <div className="min-h-0 overflow-y-auto">
-              <GridPatternCard className="h-full">
-                <GridPatternCardBody className="flex h-full flex-col gap-4 p-4">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-primary" />
-                      <h3 className="text-base font-semibold text-foreground">AI Suggestions Preview</h3>
+              <GridPatternCard className="md:hidden">
+                <GridPatternCardBody className="p-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsSuggestionsExpanded((prev) => !prev)}
+                    aria-expanded={isSuggestionsExpanded}
+                    aria-controls="pantry-ai-suggestions-panel"
+                    className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl border border-border/45 bg-background/35 px-3 py-2 text-left transition-all duration-200 hover:bg-background/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+                        <span className="truncate text-sm font-semibold text-foreground">AI Suggestions</span>
+                      </div>
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground">Tap to preview</p>
                     </div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Based on your pantry inputs, AI will combine these foods into balanced meal cards.
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full border border-border/45 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground">
+                        {suggestionCount}
+                      </span>
+                      <ChevronDown
+                        className={cn(
+                          "h-4 w-4 text-muted-foreground transition-transform duration-200 motion-reduce:transition-none",
+                          isSuggestionsExpanded && "rotate-180"
+                        )}
+                      />
+                    </div>
+                  </button>
+
+                  <div
+                    id="pantry-ai-suggestions-panel"
+                    className={cn(
+                      "grid transition-all duration-300 ease-out motion-reduce:transition-none",
+                      isSuggestionsExpanded ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                    )}
+                  >
+                    <div className="min-h-0 overflow-hidden">
+                      <div className="max-h-[40vh] space-y-3 overflow-y-auto pr-1 overscroll-contain">
+                        <p className="rounded-xl border border-border/40 bg-background/35 p-3 text-xs text-muted-foreground">
+                          Based on your pantry, NutriAI will combine foods into balanced meal cards.
+                        </p>
+
+                        {suggestionGroups.map((group) => (
+                          <div key={`mobile-suggest-${group.mealKey}`} className="rounded-xl border border-border/40 bg-background/35 p-3">
+                            <p className={cn("mb-2 text-sm font-medium", group.meta.accentText)}>
+                              {group.meta.icon} {group.meta.title.replace(" Foods", "")}
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {group.candidates.map((food) => (
+                                <span
+                                  key={`${group.mealKey}-mobile-chip-${food}`}
+                                  className="max-w-full truncate rounded-full border border-border/35 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground"
+                                >
+                                  {food}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
+                </GridPatternCardBody>
+              </GridPatternCard>
 
-                  <div className="space-y-3 overflow-y-auto pr-1">
-                    {(Object.keys(parsedFoods) as Array<keyof PantryInputData>).map((mealKey) => {
-                      const foods = parsedFoods[mealKey]
-                      const meta = mealMeta[mealKey]
-                      const candidates = foods.length > 0 ? foods : fallbackSuggestions[mealKey]
+              <div className="hidden md:block">
+                <GridPatternCard className="h-full">
+                  <GridPatternCardBody className="flex h-full flex-col gap-4 p-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <h3 className="text-base font-semibold text-foreground">AI Suggestions Preview</h3>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Based on your pantry inputs, AI will combine these foods into balanced meal cards.
+                      </p>
+                    </div>
 
-                      return (
-                        <div key={`suggest-${mealKey}`} className="rounded-xl border border-border/40 bg-background/35 p-3">
-                          <p className={cn("mb-2 text-sm font-medium", meta.accentText)}>
-                            {meta.icon} {meta.title.replace(" Foods", "")}
+                    <div className="space-y-3 overflow-y-auto pr-1">
+                      {suggestionGroups.map((group) => (
+                        <div key={`suggest-${group.mealKey}`} className="rounded-xl border border-border/40 bg-background/35 p-3">
+                          <p className={cn("mb-2 text-sm font-medium", group.meta.accentText)}>
+                            {group.meta.icon} {group.meta.title.replace(" Foods", "")}
                           </p>
                           <div className="flex flex-wrap gap-1.5">
-                            {candidates.slice(0, 6).map((food) => (
+                            {group.candidates.map((food) => (
                               <span
-                                key={`${mealKey}-chip-${food}`}
+                                key={`${group.mealKey}-chip-${food}`}
                                 className="rounded-full border border-border/35 bg-background/45 px-2 py-0.5 text-xs text-muted-foreground"
                               >
                                 {food}
@@ -251,23 +341,23 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
                             ))}
                           </div>
                         </div>
-                      )
-                    })}
-                  </div>
-
-                  <div className="rounded-xl border border-border/40 bg-background/35 p-3">
-                    <div className="mb-1 flex items-center gap-2">
-                      <Lightbulb className="h-4 w-4 text-primary" />
-                      <p className="text-sm font-medium text-foreground">Generation tips</p>
+                      ))}
                     </div>
-                    <ul className="space-y-1 text-xs text-muted-foreground">
-                      <li>• Include at least 3-5 ingredients per meal for better macro distribution.</li>
-                      <li>• Keep proteins explicit (eggs, chicken, tofu) for accurate planning.</li>
-                      <li>• Add snack options if you want smoother calorie balancing.</li>
-                    </ul>
-                  </div>
-                </GridPatternCardBody>
-              </GridPatternCard>
+
+                    <div className="rounded-xl border border-border/40 bg-background/35 p-3">
+                      <div className="mb-1 flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4 text-primary" />
+                        <p className="text-sm font-medium text-foreground">Generation tips</p>
+                      </div>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        <li>• Include at least 3-5 ingredients per meal for better macro distribution.</li>
+                        <li>• Keep proteins explicit (eggs, chicken, tofu) for accurate planning.</li>
+                        <li>• Add snack options if you want smoother calorie balancing.</li>
+                      </ul>
+                    </div>
+                  </GridPatternCardBody>
+                </GridPatternCard>
+              </div>
             </div>
           </div>
         </div>
@@ -305,4 +395,3 @@ export default function PantryInput({ isOpen, onClose, initialData, onSave, onGe
     </div>
   )
 }
-
