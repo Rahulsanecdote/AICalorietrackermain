@@ -46,6 +46,7 @@ const ShoppingListView = React.lazy(() => import("./components/shopping/Shopping
 const AnalyticsDashboard = React.lazy(() => import("./components/analytics/AnalyticsDashboard"))
 const ProgressBreakdownCard = React.lazy(() => import("./components/tracker/ProgressBreakdownCard"))
 const MealPlanGenerator = React.lazy(() => import("./components/MealPlanGenerator"))
+const MealPrepFlow = React.lazy(() => import("./components/mealprep/MealPrepFlow"))
 
 
 function DashboardLoadingCard({ title, description }: { title: string; description: string }) {
@@ -92,10 +93,13 @@ function AuthenticatedApp() {
     favorites,
     isFavorite,
     isFoodItemFavorite,
+    isPlanFavorite,
     toggleFavorite,
     toggleFoodItemFavorite,
+    togglePlanFavorite,
     removeFoodItemFavorite,
     removeRecipeFavorite,
+    removePlanFavorite,
     clearFavorites,
   } = useFavorites()
   
@@ -138,6 +142,10 @@ function AuthenticatedApp() {
   )
   const recipeFavorites = useMemo(
     () => favorites.filter((favorite) => favorite.type === "recipe"),
+    [favorites],
+  )
+  const planFavorites = useMemo(
+    () => favorites.filter((favorite) => favorite.type === "plan"),
     [favorites],
   )
 
@@ -255,7 +263,6 @@ function AuthenticatedApp() {
 
   const handleGenerateMealPrep = () => {
     setActiveView("mealprep")
-    notifyInfo("Meal prep view implementation pending")
   }
 
   const handleAddMeal = async (description: string, category: MealCategory) => {
@@ -575,13 +582,28 @@ function AuthenticatedApp() {
       case "mealprep":
         return (
           <MealPrepBoundary onBackToTracker={() => setActiveView("tracker")}>
-            <div className="space-y-4">
-              <div className="bg-card rounded-2xl p-6 border border-border">
-                <h2 className="text-lg font-semibold mb-4">Meal Prep</h2>
-                <p className="text-muted-foreground">Meal prep suggestions will appear here.</p>
-                <button onClick={() => setActiveView("tracker")} className="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Back to Tracker</button>
-              </div>
-            </div>
+            <Suspense
+              fallback={
+                <DashboardLoadingCard title="Loading meal prep flow" description="Preparing pantry and prep tools." />
+              }
+            >
+              <MealPrepFlow
+                settings={settings}
+                currentPlan={currentPlan}
+                userPantry={userPantry ?? settings.defaultPantry ?? null}
+                isGenerating={isGenerating}
+                isOnline={isOnline}
+                onGeneratePlan={generateMealPlan}
+                onGeneratePlanFromPantry={generateMealPlanFromPantry}
+                onSavePantry={savePantry}
+                onAddShoppingItem={addShoppingListItem}
+                onToggleFoodFavorite={handleToggleFoodItemFavorite}
+                isFoodFavorite={isFoodItemFavorite}
+                onTogglePlanFavorite={togglePlanFavorite}
+                isPlanFavorite={isPlanFavorite}
+                onBackToTracker={() => setActiveView("tracker")}
+              />
+            </Suspense>
           </MealPrepBoundary>
         )
 
@@ -664,6 +686,40 @@ function AuthenticatedApp() {
                               <button
                                 type="button"
                                 onClick={() => removeRecipeFavorite(favorite.recipeId)}
+                                className="text-sm text-destructive hover:underline"
+                              >
+                                Remove
+                              </button>
+                            )}
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+
+                <section>
+                  <h3 className="text-base font-semibold text-foreground mb-3">Meal prep plan favorites</h3>
+                  {planFavorites.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No favorite meal prep plans yet.</p>
+                  ) : (
+                    <ul className="space-y-3">
+                      {planFavorites.map((favorite) => (
+                        <li key={favorite.id} className="rounded-xl border border-border bg-background/70 p-4">
+                          <div className="flex items-start justify-between gap-4">
+                            <div>
+                              <p className="font-medium text-foreground">{favorite.name}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Added {new Date(favorite.addedAt).toLocaleString()} • {favorite.planMode || "daily"} mode
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-2">
+                                {favorite.calories} kcal • {favorite.mealCount || 0} meals
+                              </p>
+                            </div>
+                            {favorite.planId && (
+                              <button
+                                type="button"
+                                onClick={() => removePlanFavorite(favorite.planId || "")}
                                 className="text-sm text-destructive hover:underline"
                               >
                                 Remove

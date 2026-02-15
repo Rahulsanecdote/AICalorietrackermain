@@ -9,7 +9,7 @@ const FAVORITES_STORAGE_KEY = "act_favorites"
 
 interface FavoriteMealItem {
   id: string
-  type: "recipe" | "food"
+  type: "recipe" | "food" | "plan"
   name: string
   calories: number
   protein: number
@@ -18,6 +18,9 @@ interface FavoriteMealItem {
   emoji?: string
   recipeId?: string
   foodItemId?: string
+  planId?: string
+  planMode?: "daily" | "weekly"
+  mealCount?: number
   addedAt: string
 }
 
@@ -25,6 +28,7 @@ interface UseFavoritesReturn {
   favorites: FavoriteMealItem[]
   isFavorite: (recipeId: string) => boolean
   isFoodItemFavorite: (foodItemId: string) => boolean
+  isPlanFavorite: (planId: string) => boolean
   toggleFavorite: (recipeId: string, mealPlanId?: string) => void
   toggleFoodItemFavorite: (item: {
     id: string
@@ -35,8 +39,16 @@ interface UseFavoritesReturn {
     fat: number
     emoji?: string
   }) => void
+  togglePlanFavorite: (plan: {
+    id: string
+    name: string
+    calories: number
+    mealCount: number
+    mode: "daily" | "weekly"
+  }) => void
   removeFoodItemFavorite: (foodItemId: string) => void
   removeRecipeFavorite: (recipeId: string) => void
+  removePlanFavorite: (planId: string) => void
   getFavoriteRecipes: (allRecipes: Recipe[]) => Recipe[]
   clearFavorites: () => void
   favoriteCount: number
@@ -53,7 +65,7 @@ export function useFavorites(): UseFavoritesReturn {
         f !== undefined &&
         typeof f === "object" &&
         typeof f.type === "string" &&
-        (f.type === "recipe" || f.type === "food"),
+        (f.type === "recipe" || f.type === "food" || f.type === "plan"),
     )
   }, [favorites])
 
@@ -67,6 +79,13 @@ export function useFavorites(): UseFavoritesReturn {
   const isFoodItemFavorite = useCallback(
     (foodItemId: string): boolean => {
       return safeFavorites.some((f) => f.type === "food" && f.foodItemId === foodItemId)
+    },
+    [safeFavorites],
+  )
+
+  const isPlanFavorite = useCallback(
+    (planId: string): boolean => {
+      return safeFavorites.some((f) => f.type === "plan" && f.planId === planId)
     },
     [safeFavorites],
   )
@@ -138,6 +157,43 @@ export function useFavorites(): UseFavoritesReturn {
     [setFavorites],
   )
 
+  const togglePlanFavorite = useCallback(
+    (plan: {
+      id: string
+      name: string
+      calories: number
+      mealCount: number
+      mode: "daily" | "weekly"
+    }) => {
+      setFavorites((prev) => {
+        const safePrev = Array.isArray(prev) ? prev : []
+        const existingIndex = safePrev.findIndex((f) => f?.type === "plan" && f?.planId === plan.id)
+
+        if (existingIndex >= 0) {
+          return safePrev.filter((f) => f?.type !== "plan" || f?.planId !== plan.id)
+        }
+
+        return [
+          ...safePrev,
+          {
+            id: uuidv4(),
+            type: "plan" as const,
+            name: plan.name,
+            calories: plan.calories,
+            protein: 0,
+            carbs: 0,
+            fat: 0,
+            planId: plan.id,
+            planMode: plan.mode,
+            mealCount: plan.mealCount,
+            addedAt: new Date().toISOString(),
+          },
+        ]
+      })
+    },
+    [setFavorites],
+  )
+
   const removeFoodItemFavorite = useCallback(
     (foodItemId: string) => {
       setFavorites((prev) => {
@@ -153,6 +209,16 @@ export function useFavorites(): UseFavoritesReturn {
       setFavorites((prev) => {
         const safePrev = Array.isArray(prev) ? prev : []
         return safePrev.filter((f) => f?.type !== "recipe" || f?.recipeId !== recipeId)
+      })
+    },
+    [setFavorites],
+  )
+
+  const removePlanFavorite = useCallback(
+    (planId: string) => {
+      setFavorites((prev) => {
+        const safePrev = Array.isArray(prev) ? prev : []
+        return safePrev.filter((f) => f?.type !== "plan" || f?.planId !== planId)
       })
     },
     [setFavorites],
@@ -180,10 +246,13 @@ export function useFavorites(): UseFavoritesReturn {
     favorites: safeFavorites,
     isFavorite,
     isFoodItemFavorite,
+    isPlanFavorite,
     toggleFavorite,
     toggleFoodItemFavorite,
+    togglePlanFavorite,
     removeFoodItemFavorite,
     removeRecipeFavorite,
+    removePlanFavorite,
     getFavoriteRecipes,
     clearFavorites,
     favoriteCount,
