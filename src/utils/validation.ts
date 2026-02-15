@@ -219,6 +219,53 @@ export function validateUserSettings(
     validated.height = Math.max(0, Math.min(300, s.height));
   }
 
+  if (
+    s.sexAtBirth !== undefined &&
+    typeof s.sexAtBirth === 'string' &&
+    ['male', 'female', 'unspecified'].includes(s.sexAtBirth)
+  ) {
+    validated.sexAtBirth = s.sexAtBirth as UserSettings['sexAtBirth'];
+  }
+
+  if (
+    s.calorieGoalMode !== undefined &&
+    typeof s.calorieGoalMode === 'string' &&
+    ['auto', 'manual'].includes(s.calorieGoalMode)
+  ) {
+    validated.calorieGoalMode = s.calorieGoalMode as UserSettings['calorieGoalMode'];
+  }
+
+  if (s.manualCalorieGoal !== undefined && typeof s.manualCalorieGoal === 'number') {
+    validated.manualCalorieGoal = Math.max(
+      VALIDATION_RULES.MIN_CALORIES_PER_DAY,
+      Math.min(VALIDATION_RULES.MAX_CALORIES_PER_DAY, s.manualCalorieGoal)
+    );
+  }
+
+  if (
+    s.goalAggressiveness !== undefined &&
+    typeof s.goalAggressiveness === 'string' &&
+    ['mild', 'standard', 'aggressive', 'lean'].includes(s.goalAggressiveness)
+  ) {
+    validated.goalAggressiveness = s.goalAggressiveness as UserSettings['goalAggressiveness'];
+  }
+
+  if (
+    s.weightUnit !== undefined &&
+    typeof s.weightUnit === 'string' &&
+    ['kg', 'lb'].includes(s.weightUnit)
+  ) {
+    validated.weightUnit = s.weightUnit as UserSettings['weightUnit'];
+  }
+
+  if (
+    s.heightUnit !== undefined &&
+    typeof s.heightUnit === 'string' &&
+    ['cm', 'ft_in'].includes(s.heightUnit)
+  ) {
+    validated.heightUnit = s.heightUnit as UserSettings['heightUnit'];
+  }
+
   // Validate activity level
   const validActivityLevels = [
     'sedentary',

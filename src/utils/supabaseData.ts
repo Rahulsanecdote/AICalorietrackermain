@@ -33,6 +33,12 @@ export async function fetchUserSettings(userId: string): Promise<UserSettings | 
       height: data.height_cm ?? undefined,
       activityLevel: data.activity_level ?? undefined,
       goal: data.goal ?? undefined,
+      sexAtBirth: data.sex_at_birth ?? undefined,
+      calorieGoalMode: data.calorie_goal_mode ?? undefined,
+      manualCalorieGoal: data.manual_calorie_goal ?? undefined,
+      goalAggressiveness: data.goal_aggressiveness ?? undefined,
+      weightUnit: data.weight_unit ?? undefined,
+      heightUnit: data.height_unit ?? undefined,
       dietaryPreferences: data.dietary_preferences ?? [],
     })
   } catch (error) {
@@ -59,6 +65,12 @@ export async function upsertUserSettings(userId: string, settings: UserSettings)
       height_cm: settings.height ?? null,
       activity_level: settings.activityLevel ?? null,
       goal: settings.goal ?? null,
+      sex_at_birth: settings.sexAtBirth ?? null,
+      calorie_goal_mode: settings.calorieGoalMode ?? null,
+      manual_calorie_goal: settings.manualCalorieGoal ?? null,
+      goal_aggressiveness: settings.goalAggressiveness ?? null,
+      weight_unit: settings.weightUnit ?? null,
+      height_unit: settings.heightUnit ?? null,
       dietary_preferences: settings.dietaryPreferences ?? [],
     })
 

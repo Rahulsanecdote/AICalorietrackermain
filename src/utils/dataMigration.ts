@@ -214,6 +214,15 @@ function mergedSettings(
     activityLevel:
       partial.activityLevel ?? defaults.activityLevel,
     goal: partial.goal ?? defaults.goal,
+    sexAtBirth: partial.sexAtBirth ?? defaults.sexAtBirth,
+    calorieGoalMode: partial.calorieGoalMode ?? defaults.calorieGoalMode,
+    manualCalorieGoal:
+      typeof partial.manualCalorieGoal === 'number'
+        ? partial.manualCalorieGoal
+        : defaults.manualCalorieGoal,
+    goalAggressiveness: partial.goalAggressiveness ?? defaults.goalAggressiveness,
+    weightUnit: partial.weightUnit ?? defaults.weightUnit,
+    heightUnit: partial.heightUnit ?? defaults.heightUnit,
     dietaryPreferences: partial.dietaryPreferences ?? defaults.dietaryPreferences,
   };
 }

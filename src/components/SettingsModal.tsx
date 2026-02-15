@@ -86,6 +86,28 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
           <div className="p-4 overflow-y-auto max-h-[60vh]">
             {activeTab === 'goals' && (
               <div className="space-y-4">
+                {localSettings.calorieGoalMode === 'auto' && (
+                  <div className="rounded-xl border border-primary/35 bg-primary/10 p-3 text-sm">
+                    <p className="font-medium text-foreground">Auto (Smart Goals) is active.</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Daily calories and macros are generated from Profile Smart Goals. Edit in Profile for full control.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setLocalSettings((prev) => ({
+                          ...prev,
+                          calorieGoalMode: 'manual',
+                          manualCalorieGoal: prev.dailyCalorieGoal,
+                        }))
+                      }
+                      className="mt-2 inline-flex rounded-lg border border-border bg-background/60 px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-background/80"
+                    >
+                      Switch to manual override
+                    </button>
+                  </div>
+                )}
+
                 <NumericSliderField
                   id="dailyCalorieGoal"
                   label="Daily Calorie Goal"
@@ -98,10 +120,12 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                   minLabel="500 cal"
                   maxLabel="10000 cal"
                   description="Drag the value directly for quick changes, or tap it to type an exact target."
+                  disabled={localSettings.calorieGoalMode === 'auto'}
                   onChange={(value) =>
                     setLocalSettings({
                       ...localSettings,
                       dailyCalorieGoal: value,
+                      manualCalorieGoal: value,
                     })
                   }
                 />
@@ -120,6 +144,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                       step={1}
                       unit="g"
                       tone="blue"
+                      disabled={localSettings.calorieGoalMode === 'auto'}
                       onChange={(value) =>
                         setLocalSettings({
                           ...localSettings,
@@ -137,6 +162,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                       step={1}
                       unit="g"
                       tone="amber"
+                      disabled={localSettings.calorieGoalMode === 'auto'}
                       onChange={(value) =>
                         setLocalSettings({
                           ...localSettings,
@@ -154,6 +180,7 @@ export default function SettingsModal({ isOpen, onClose, settings, onSave }: Set
                       step={1}
                       unit="g"
                       tone="red"
+                      disabled={localSettings.calorieGoalMode === 'auto'}
                       onChange={(value) =>
                         setLocalSettings({
                           ...localSettings,

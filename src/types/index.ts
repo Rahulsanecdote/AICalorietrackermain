@@ -10,6 +10,12 @@ export interface NutritionInfo {
  */
 export type UserGoal = 'lose' | 'maintain' | 'gain';
 
+export type SexAtBirth = 'male' | 'female' | 'unspecified';
+export type CalorieGoalMode = 'auto' | 'manual';
+export type GoalAggressiveness = 'mild' | 'standard' | 'aggressive' | 'lean';
+export type WeightUnit = 'kg' | 'lb';
+export type HeightUnit = 'cm' | 'ft_in';
+
 /**
  * Activity level type - consistent across the application
  */
@@ -75,6 +81,12 @@ export interface UserSettings {
   height?: number; // in cm
   activityLevel?: ActivityLevel;
   goal?: UserGoal;
+  sexAtBirth?: SexAtBirth;
+  calorieGoalMode?: CalorieGoalMode;
+  manualCalorieGoal?: number;
+  goalAggressiveness?: GoalAggressiveness;
+  weightUnit?: WeightUnit;
+  heightUnit?: HeightUnit;
   dietaryPreferences?: string[]; // e.g., ['vegetarian', 'high_protein', 'low_carb']
   defaultPantry?: PantryData; // User's saved default pantry
 }

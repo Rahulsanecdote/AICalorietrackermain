@@ -44,6 +44,12 @@ export const DEFAULT_SETTINGS: {
   height: number
   activityLevel: ActivityLevel
   goal: UserGoal
+  sexAtBirth: "male" | "female" | "unspecified"
+  calorieGoalMode: "auto" | "manual"
+  manualCalorieGoal?: number
+  goalAggressiveness: "mild" | "standard" | "aggressive" | "lean"
+  weightUnit: "kg" | "lb"
+  heightUnit: "cm" | "ft_in"
   dietaryPreferences: string[]
 } = {
   dailyCalorieGoal: 2000,
@@ -55,6 +61,12 @@ export const DEFAULT_SETTINGS: {
   height: 175, // cm
   activityLevel: "moderately_active",
   goal: "maintain",
+  sexAtBirth: "unspecified",
+  calorieGoalMode: "auto",
+  manualCalorieGoal: undefined,
+  goalAggressiveness: "standard",
+  weightUnit: "kg",
+  heightUnit: "cm",
   dietaryPreferences: [],
 }
 
